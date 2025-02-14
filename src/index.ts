@@ -1,17 +1,24 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
+import { Command, InvalidArgumentError } from "commander";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { intro, outro, spinner } from "@clack/prompts";
 import { execa } from "execa";
 
+import {
+  getPackageManager,
+  PackageManager,
+  SUPPORTED_PACKAGE_MANAGERS,
+} from "./utils/getPackageManager.js";
+
 const program = new Command();
 
 interface Options {
   typescript: boolean;
   tailwind: boolean;
+  packageManager: PackageManager;
 }
 
 async function createApp(projectName: string, options: Required<Options>) {
@@ -148,9 +155,9 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Install dependencies
   const s = spinner();
-  s.start("Installing dependencies via npm");
-  await execa("npm", ["install"], { cwd: targetDir });
-  s.stop("Installed dependencies");
+  s.start(`Installing dependencies via ${options.packageManager}`);
+  await execa(options.packageManager, ["install"], { cwd: targetDir });
+  s.stop(`Installed dependencies`);
 
   outro(`Created your new TanStack app in ${targetDir}.`);
 }
@@ -159,10 +166,33 @@ program
   .name("create-tanstack-app")
   .description("CLI to create a new TanStack application")
   .argument("<project-name>", "name of the project")
-  .option(
+  .option<"typescript" | "javascript">(
     "--template <type>",
     "project template (typescript/javascript)",
+    (value) => {
+      if (value !== "typescript" && value !== "javascript") {
+        throw new InvalidArgumentError(
+          `Invalid template: ${value}. Only the following are allowed: typescript, javascript`
+        );
+      }
+      return value as "typescript" | "javascript";
+    },
     "javascript"
+  )
+  .option<PackageManager>(
+    `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join("|")}>`,
+    `Explicitly tell the CLI to use this package manager`,
+    (value) => {
+      if (!SUPPORTED_PACKAGE_MANAGERS.includes(value as PackageManager)) {
+        throw new InvalidArgumentError(
+          `Invalid package manager: ${value}. Only the following are allowed: ${SUPPORTED_PACKAGE_MANAGERS.join(
+            ", "
+          )}`
+        );
+      }
+      return value as PackageManager;
+    },
+    getPackageManager()
   )
   .option("--tailwind", "add Tailwind CSS", false)
   .action(
@@ -171,6 +201,7 @@ program
       options: {
         template: string;
         tailwind: boolean;
+        packageManager: PackageManager;
       }
     ) => {
       const typescript = options.template === "typescript";
@@ -178,6 +209,7 @@ program
       createApp(projectName, {
         typescript,
         tailwind: options.tailwind,
+        packageManager: options.packageManager,
       });
     }
   );
