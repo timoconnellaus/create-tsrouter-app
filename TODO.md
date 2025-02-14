@@ -1,6 +1,6 @@
-[ ] Add a public directory
-[ ] Fix the issue with `logo.svg` in build
-[ ] Provide better feedback when someone asks for a template that isn't `typescript`. We don't support that and never will.
-[ ] Check to make sure it works on Windows
-[ ] Error handling
-[ ] Add tests
+- [ ] Add a public directory
+- [ ] Fix the issue with `logo.svg` in build
+- [ ] Provide better feedback when someone asks for a template that isn't `typescript`. We don't support that and never will.
+- [ ] Check to make sure it works on Windows
+- [ ] Error handling
+- [ ] Add tests
