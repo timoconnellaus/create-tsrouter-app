@@ -17,6 +17,14 @@ To build this application for production:
 <%= packageManager %> run build
 ```
 
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+
+```bash
+<%= packageManager %> run test
+```
+
 ## Styling
 <% if (tailwind) { %>
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
@@ -136,14 +144,16 @@ From there you need to update your `vite.config.js` file to use the plugin:
 ```ts
 import { defineConfig } from "vite";
 import viteReact from "@vitejs/plugin-react";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
-
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";<% if (tailwind) { %>
+import tailwindcss from "@tailwindcss/vite";
+<% } %>
+  
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     TanStackRouterVite(),
-    viteReact(),
-    // ...
+    viteReact()<% if (tailwind) { %>,
+    tailwindcss()<% } %>
   ],
 });
 ```

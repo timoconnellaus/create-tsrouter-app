@@ -4,4 +4,5 @@
 - [x] Check to make sure it works on Windows
 - [ ] Error handling
 - [ ] Add tests
-- [ ] Better project README
+- [x] Add vitest to the projects
+- [x] Better project README

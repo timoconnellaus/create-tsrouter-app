@@ -148,6 +148,10 @@ async function createApp(projectName: string, options: Required<Options>) {
     "./src/App.tsx.ejs",
     options.typescript ? undefined : "./src/App.jsx"
   );
+  await templateFile(
+    "./src/App.test.tsx.ejs",
+    options.typescript ? undefined : "./src/App.test.jsx"
+  );
 
   // Setup the main, reportWebVitals and index.html files
   if (options.typescript) {
