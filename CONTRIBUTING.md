@@ -1,7 +1,7 @@
 # Contributing
 
 - Clone the repo
-  - `gh repo clone TanStack/create-tanstack-app`
+  - `gh repo clone TanStack/create-tsrouter-app`
 - Ensure `node` is installed
   - https://nodejs.org/en/
 - Ensure `pnpm` is installed

@@ -194,7 +194,7 @@ async function createApp(projectName: string, options: Required<Options>) {
 }
 
 program
-  .name('create-tanstack-app')
+  .name('create-tsrouter-app')
   .description('CLI to create a new TanStack application')
   .argument('<project-name>', 'name of the project')
   .option<'typescript' | 'javascript'>(

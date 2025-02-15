@@ -9,7 +9,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 await publish({
   packages: [
     {
-      name: 'create-tanstack-app',
+      name: 'create-tsrouter-app',
       packageDir: '.',
     },
   ],
