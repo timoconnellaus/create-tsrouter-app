@@ -186,7 +186,7 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Install dependencies
   const s = spinner()
-  s.start(`Installing dependencies via ${options.packageManager}...`)
+  s.start(`Installing dependencies via ${options.packageManager}`)
   await execa(options.packageManager, ['install'], { cwd: targetDir })
   s.stop(`Installed dependencies`)
 
