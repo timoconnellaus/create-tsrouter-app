@@ -22,12 +22,7 @@ interface Options {
   packageManager: PackageManager;
 }
 
-async function createApp(projectName: string, options: Required<Options>) {
-  const templateDir = fileURLToPath(
-    new URL("../project-template", import.meta.url)
-  );
-  const targetDir = resolve(process.cwd(), projectName);
-
+const createCopyFile = (templateDir: string, targetDir: string) =>
   async function copyFiles(files: string[]) {
     for (const file of files) {
       const targetFileName = file.replace(".tw", "");
@@ -36,81 +31,36 @@ async function createApp(projectName: string, options: Required<Options>) {
         resolve(targetDir, targetFileName)
       );
     }
-  }
+  };
 
-  intro(`Creating a new TanStack app in ${targetDir}...`);
+const createTemplateFile = (
+  projectName: string,
+  options: Required<Options>,
+  templateDir: string,
+  targetDir: string
+) =>
+  async function templateFile(file: string, targetFileName?: string) {
+    const templateValues = {
+      packageManager: options.packageManager,
+      projectName: projectName,
+      typescript: options.typescript,
+      tailwind: options.tailwind,
+      js: options.typescript ? "ts" : "js",
+      jsx: options.typescript ? "tsx" : "jsx",
+    };
 
-  // Make the root directory
-  await mkdir(targetDir, { recursive: true });
+    const template = await readFile(resolve(templateDir, file), "utf-8");
+    const content = render(template, templateValues);
+    const target = targetFileName ?? file.replace(".ejs", "");
+    await writeFile(resolve(targetDir, target), content);
+  };
 
-  // Setup the .vscode directory
-  await mkdir(resolve(targetDir, ".vscode"), { recursive: true });
-  await copyFile(
-    resolve(templateDir, ".vscode/settings.json"),
-    resolve(targetDir, ".vscode/settings.json")
-  );
-
-  // Fill the public directory
-  await mkdir(resolve(targetDir, "public"), { recursive: true });
-  copyFiles([
-    "./public/robots.txt",
-    "./public/favicon.ico",
-    "./public/manifest.json",
-    "./public/logo192.png",
-    "./public/logo512.png",
-  ]);
-
-  // Make the src directory
-  await mkdir(resolve(targetDir, "src"), { recursive: true });
-
-  // Copy in Vite and Tailwind config and CSS
-  if (options.tailwind) {
-    await copyFiles(["./vite.config.tw.js", "./src/styles.tw.css"]);
-  } else {
-    await copyFiles(["./vite.config.js", "./src/styles.css", "./src/App.css"]);
-  }
-
-  copyFiles(["./src/logo.svg"]);
-
-  // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
-  let appComponent = (
-    await readFile(
-      resolve(
-        templateDir,
-        options.tailwind ? "./src/App.tw.tsx" : "./src/App.tsx"
-      ),
-      "utf-8"
-    )
-  ).toString();
-  if (!options.typescript) {
-    appComponent = appComponent.replace("App.tsx", "App.jsx");
-  }
-  await writeFile(
-    resolve(targetDir, `./src/App${options.typescript ? ".tsx" : ".jsx"}`),
-    appComponent
-  );
-
-  // Setup the main, reportWebVitals and index.html files
-  if (options.typescript) {
-    await copyFiles(["./src/main.tsx", "./src/reportWebVitals.ts"]);
-    await copyFile(
-      resolve(templateDir, `./index.ts.html`),
-      resolve(targetDir, "./index.html")
-    );
-  } else {
-    await copyFiles([
-      "./index.html",
-      "./src/main.jsx",
-      "./src/reportWebVitals.js",
-    ]);
-  }
-
-  // Setup tsconfig
-  if (options.typescript) {
-    await copyFiles(["./tsconfig.json", "./tsconfig.dev.json"]);
-  }
-
-  // Setup the package.json file, optionally with typescript and tailwind
+async function createPackageJSON(
+  projectName: string,
+  options: Required<Options>,
+  templateDir: string,
+  targetDir: string
+) {
   let packageJSON = JSON.parse(
     await readFile(resolve(templateDir, "package.json"), "utf8")
   );
@@ -143,6 +93,82 @@ async function createApp(projectName: string, options: Required<Options>) {
     resolve(targetDir, "package.json"),
     JSON.stringify(packageJSON, null, 2)
   );
+}
+
+async function createApp(projectName: string, options: Required<Options>) {
+  const templateDir = fileURLToPath(
+    new URL("../project-template", import.meta.url)
+  );
+  const targetDir = resolve(process.cwd(), projectName);
+
+  const copyFiles = createCopyFile(templateDir, targetDir);
+  const templateFile = createTemplateFile(
+    projectName,
+    options,
+    templateDir,
+    targetDir
+  );
+
+  intro(`Creating a new TanStack app in ${targetDir}...`);
+
+  // Make the root directory
+  await mkdir(targetDir, { recursive: true });
+
+  // Setup the .vscode directory
+  await mkdir(resolve(targetDir, ".vscode"), { recursive: true });
+  await copyFile(
+    resolve(templateDir, ".vscode/settings.json"),
+    resolve(targetDir, ".vscode/settings.json")
+  );
+
+  // Fill the public directory
+  await mkdir(resolve(targetDir, "public"), { recursive: true });
+  copyFiles([
+    "./public/robots.txt",
+    "./public/favicon.ico",
+    "./public/manifest.json",
+    "./public/logo192.png",
+    "./public/logo512.png",
+  ]);
+
+  // Make the src directory
+  await mkdir(resolve(targetDir, "src"), { recursive: true });
+
+  // Copy in Vite and Tailwind config and CSS
+  if (!options.tailwind) {
+    await copyFiles(["./src/App.css"]);
+  }
+  await templateFile("./vite.config.js.ejs");
+  await templateFile("./src/styles.css.ejs");
+
+  copyFiles(["./src/logo.svg"]);
+
+  // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
+  await templateFile(
+    "./src/App.tsx.ejs",
+    options.typescript ? undefined : "./src/App.jsx"
+  );
+
+  // Setup the main, reportWebVitals and index.html files
+  if (options.typescript) {
+    await templateFile("./src/main.tsx.ejs");
+    await templateFile("./src/reportWebVitals.ts.ejs");
+  } else {
+    await templateFile("./src/main.tsx.ejs", "./src/main.jsx");
+    await templateFile(
+      "./src/reportWebVitals.ts.ejs",
+      "./src/reportWebVitals.js"
+    );
+  }
+  await templateFile("./index.html.ejs");
+
+  // Setup tsconfig
+  if (options.typescript) {
+    await copyFiles(["./tsconfig.json", "./tsconfig.dev.json"]);
+  }
+
+  // Setup the package.json file, optionally with typescript and tailwind
+  await createPackageJSON(projectName, options, templateDir, targetDir);
 
   // Add .gitignore
   await copyFile(
@@ -151,19 +177,7 @@ async function createApp(projectName: string, options: Required<Options>) {
   );
 
   // Create the README.md
-  const template = await readFile(
-    resolve(templateDir, "README.md.ejs"),
-    "utf-8"
-  );
-  const content = render(template, {
-    packageManager: options.packageManager,
-    projectName: projectName,
-    typescript: options.typescript,
-    tailwind: options.tailwind,
-    js: options.typescript ? "ts" : "js",
-    jsx: options.typescript ? "tsx" : "jsx",
-  });
-  await writeFile(resolve(targetDir, "README.md"), content);
+  await templateFile("README.md.ejs");
 
   // Install dependencies
   const s = spinner();

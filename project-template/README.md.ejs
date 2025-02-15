@@ -1,10 +1,20 @@
-# Example
+Welcome to your new TanStack app! 
 
-To run this example:
+# Getting Started
+
+To run this application:
 
 ```bash
 <%= packageManager %> install
 <%= packageManager %> start
+```
+
+# Building For Production
+
+To build this application for production:
+
+```bash
+<%= packageManager %> run build
 ```
 
 ## Styling
@@ -173,15 +183,19 @@ export const Route = createFileRoute("/")({
 });
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+  return (<% if (tailwind) { %>
+    <div className="text-center">
+      <header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
+        <img
+          src={logo}
+          className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
+          alt="logo"
+        />
         <p>
-          Edit <code>src/App.<%= jsx %></code> and save to reload.
+          Edit <code>src/App.tsx</code> and save to reload.
         </p>
         <a
-          className="App-link"
+          className="text-[#61dafb] hover:underline"
           href="https://reactjs.org"
           target="_blank"
           rel="noopener noreferrer"
@@ -189,7 +203,7 @@ function App() {
           Learn React
         </a>
         <a
-          className="App-link"
+          className="text-[#61dafb] hover:underline"
           href="https://tanstack.com"
           target="_blank"
           rel="noopener noreferrer"
@@ -198,7 +212,32 @@ function App() {
         </a>
       </header>
     </div>
-  );
+<% } else { %>
+  <div className="App">
+    <header className="App-header">
+      <img src={logo} className="App-logo" alt="logo" />
+      <p>
+        Edit <code>src/App.tsx</code> and save to reload.
+      </p>
+      <a
+        className="App-link"
+        href="https://reactjs.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Learn React
+      </a>
+      <a
+        className="App-link"
+        href="https://tanstack.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Learn TanStack
+      </a>
+    </header>
+  </div>
+<% } %>  );
 }
 ```
 

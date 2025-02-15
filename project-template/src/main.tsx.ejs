@@ -36,9 +36,17 @@ const router = createRouter({
   defaultPreload: "intent",
   scrollRestoration: true,
 });
+<% if (typescript) { %>
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
 
+const rootElement = document.getElementById("app")!;
+<% } else { %>
 const rootElement = document.getElementById("app");
-if (!rootElement.innerHTML) {
+<% } %>if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
