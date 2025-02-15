@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:lint": "eslint ./src"
   },
   "keywords": [
     "react",
@@ -24,8 +25,13 @@
     "execa": "^9.5.2"
   },
   "devDependencies": {
+    "@tanstack/config": "^0.16.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.13.4",
+    "eslint": "^9.20.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "^3.5.0",
     "typescript": "^5.6.3"
   }
 }
