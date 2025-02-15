@@ -32,11 +32,11 @@ What you'll get is a Vite application that uses TanStack Router. All the files w
 
 `create-tsrouter-app` is everything you loved about CRA but implemented with modern tools and best practices, on top of the popular TanStack set of libraries. Which includes [@tanstack/react-query](https://tanstack.com/query/latest) and [@tanstack/react-router](https://tanstack.com/router/latest).
 
-If you want Tailwind then just add `--tailwind`.
+If you want Tailwind then just add `--tailwind` and that will automatically configure [Tailwind V4](https://tailwindcss.com/).
 
 You can also specify your preferred package manager with `--package-manager` such as `npm`, `bun`, `yarn`, or `pnpm`.
 
-Extensive documentation on using the TanStack Router, migrating to a File Base Routing approach, as well as integrating [@tanstack/react-query](https://tanstack.com/query/latest) and [React-Store](https://tanstack.com/store/latest) be found in the generated `README.md` for your project.
+Extensive documentation on using the TanStack Router, migrating to a File Base Routing approach, as well as integrating [@tanstack/react-query](https://tanstack.com/query/latest) and [@tanstack/store](https://tanstack.com/store/latest) be found in the generated `README.md` for your project.
 
 # Contributing
 
