@@ -1,7 +1,7 @@
 {
   "name": "create-tanstack-app",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Tanstack Application Builder",
   "bin": "./dist/index.js",
   "type": "module",
   "scripts": {
@@ -9,9 +9,14 @@
     "start": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "react",
+    "tanstack",
+    "router",
+    "create-react-app"
+  ],
+  "author": "Jack Herrington <jherr@pobox.com>",
+  "license": "MIT",
   "dependencies": {
     "@clack/prompts": "^0.10.0",
     "commander": "^13.1.0",

@@ -10,9 +10,9 @@ pnpm i
 
 # Manual testing
 
-| Command                                                 | Description                                |
-| ------------------------------------------------------- | ------------------------------------------ |
-| `pnpm start app-js`                                     | Creates a JavaScript app                   |
-| `pnpm start app-ts --template typescript`               | Creates a TypeScript app                   |
-| `pnpm start app-js-tw --tailwind`                       | Creates a JavaScript app with Tailwind CSS |
-| `pnpm start app-ts-tw --template typescript --tailwind` | Creates a TypeScript app with Tailwind CSS |
+| Command                                            | Description                                |
+| -------------------------------------------------- | ------------------------------------------ |
+| `npx . app-js`                                     | Creates a JavaScript app                   |
+| `npx . app-ts --template typescript`               | Creates a TypeScript app                   |
+| `npx . app-js-tw --tailwind`                       | Creates a JavaScript app with Tailwind CSS |
+| `npx . app-ts-tw --template typescript --tailwind` | Creates a TypeScript app with Tailwind CSS |
