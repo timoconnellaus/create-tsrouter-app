@@ -1,8 +1,0 @@
-- [x] Add a public directory
-- [x] Fix the issue with `logo.svg` in build
-- [x] Provide better feedback when someone asks for a template that isn't `typescript`. We don't support that and never will.
-- [x] Check to make sure it works on Windows
-- [ ] Error handling
-- [ ] Add tests
-- [x] Add vitest to the projects
-- [x] Better project README
