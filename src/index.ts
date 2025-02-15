@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { intro, outro, spinner } from "@clack/prompts";
 import { execa } from "execa";
+import { render } from "ejs";
 
 import {
   getPackageManager,
@@ -143,15 +144,26 @@ async function createApp(projectName: string, options: Required<Options>) {
     JSON.stringify(packageJSON, null, 2)
   );
 
-  // Add .gitignore and README.md
+  // Add .gitignore
   await copyFile(
     resolve(templateDir, "gitignore"),
     resolve(targetDir, ".gitignore")
   );
-  await copyFile(
-    resolve(templateDir, "README.md"),
-    resolve(targetDir, "README.md")
+
+  // Create the README.md
+  const template = await readFile(
+    resolve(templateDir, "README.md.ejs"),
+    "utf-8"
   );
+  const content = render(template, {
+    packageManager: options.packageManager,
+    projectName: projectName,
+    typescript: options.typescript,
+    tailwind: options.tailwind,
+    js: options.typescript ? "ts" : "js",
+    jsx: options.typescript ? "tsx" : "jsx",
+  });
+  await writeFile(resolve(targetDir, "README.md"), content);
 
   // Install dependencies
   const s = spinner();
