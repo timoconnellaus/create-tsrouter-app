@@ -2,20 +2,46 @@
 
 This CLI applications builds Tanstack Start applications that are the functional equivalent of [Create React App](https://create-react-app.dev/).
 
-# Development
+To help accelerate the migration away from create-react-app we created the create-tsrouter-app CLI which is a plug-n-play replacement for CRA.
+
+Instead of:
 
 ```bash
-pnpm i
-pnpm build
+npx create-react-app my-app
 ```
 
-# Manual testing
+You can now run:
 
-| Command                                                 | Description                                |
-| ------------------------------------------------------- | ------------------------------------------ |
-| `pnpm start app-js`                                     | Creates a JavaScript app                   |
-| `pnpm start app-ts --template typescript`               | Creates a TypeScript app                   |
-| `pnpm start app-js-tw --tailwind`                       | Creates a JavaScript app with Tailwind CSS |
-| `pnpm start app-ts-tw --template typescript --tailwind` | Creates a TypeScript app with Tailwind CSS |
+```bash
+npx create-tsrouter-app my-app
+```
 
-There is also `--package-manager pnpm` that will use [pnpm](https://pnpm.io/) as the package manager (this supports `yarn`, `bun`, and `npm` as well).
+Instead of using:
+
+```bash
+npx create-react-app my-app --template typescript
+```
+
+To create a SPA application using TypeScript. You can now run:
+
+```bash
+npx create-tsrouter-app my-app --template typescript
+```
+
+What you'll get is a Vite application that uses TanStack Router. All the files will still be in the same place as in CRA, but you'll get a fully functional Router setup under in `app/main.tsx`.
+
+`create-tsrouter-app` is everything you loved about CRA but implemented with modern tools and best practices, on top of the popular TanStack set of libraries. Which includes [@tanstack/react-query](https://tanstack.com/query/latest) and [@tanstack/react-router](https://tanstack.com/router/latest).
+
+If you want Tailwind then just add `--tailwind`.
+
+You can also specify your preferred package manager with `--package-manager` such as `npm`, `bun`, `yarn`, or `pnpm`.
+
+Extensive documentation on using the TanStack Router, migrating to a File Base Routing approach, as well as integrating [@tanstack/react-query](https://tanstack.com/query/latest) and [React-Store](https://tanstack.com/store/latest) be found in the generated `README.md` for your project.
+
+# Contributing
+
+Check out the [Contributing](CONTRIBUTING.md) guide.
+
+# License
+
+MIT
