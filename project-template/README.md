@@ -5,10 +5,6 @@ To run this example:
 - `npm install` or `yarn` or `pnpm install` or `bun install`
 - `npm start` or `yarn start` or `pnpm start` or `bun run dev`
 
-## Styling
-
-This project includes [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework.
-
 ## Routing
 
 This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a code based router. Which means that the routes are defined in code (in the src/main.tsx file). If you like you can also use a file based routing setup by following the [File Based Routing](https://tanstack.com/router/latest/docs/framework/react/guide/file-based-routing) guide.
@@ -360,3 +356,80 @@ export default App;
 ```
 
 You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+
+## State Management
+
+Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+
+First you need to add TanStack Store as a dependency:
+
+```bash
+npm install @tanstack/store
+```
+
+Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store } from "@tanstack/store";
+import "./App.css";
+
+const countStore = new Store(0);
+
+function App() {
+  const count = useStore(countStore);
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
+
+Let's check this out by doubling the count using derived state.
+
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store, Derived } from "@tanstack/store";
+import "./App.css";
+
+const countStore = new Store(0);
+
+const doubledStore = new Derived({
+  fn: () => countStore.state * 2,
+  deps: [countStore],
+});
+doubledStore.mount();
+
+function App() {
+  const count = useStore(countStore);
+  const doubledCount = useStore(doubledStore);
+
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+      <div>Doubled - {doubledCount}</div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
+
+Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
+
+You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
