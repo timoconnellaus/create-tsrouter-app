@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@tanstack/router-plugin": "^1.105.0"
+  }
+}

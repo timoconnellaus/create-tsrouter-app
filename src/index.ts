@@ -17,14 +17,27 @@ import type { PackageManager } from './utils/getPackageManager.js'
 
 const program = new Command()
 
+const CODE_ROUTER = 'code-router'
+const FILE_ROUTER = 'file-router'
+
 interface Options {
   typescript: boolean
   tailwind: boolean
   packageManager: PackageManager
+  mode: typeof CODE_ROUTER | typeof FILE_ROUTER
 }
 
-const createCopyFile = (templateDir: string, targetDir: string) =>
-  async function copyFiles(files: Array<string>) {
+function sortObject(obj: Record<string, string>): Record<string, string> {
+  return Object.keys(obj)
+    .sort()
+    .reduce<Record<string, string>>((acc, key) => {
+      acc[key] = obj[key]
+      return acc
+    }, {})
+}
+
+function createCopyFile(targetDir: string) {
+  return async function copyFiles(templateDir: string, files: Array<string>) {
     for (const file of files) {
       const targetFileName = file.replace('.tw', '')
       await copyFile(
@@ -33,14 +46,18 @@ const createCopyFile = (templateDir: string, targetDir: string) =>
       )
     }
   }
+}
 
-const createTemplateFile = (
+function createTemplateFile(
   projectName: string,
   options: Required<Options>,
-  templateDir: string,
   targetDir: string,
-) =>
-  async function templateFile(file: string, targetFileName?: string) {
+) {
+  return async function templateFile(
+    templateDir: string,
+    file: string,
+    targetFileName?: string,
+  ) {
     const templateValues = {
       packageManager: options.packageManager,
       projectName: projectName,
@@ -48,6 +65,8 @@ const createTemplateFile = (
       tailwind: options.tailwind,
       js: options.typescript ? 'ts' : 'js',
       jsx: options.typescript ? 'tsx' : 'jsx',
+      fileRouter: options.mode === FILE_ROUTER,
+      codeRouter: options.mode === CODE_ROUTER,
     }
 
     const template = await readFile(resolve(templateDir, file), 'utf-8')
@@ -55,11 +74,13 @@ const createTemplateFile = (
     const target = targetFileName ?? file.replace('.ejs', '')
     await writeFile(resolve(targetDir, target), content)
   }
+}
 
 async function createPackageJSON(
   projectName: string,
   options: Required<Options>,
   templateDir: string,
+  routerDir: string,
   targetDir: string,
 ) {
   let packageJSON = JSON.parse(
@@ -90,6 +111,24 @@ async function createPackageJSON(
       },
     }
   }
+  if (options.mode === FILE_ROUTER) {
+    const frPackageJSON = JSON.parse(
+      await readFile(resolve(routerDir, 'package.fr.json'), 'utf8'),
+    )
+    packageJSON = {
+      ...packageJSON,
+      dependencies: {
+        ...packageJSON.dependencies,
+        ...frPackageJSON.dependencies,
+      },
+    }
+  }
+  packageJSON.dependencies = sortObject(
+    packageJSON.dependencies as Record<string, string>,
+  )
+  packageJSON.devDependencies = sortObject(
+    packageJSON.devDependencies as Record<string, string>,
+  )
   await writeFile(
     resolve(targetDir, 'package.json'),
     JSON.stringify(packageJSON, null, 2),
@@ -97,18 +136,16 @@ async function createPackageJSON(
 }
 
 async function createApp(projectName: string, options: Required<Options>) {
-  const templateDir = fileURLToPath(
-    new URL('../project-template', import.meta.url),
+  const templateDirBase = fileURLToPath(
+    new URL('../templates/base', import.meta.url),
+  )
+  const templateDirRouter = fileURLToPath(
+    new URL(`../templates/${options.mode}`, import.meta.url),
   )
   const targetDir = resolve(process.cwd(), projectName)
 
-  const copyFiles = createCopyFile(templateDir, targetDir)
-  const templateFile = createTemplateFile(
-    projectName,
-    options,
-    templateDir,
-    targetDir,
-  )
+  const copyFiles = createCopyFile(targetDir)
+  const templateFile = createTemplateFile(projectName, options, targetDir)
 
   intro(`Creating a new TanStack app in ${targetDir}...`)
 
@@ -118,13 +155,13 @@ async function createApp(projectName: string, options: Required<Options>) {
   // Setup the .vscode directory
   await mkdir(resolve(targetDir, '.vscode'), { recursive: true })
   await copyFile(
-    resolve(templateDir, '.vscode/settings.json'),
+    resolve(templateDirBase, '.vscode/settings.json'),
     resolve(targetDir, '.vscode/settings.json'),
   )
 
   // Fill the public directory
   await mkdir(resolve(targetDir, 'public'), { recursive: true })
-  copyFiles([
+  copyFiles(templateDirBase, [
     './public/robots.txt',
     './public/favicon.ico',
     './public/manifest.json',
@@ -134,55 +171,85 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Make the src directory
   await mkdir(resolve(targetDir, 'src'), { recursive: true })
+  if (options.mode === FILE_ROUTER) {
+    await mkdir(resolve(targetDir, 'src/routes'), { recursive: true })
+  }
 
   // Copy in Vite and Tailwind config and CSS
   if (!options.tailwind) {
-    await copyFiles(['./src/App.css'])
+    await copyFiles(templateDirBase, ['./src/App.css'])
   }
-  await templateFile('./vite.config.js.ejs')
-  await templateFile('./src/styles.css.ejs')
+  await templateFile(templateDirBase, './vite.config.js.ejs')
+  await templateFile(templateDirBase, './src/styles.css.ejs')
 
-  copyFiles(['./src/logo.svg'])
+  copyFiles(templateDirBase, ['./src/logo.svg'])
 
   // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
-  await templateFile(
-    './src/App.tsx.ejs',
-    options.typescript ? undefined : './src/App.jsx',
-  )
-  await templateFile(
-    './src/App.test.tsx.ejs',
-    options.typescript ? undefined : './src/App.test.jsx',
-  )
+  if (options.mode === FILE_ROUTER) {
+    copyFiles(templateDirRouter, ['./src/routes/__root.tsx'])
+    await templateFile(
+      templateDirBase,
+      './src/App.tsx.ejs',
+      './src/routes/index.tsx',
+    )
+  } else {
+    await templateFile(
+      templateDirBase,
+      './src/App.tsx.ejs',
+      options.typescript ? undefined : './src/App.jsx',
+    )
+    await templateFile(
+      templateDirBase,
+      './src/App.test.tsx.ejs',
+      options.typescript ? undefined : './src/App.test.jsx',
+    )
+  }
+
+  // Create the main entry point
+  if (options.typescript) {
+    await templateFile(templateDirRouter, './src/main.tsx.ejs')
+  } else {
+    await templateFile(
+      templateDirRouter,
+      './src/main.tsx.ejs',
+      './src/main.jsx',
+    )
+  }
 
   // Setup the main, reportWebVitals and index.html files
   if (options.typescript) {
-    await templateFile('./src/main.tsx.ejs')
-    await templateFile('./src/reportWebVitals.ts.ejs')
+    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
   } else {
-    await templateFile('./src/main.tsx.ejs', './src/main.jsx')
     await templateFile(
+      templateDirBase,
       './src/reportWebVitals.ts.ejs',
       './src/reportWebVitals.js',
     )
   }
-  await templateFile('./index.html.ejs')
+  await templateFile(templateDirBase, './index.html.ejs')
 
   // Setup tsconfig
   if (options.typescript) {
-    await copyFiles(['./tsconfig.json', './tsconfig.dev.json'])
+    await copyFiles(templateDirBase, ['./tsconfig.json', './tsconfig.dev.json'])
   }
 
   // Setup the package.json file, optionally with typescript and tailwind
-  await createPackageJSON(projectName, options, templateDir, targetDir)
+  await createPackageJSON(
+    projectName,
+    options,
+    templateDirBase,
+    templateDirRouter,
+    targetDir,
+  )
 
   // Add .gitignore
   await copyFile(
-    resolve(templateDir, 'gitignore'),
+    resolve(templateDirBase, 'gitignore'),
     resolve(targetDir, '.gitignore'),
   )
 
   // Create the README.md
-  await templateFile('README.md.ejs')
+  await templateFile(templateDirBase, 'README.md.ejs')
 
   // Install dependencies
   const s = spinner()
@@ -197,13 +264,17 @@ program
   .name('create-tsrouter-app')
   .description('CLI to create a new TanStack application')
   .argument('<project-name>', 'name of the project')
-  .option<'typescript' | 'javascript'>(
+  .option<'typescript' | 'javascript' | 'file-router'>(
     '--template <type>',
-    'project template (typescript/javascript)',
+    'project template (typescript, javascript, file-router)',
     (value) => {
-      if (value !== 'typescript' && value !== 'javascript') {
+      if (
+        value !== 'typescript' &&
+        value !== 'javascript' &&
+        value !== 'file-router'
+      ) {
         throw new InvalidArgumentError(
-          `Invalid template: ${value}. Only the following are allowed: typescript, javascript`,
+          `Invalid template: ${value}. Only the following are allowed: typescript, javascript, file-router`,
         )
       }
       return value
@@ -230,17 +301,19 @@ program
     (
       projectName: string,
       options: {
-        template: string
+        template: 'typescript' | 'javascript' | 'file-router'
         tailwind: boolean
         packageManager: PackageManager
       },
     ) => {
-      const typescript = options.template === 'typescript'
+      const typescript =
+        options.template === 'typescript' || options.template === 'file-router'
 
       createApp(projectName, {
         typescript,
         tailwind: options.tailwind,
         packageManager: options.packageManager,
+        mode: options.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
       })
     },
   )

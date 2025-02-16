@@ -24,9 +24,11 @@
 
 These must all product running applications that can be built (`pnpm build`) and tested (`pnpm test`).
 
-| Command                                                 | Description                                |
-| ------------------------------------------------------- | ------------------------------------------ |
-| `pnpm start app-js`                                     | Creates a JavaScript app                   |
-| `pnpm start app-ts --template typescript`               | Creates a TypeScript app                   |
-| `pnpm start app-js-tw --tailwind`                       | Creates a JavaScript app with Tailwind CSS |
-| `pnpm start app-ts-tw --template typescript --tailwind` | Creates a TypeScript app with Tailwind CSS |
+| Command                                                  | Description                                                        |
+| -------------------------------------------------------- | ------------------------------------------------------------------ |
+| `pnpm start app-js`                                      | Creates a JavaScript app                                           |
+| `pnpm start app-ts --template typescript`                | Creates a TypeScript app                                           |
+| `pnpm start app-js-tw --tailwind`                        | Creates a JavaScript app with Tailwind CSS                         |
+| `pnpm start app-ts-tw --template typescript --tailwind`  | Creates a TypeScript app with Tailwind CSS                         |
+| `pnpm start app-fr --template file-router`               | Creates a TypeScript app with File Based Routing                   |
+| `pnpm start app-fr-tw --template file-router --tailwind` | Creates a TypeScript app with File Based Routing with Tailwind CSS |

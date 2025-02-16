@@ -2,7 +2,7 @@
 
 This CLI applications builds Tanstack Start applications that are the functional equivalent of [Create React App](https://create-react-app.dev/).
 
-To help accelerate the migration away from create-react-app we created the create-tsrouter-app CLI which is a plug-n-play replacement for CRA.
+To help accelerate the migration away from `create-react-app` we created the `create-tsrouter-app` CLI which is a plug-n-play replacement for CRA.
 
 Instead of:
 
@@ -37,6 +37,10 @@ If you want Tailwind then just add `--tailwind` and that will automatically conf
 You can also specify your preferred package manager with `--package-manager` such as `npm`, `bun`, `yarn`, or `pnpm`.
 
 Extensive documentation on using the TanStack Router, migrating to a File Base Routing approach, as well as integrating [@tanstack/react-query](https://tanstack.com/query/latest) and [@tanstack/store](https://tanstack.com/store/latest) be found in the generated `README.md` for your project.
+
+## File Based Routing
+
+By default `create-tsrouter-app` will create a Code Based Routing application. If you want to use File Based Routing then you can specify `--template file-router`. The location of the home page will be `app/routes/index.tsx`.
 
 # Contributing
 
