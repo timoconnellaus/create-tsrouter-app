@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Command, InvalidArgumentError } from 'commander'
-import { intro, outro, spinner } from '@clack/prompts'
+import { intro, outro, spinner, log } from '@clack/prompts'
 import { execa } from 'execa'
 import { render } from 'ejs'
 
@@ -144,6 +145,11 @@ async function createApp(projectName: string, options: Required<Options>) {
   )
   const targetDir = resolve(process.cwd(), projectName)
 
+  if (existsSync(targetDir)) {
+    log.error(`Directory "${projectName}" already exists`)
+    return
+  }
+
   const copyFiles = createCopyFile(targetDir)
   const templateFile = createTemplateFile(projectName, options, targetDir)
 
@@ -257,7 +263,15 @@ async function createApp(projectName: string, options: Required<Options>) {
   await execa(options.packageManager, ['install'], { cwd: targetDir })
   s.stop(`Installed dependencies`)
 
-  outro(`Created your new TanStack app in ${targetDir}.`)
+  outro(`Created your new TanStack app in ${targetDir}.
+
+Use the following commands to start your app:
+
+% cd ${projectName}
+% ${options.packageManager} start
+
+Please read README.md for more information on testing, styling, adding routes, react-query, etc.
+`)
 }
 
 program

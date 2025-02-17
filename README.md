@@ -13,7 +13,7 @@ npx create-react-app my-app
 You can now run:
 
 ```bash
-npx create-tsrouter-app my-app
+npx create-tsrouter-app@latest my-app
 ```
 
 Instead of using:
@@ -25,7 +25,7 @@ npx create-react-app my-app --template typescript
 To create a SPA application using TypeScript. You can now run:
 
 ```bash
-npx create-tsrouter-app my-app --template typescript
+npx create-tsrouter-app@latest my-app --template typescript
 ```
 
 What you'll get is a Vite application that uses TanStack Router. All the files will still be in the same place as in CRA, but you'll get a fully functional Router setup under in `app/main.tsx`.
