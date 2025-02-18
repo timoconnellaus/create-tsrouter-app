@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import {
+  appendFile,
+  copyFile,
+  mkdir,
+  readFile,
+  writeFile,
+} from 'node:fs/promises'
+import { existsSync, readdirSync, statSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Command, InvalidArgumentError } from 'commander'
-import { intro, outro, spinner, log } from '@clack/prompts'
+import { intro, log, multiselect, outro, spinner } from '@clack/prompts'
 import { execa } from 'execa'
 import { render } from 'ejs'
+import { format } from 'prettier'
 
 import {
   SUPPORTED_PACKAGE_MANAGERS,
@@ -21,11 +28,106 @@ const program = new Command()
 const CODE_ROUTER = 'code-router'
 const FILE_ROUTER = 'file-router'
 
+type AddOn = {
+  id: string
+  name: string
+  description: string
+  link: string
+  main?: Array<{
+    imports: Array<string>
+    initialize: Array<string>
+    providers: Array<{
+      open: string
+      close: string
+    }>
+  }>
+  layout?: {
+    imports: Array<string>
+    jsx: string
+  }
+  routes: Array<{
+    url: string
+    name: string
+  }>
+  userUi?: {
+    import: string
+    jsx: string
+  }
+  directory: string
+  packageAdditions: {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+    scripts?: Record<string, string>
+  }
+  command?: {
+    command: string
+    args?: Array<string>
+  }
+  readme?: string
+}
+
 interface Options {
   typescript: boolean
   tailwind: boolean
   packageManager: PackageManager
   mode: typeof CODE_ROUTER | typeof FILE_ROUTER
+  addOns: boolean
+  chosenAddOns: Array<AddOn>
+}
+
+function isDirectory(path: string): boolean {
+  return statSync(path).isDirectory()
+}
+
+async function getAllAddOns(): Promise<Array<AddOn>> {
+  const addOnsBase = fileURLToPath(
+    new URL('../templates/add-ons', import.meta.url),
+  )
+
+  const addOns: Array<AddOn> = []
+
+  for (const dir of await readdirSync(addOnsBase).filter((file) =>
+    isDirectory(resolve(addOnsBase, file)),
+  )) {
+    const filePath = resolve(addOnsBase, dir, 'info.json')
+    const fileContent = await readFile(filePath, 'utf-8')
+
+    let packageAdditions: Record<string, string> = {}
+    if (existsSync(resolve(addOnsBase, dir, 'package.json'))) {
+      packageAdditions = JSON.parse(
+        await readFile(resolve(addOnsBase, dir, 'package.json'), 'utf-8'),
+      )
+    }
+
+    let readme: string | undefined
+    if (existsSync(resolve(addOnsBase, dir, 'README.md'))) {
+      readme = await readFile(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
+    }
+
+    addOns.push({
+      id: dir,
+      ...JSON.parse(fileContent),
+      directory: resolve(addOnsBase, dir),
+      packageAdditions,
+      readme,
+    })
+  }
+  return addOns
+}
+
+async function pickAddOns(addOns: Array<AddOn>): Promise<Array<AddOn>> {
+  const additionalTools = await multiselect({
+    message: 'Select add-ons:',
+    options: addOns.map((addOn) => ({
+      value: addOn.id,
+      label: addOn.name,
+      hint: addOn.description,
+    })),
+    required: false,
+  })
+  return addOns.filter((addOn) =>
+    (additionalTools as Array<string>).includes(addOn.id),
+  )
 }
 
 function sortObject(obj: Record<string, string>): Record<string, string> {
@@ -37,7 +139,7 @@ function sortObject(obj: Record<string, string>): Record<string, string> {
     }, {})
 }
 
-function createCopyFile(targetDir: string) {
+function createCopyFiles(targetDir: string) {
   return async function copyFiles(templateDir: string, files: Array<string>) {
     for (const file of files) {
       const targetFileName = file.replace('.tw', '')
@@ -68,11 +170,33 @@ function createTemplateFile(
       jsx: options.typescript ? 'tsx' : 'jsx',
       fileRouter: options.mode === FILE_ROUTER,
       codeRouter: options.mode === CODE_ROUTER,
+      addOnEnabled: options.chosenAddOns.reduce<Record<string, boolean>>(
+        (acc, addOn) => {
+          acc[addOn.id] = true
+          return acc
+        },
+        {},
+      ),
+      addOns: options.chosenAddOns,
     }
 
     const template = await readFile(resolve(templateDir, file), 'utf-8')
-    const content = render(template, templateValues)
+    let content = render(template, templateValues)
     const target = targetFileName ?? file.replace('.ejs', '')
+
+    if (target.endsWith('.ts') || target.endsWith('.tsx')) {
+      content = await format(content, {
+        semi: false,
+        singleQuote: true,
+        trailingComma: 'all',
+        parser: 'typescript',
+      })
+    }
+
+    await mkdir(dirname(resolve(targetDir, target)), {
+      recursive: true,
+    })
+
     await writeFile(resolve(targetDir, target), content)
   }
 }
@@ -83,6 +207,11 @@ async function createPackageJSON(
   templateDir: string,
   routerDir: string,
   targetDir: string,
+  addOns: Array<{
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+    scripts?: Record<string, string>
+  }>,
 ) {
   let packageJSON = JSON.parse(
     await readFile(resolve(templateDir, 'package.json'), 'utf8'),
@@ -124,16 +253,78 @@ async function createPackageJSON(
       },
     }
   }
+
+  for (const addOn of addOns) {
+    packageJSON = {
+      ...packageJSON,
+      dependencies: {
+        ...packageJSON.dependencies,
+        ...addOn.dependencies,
+      },
+      devDependencies: {
+        ...packageJSON.devDependencies,
+        ...addOn.devDependencies,
+      },
+      scripts: {
+        ...packageJSON.scripts,
+        ...addOn.scripts,
+      },
+    }
+  }
+
   packageJSON.dependencies = sortObject(
     packageJSON.dependencies as Record<string, string>,
   )
   packageJSON.devDependencies = sortObject(
     packageJSON.devDependencies as Record<string, string>,
   )
+
   await writeFile(
     resolve(targetDir, 'package.json'),
     JSON.stringify(packageJSON, null, 2),
   )
+}
+
+async function copyFilesRecursively(
+  source: string,
+  target: string,
+  copyFile: (source: string, target: string) => Promise<void>,
+  templateFile: (file: string, targetFileName?: string) => Promise<void>,
+) {
+  const sourceStat = statSync(source)
+  if (sourceStat.isDirectory()) {
+    const files = readdirSync(source)
+    for (const file of files) {
+      const sourceChild = resolve(source, file)
+      const targetChild = resolve(target, file)
+      await copyFilesRecursively(
+        sourceChild,
+        targetChild,
+        copyFile,
+        templateFile,
+      )
+    }
+  } else {
+    if (source.endsWith('.ejs')) {
+      const target = source.replace('.ejs', '')
+      await mkdir(dirname(target), {
+        recursive: true,
+      })
+      await templateFile(source, target)
+    } else {
+      await mkdir(dirname(target), {
+        recursive: true,
+      })
+      if (source.endsWith('.append')) {
+        await appendFile(
+          target.replace('.append', ''),
+          (await readFile(source)).toString(),
+        )
+      } else {
+        await copyFile(source, target)
+      }
+    }
+  }
 }
 
 async function createApp(projectName: string, options: Required<Options>) {
@@ -150,8 +341,15 @@ async function createApp(projectName: string, options: Required<Options>) {
     return
   }
 
-  const copyFiles = createCopyFile(targetDir)
+  const copyFiles = createCopyFiles(targetDir)
   const templateFile = createTemplateFile(projectName, options, targetDir)
+
+  if (options.addOns) {
+    options.chosenAddOns = await pickAddOns(await getAllAddOns())
+  }
+
+  const isAddOnEnabled = (id: string) =>
+    options.chosenAddOns.find((a) => a.id === id)
 
   intro(`Creating a new TanStack app in ${targetDir}...`)
 
@@ -179,6 +377,7 @@ async function createApp(projectName: string, options: Required<Options>) {
   await mkdir(resolve(targetDir, 'src'), { recursive: true })
   if (options.mode === FILE_ROUTER) {
     await mkdir(resolve(targetDir, 'src/routes'), { recursive: true })
+    await mkdir(resolve(targetDir, 'src/components'), { recursive: true })
   }
 
   // Copy in Vite and Tailwind config and CSS
@@ -192,7 +391,16 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
   if (options.mode === FILE_ROUTER) {
-    copyFiles(templateDirRouter, ['./src/routes/__root.tsx'])
+    await templateFile(
+      templateDirRouter,
+      './src/components/Header.tsx.ejs',
+      './src/components/Header.tsx',
+    )
+    await templateFile(
+      templateDirRouter,
+      './src/routes/__root.tsx.ejs',
+      './src/routes/__root.tsx',
+    )
     await templateFile(
       templateDirBase,
       './src/App.tsx.ejs',
@@ -212,31 +420,39 @@ async function createApp(projectName: string, options: Required<Options>) {
   }
 
   // Create the main entry point
-  if (options.typescript) {
-    await templateFile(templateDirRouter, './src/main.tsx.ejs')
-  } else {
-    await templateFile(
-      templateDirRouter,
-      './src/main.tsx.ejs',
-      './src/main.jsx',
-    )
+  if (!isAddOnEnabled('start')) {
+    if (options.typescript) {
+      await templateFile(templateDirRouter, './src/main.tsx.ejs')
+    } else {
+      await templateFile(
+        templateDirRouter,
+        './src/main.tsx.ejs',
+        './src/main.jsx',
+      )
+    }
   }
 
   // Setup the main, reportWebVitals and index.html files
-  if (options.typescript) {
-    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
-  } else {
-    await templateFile(
-      templateDirBase,
-      './src/reportWebVitals.ts.ejs',
-      './src/reportWebVitals.js',
-    )
+  if (!isAddOnEnabled('start')) {
+    if (options.typescript) {
+      await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
+    } else {
+      await templateFile(
+        templateDirBase,
+        './src/reportWebVitals.ts.ejs',
+        './src/reportWebVitals.js',
+      )
+    }
+    await templateFile(templateDirBase, './index.html.ejs')
   }
-  await templateFile(templateDirBase, './index.html.ejs')
 
   // Setup tsconfig
   if (options.typescript) {
-    await copyFiles(templateDirBase, ['./tsconfig.json'])
+    await templateFile(
+      templateDirBase,
+      './tsconfig.json.ejs',
+      './tsconfig.json',
+    )
   }
 
   // Setup the package.json file, optionally with typescript and tailwind
@@ -246,7 +462,28 @@ async function createApp(projectName: string, options: Required<Options>) {
     templateDirBase,
     templateDirRouter,
     targetDir,
+    options.chosenAddOns.map((addOn) => addOn.packageAdditions),
   )
+
+  // Copy all the asset files from the addons
+  for (const addOn of options.chosenAddOns) {
+    const addOnDir = resolve(addOn.directory, 'assets')
+    if (existsSync(addOnDir)) {
+      await copyFilesRecursively(
+        addOnDir,
+        targetDir,
+        copyFile,
+        async (file: string, targetFileName?: string) =>
+          templateFile(addOnDir, file, targetFileName),
+      )
+    }
+
+    if (addOn.command) {
+      await execa(addOn.command.command, addOn.command.args || [], {
+        cwd: targetDir,
+      })
+    }
+  }
 
   // Add .gitignore
   await copyFile(
@@ -311,6 +548,7 @@ program
     getPackageManager(),
   )
   .option('--tailwind', 'add Tailwind CSS', false)
+  .option('--add-ons', 'pick from a list of available add-ons', false)
   .action(
     (
       projectName: string,
@@ -318,8 +556,18 @@ program
         template: 'typescript' | 'javascript' | 'file-router'
         tailwind: boolean
         packageManager: PackageManager
+        addOns: boolean
       },
     ) => {
+      if (options.addOns) {
+        if (options.template !== 'file-router') {
+          throw new InvalidArgumentError(
+            'Add-ons are only available for the file-router template',
+          )
+        }
+        options.tailwind = true
+      }
+
       const typescript =
         options.template === 'typescript' || options.template === 'file-router'
 
@@ -328,6 +576,8 @@ program
         tailwind: options.tailwind,
         packageManager: options.packageManager,
         mode: options.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
+        addOns: options.addOns,
+        chosenAddOns: [],
       })
     },
   )

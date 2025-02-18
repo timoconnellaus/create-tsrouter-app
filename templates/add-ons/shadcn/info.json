@@ -1,0 +1,9 @@
+{
+  "name": "Shadcn",
+  "description": "Add Shadcn UI to your application.",
+  "link": "https://ui.shadcn.com/",
+  "command": {
+    "command": "npx",
+    "args": ["shadcn@canary", "init", "-d", "-s"]
+  }
+}

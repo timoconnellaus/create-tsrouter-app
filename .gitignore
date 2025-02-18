@@ -7,3 +7,5 @@ app-ts-tw
 app-fr
 app-fr-tw
 .DS_Store
+# Local Netlify folder
+.netlify

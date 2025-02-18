@@ -3,6 +3,8 @@ import viteReact from "@vitejs/plugin-react";<% if (tailwind) { %>
 import tailwindcss from "@tailwindcss/vite";
 <% } %><%if (fileRouter) { %>
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+<% } %><% if (addOnEnabled.shadcn) { %>
+import { resolve } from "path";
 <% } %>
 
 // https://vitejs.dev/config/
@@ -12,4 +14,10 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
   },
+<% if (addOnEnabled.shadcn) { %>  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
+<% } %>
 });

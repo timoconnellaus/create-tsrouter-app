@@ -1,0 +1,15 @@
+{
+  "name": "Store",
+  "description": "Add TanStack Store to your application.",
+  "link": "https://tanstack.com/store/latest",
+  "routes": [
+    {
+      "url": "/store-page1",
+      "name": "Store Page 1"
+    },
+    {
+      "url": "/store-page2",
+      "name": "Store Page 2"
+    }
+  ]
+}

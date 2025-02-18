@@ -1,0 +1,80 @@
+import { createRootRoute, Outlet<% if (addOnEnabled.start) { %>
+,HeadContent, Scripts<% } %> } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/router-devtools'<% for(const addOn of addOns) {
+for(const imp of addOn.main?.imports || []) { %>
+<%- imp %>
+<% } } %><% for(const addOn of addOns) {
+for(const imp of addOn.layout?.imports || []) { %>
+<%- imp %>
+<% } } %>
+<% if (tailwind) { %>
+import Header from '../components/Header'
+<% } %>
+
+<% for(const addOn of addOns) {
+for(const init of addOn.main?.initialize || []) { %>
+<%- init %>
+<% } } %>
+  
+<% if (addOnEnabled.start) { %>
+import appCss from '../styles.css?url'
+<% } %>
+
+export const Route = createRootRoute({
+<% if (addOnEnabled.start) { %>
+    head: () => ({
+    meta: [
+      {
+        charSet: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      {
+        title: 'TanStack Start Starter',
+      },
+    ],
+    links: [
+      {
+        rel: 'stylesheet',
+        href: appCss,
+      },
+    ],
+  }),
+<% } %>
+  component: () => (
+<% if (addOnEnabled.start) { %><RootDocument><% } else { %><><% } %>
+<% for(const addOn of addOns) {
+for(const provider of addOn.main?.providers || []) { %>
+<%- provider.open %>
+<% } } %>
+      <Header />  
+      <Outlet />
+      <TanStackRouterDevtools />
+<% for(const addOn of addOns) { %>
+<%- addOn.layout?.jsx %>
+<% } %>
+<% for(const addOn of addOns.toReversed()) {
+for(const provider of addOn.main?.providers?.toReversed() || []) { %>
+<%- provider.close %>
+<% } } %>
+<% if (addOnEnabled.start) { %></RootDocument><% } else { %></><% } %>
+  ),
+})
+
+<% if (addOnEnabled.start) { %>
+function RootDocument({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+<% } %>
