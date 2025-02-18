@@ -236,7 +236,7 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Setup tsconfig
   if (options.typescript) {
-    await copyFiles(templateDirBase, ['./tsconfig.json', './tsconfig.dev.json'])
+    await copyFiles(templateDirBase, ['./tsconfig.json'])
   }
 
   // Setup the package.json file, optionally with typescript and tailwind
