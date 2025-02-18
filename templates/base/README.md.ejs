@@ -61,7 +61,7 @@ With this set up you should be able to navigate to `/about` and see the about pa
 Of course you don't need to implement the About page in the `main.<%= jsx %>` file. You can create that component in another file and import it into the `main.<%= jsx %>` file, then use it in the `component` property of the `createRoute` call, like so:
 
 ```tsx
-import About from "./components/About";
+import About from "./components/About.<%= jsx %>";
 
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -298,7 +298,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
-import reportWebVitals from "./reportWebVitals";
+import reportWebVitals from "./reportWebVitals.<%= js %>";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
