@@ -1,11 +1,12 @@
 {
   "name": "Form",
   "description": "TansStack Form",
+  "phase": "add-on",
   "link": "https://tanstack.com/form/latest",
   "routes": [
     {
-      "url": "/form",
-      "name": "Form Example"
+      "url": "/demo/form",
+      "name": "Form"
     }
   ]
 }

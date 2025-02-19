@@ -1,6 +1,7 @@
 {
   "name": "Shadcn",
   "description": "Add Shadcn UI to your application.",
+  "phase": "add-on",
   "link": "https://ui.shadcn.com/",
   "command": {
     "command": "npx",

@@ -11,6 +11,9 @@ importers:
       '@clack/prompts':
         specifier: ^0.10.0
         version: 0.10.0
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
       commander:
         specifier: ^13.1.0
         version: 13.1.0

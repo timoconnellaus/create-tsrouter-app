@@ -1,6 +1,7 @@
 {
   "name": "React Query",
   "description": "Integrate TanStack Query into your application.",
+  "phase": "add-on",
   "link": "https://tanstack.com/query/latest",
   "main": {
     "imports": [
@@ -22,8 +23,8 @@
   },
   "routes": [
     {
-      "url": "/rq-example",
-      "name": "React Query Example"
+      "url": "/demo/react-query",
+      "name": "React Query"
     }
   ]
 }

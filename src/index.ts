@@ -15,6 +15,7 @@ import { intro, log, multiselect, outro, spinner } from '@clack/prompts'
 import { execa } from 'execa'
 import { render } from 'ejs'
 import { format } from 'prettier'
+import chalk from 'chalk'
 
 import {
   SUPPORTED_PACKAGE_MANAGERS,
@@ -64,6 +65,9 @@ type AddOn = {
     args?: Array<string>
   }
   readme?: string
+  phase: 'setup' | 'add-on'
+  shadcnComponents?: Array<string>
+  warning?: string
 }
 
 interface Options {
@@ -306,11 +310,11 @@ async function copyFilesRecursively(
     }
   } else {
     if (source.endsWith('.ejs')) {
-      const target = source.replace('.ejs', '')
-      await mkdir(dirname(target), {
+      const targetPath = target.replace('.ejs', '')
+      await mkdir(dirname(targetPath), {
         recursive: true,
       })
-      await templateFile(source, target)
+      await templateFile(source, targetPath)
     } else {
       await mkdir(dirname(target), {
         recursive: true,
@@ -466,22 +470,57 @@ async function createApp(projectName: string, options: Required<Options>) {
   )
 
   // Copy all the asset files from the addons
-  for (const addOn of options.chosenAddOns) {
-    const addOnDir = resolve(addOn.directory, 'assets')
-    if (existsSync(addOnDir)) {
-      await copyFilesRecursively(
-        addOnDir,
-        targetDir,
-        copyFile,
-        async (file: string, targetFileName?: string) =>
-          templateFile(addOnDir, file, targetFileName),
-      )
+  const s = spinner()
+  for (const phase of ['setup', 'add-on']) {
+    for (const addOn of options.chosenAddOns.filter(
+      (addOn) => addOn.phase === phase,
+    )) {
+      s.start(`Setting up ${addOn.name}...`)
+      const addOnDir = resolve(addOn.directory, 'assets')
+      if (existsSync(addOnDir)) {
+        await copyFilesRecursively(
+          addOnDir,
+          targetDir,
+          copyFile,
+          async (file: string, targetFileName?: string) =>
+            templateFile(addOnDir, file, targetFileName),
+        )
+      }
+
+      if (addOn.command) {
+        await execa(addOn.command.command, addOn.command.args || [], {
+          cwd: targetDir,
+        })
+      }
+      s.stop(`${addOn.name} setup complete`)
+    }
+  }
+
+  if (isAddOnEnabled('shadcn')) {
+    const shadcnComponents = new Set<string>()
+    for (const addOn of options.chosenAddOns) {
+      if (addOn.shadcnComponents) {
+        for (const component of addOn.shadcnComponents) {
+          shadcnComponents.add(component)
+        }
+      }
     }
 
-    if (addOn.command) {
-      await execa(addOn.command.command, addOn.command.args || [], {
+    if (shadcnComponents.size > 0) {
+      s.start(
+        `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
+      )
+      await execa('npx', ['shadcn@canary', 'add', ...shadcnComponents], {
         cwd: targetDir,
       })
+      s.stop(`Installed shadcn components`)
+    }
+  }
+
+  const warnings: Array<string> = []
+  for (const addOn of options.chosenAddOns) {
+    if (addOn.warning) {
+      warnings.push(addOn.warning)
     }
   }
 
@@ -495,17 +534,20 @@ async function createApp(projectName: string, options: Required<Options>) {
   await templateFile(templateDirBase, 'README.md.ejs')
 
   // Install dependencies
-  const s = spinner()
   s.start(`Installing dependencies via ${options.packageManager}...`)
   await execa(options.packageManager, ['install'], { cwd: targetDir })
   s.stop(`Installed dependencies`)
+
+  if (warnings.length > 0) {
+    log.warn(chalk.red(warnings.join('\n')))
+  }
 
   outro(`Created your new TanStack app in ${targetDir}.
 
 Use the following commands to start your app:
 
 % cd ${projectName}
-% ${options.packageManager} start
+% ${options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}
 
 Please read README.md for more information on testing, styling, adding routes, react-query, etc.
 `)
