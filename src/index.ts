@@ -5,11 +5,22 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Command, InvalidArgumentError } from 'commander'
-import { intro, outro, spinner, log } from '@clack/prompts'
+import {
+  cancel,
+  confirm,
+  intro,
+  isCancel,
+  log,
+  outro,
+  select,
+  spinner,
+  text,
+} from '@clack/prompts'
 import { execa } from 'execa'
 import { render } from 'ejs'
 
 import {
+  DEFAULT_PACKAGE_MANAGER,
   SUPPORTED_PACKAGE_MANAGERS,
   getPackageManager,
 } from './utils/getPackageManager.js'
@@ -22,10 +33,20 @@ const CODE_ROUTER = 'code-router'
 const FILE_ROUTER = 'file-router'
 
 interface Options {
+  projectName: string
   typescript: boolean
   tailwind: boolean
   packageManager: PackageManager
   mode: typeof CODE_ROUTER | typeof FILE_ROUTER
+  git: boolean
+}
+
+interface CliOptions {
+  template?: 'typescript' | 'javascript' | 'file-router'
+  tailwind?: boolean
+  packageManager?: PackageManager
+  projectName?: string
+  git?: boolean
 }
 
 function sortObject(obj: Record<string, string>): Record<string, string> {
@@ -136,22 +157,26 @@ async function createPackageJSON(
   )
 }
 
-async function createApp(projectName: string, options: Required<Options>) {
+async function createApp(options: Required<Options>) {
   const templateDirBase = fileURLToPath(
     new URL('../templates/base', import.meta.url),
   )
   const templateDirRouter = fileURLToPath(
     new URL(`../templates/${options.mode}`, import.meta.url),
   )
-  const targetDir = resolve(process.cwd(), projectName)
+  const targetDir = resolve(process.cwd(), options.projectName)
 
   if (existsSync(targetDir)) {
-    log.error(`Directory "${projectName}" already exists`)
+    log.error(`Directory "${options.projectName}" already exists`)
     return
   }
 
   const copyFiles = createCopyFile(targetDir)
-  const templateFile = createTemplateFile(projectName, options, targetDir)
+  const templateFile = createTemplateFile(
+    options.projectName,
+    options,
+    targetDir,
+  )
 
   intro(`Creating a new TanStack app in ${targetDir}...`)
 
@@ -241,7 +266,7 @@ async function createApp(projectName: string, options: Required<Options>) {
 
   // Setup the package.json file, optionally with typescript and tailwind
   await createPackageJSON(
-    projectName,
+    options.projectName,
     options,
     templateDirBase,
     templateDirRouter,
@@ -263,21 +288,174 @@ async function createApp(projectName: string, options: Required<Options>) {
   await execa(options.packageManager, ['install'], { cwd: targetDir })
   s.stop(`Installed dependencies`)
 
+  if (options.git) {
+    s.start(`Initializing git repository...`)
+    await execa('git', ['init'], { cwd: targetDir })
+    s.stop(`Initialized git repository`)
+  }
+
   outro(`Created your new TanStack app in ${targetDir}.
 
 Use the following commands to start your app:
 
-% cd ${projectName}
+% cd ${options.projectName}
 % ${options.packageManager} start
 
 Please read README.md for more information on testing, styling, adding routes, react-query, etc.
 `)
 }
 
+// If all CLI options are provided, use them directly
+function normalizeOptions(
+  cliOptions: CliOptions,
+): Required<Options> | undefined {
+  if (cliOptions.projectName) {
+    const typescript =
+      cliOptions.template === 'typescript' ||
+      cliOptions.template === 'file-router'
+
+    return {
+      projectName: cliOptions.projectName,
+      typescript,
+      tailwind: !!cliOptions.tailwind,
+      packageManager: cliOptions.packageManager || DEFAULT_PACKAGE_MANAGER,
+      mode: cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
+      git: !!cliOptions.git,
+    }
+  }
+}
+
+async function promptForOptions(
+  cliOptions: CliOptions,
+): Promise<Required<Options>> {
+  const options = {} as Required<Options>
+
+  if (!cliOptions.projectName) {
+    const value = await text({
+      message: 'What would you like to name your project?',
+      defaultValue: 'my-app',
+      validate(value) {
+        if (!value) {
+          return 'Please enter a name'
+        }
+      },
+    })
+    if (isCancel(value)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+    options.projectName = value
+  }
+
+  // Router type selection
+  if (!cliOptions.template) {
+    const routerType = await select({
+      message: 'Select the router type:',
+      options: [
+        {
+          value: FILE_ROUTER,
+          label: 'File Router - File-based routing structure',
+        },
+        {
+          value: CODE_ROUTER,
+          label: 'Code Router - Traditional code-based routing',
+        },
+      ],
+      initialValue: FILE_ROUTER,
+    })
+    if (isCancel(routerType)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+    options.mode = routerType as typeof CODE_ROUTER | typeof FILE_ROUTER
+  } else {
+    options.mode = cliOptions.template as
+      | typeof CODE_ROUTER
+      | typeof FILE_ROUTER
+    if (options.mode === FILE_ROUTER) {
+      options.typescript = true
+    }
+  }
+
+  // TypeScript selection (if using Code Router)
+  if (!options.typescript) {
+    if (options.mode === CODE_ROUTER) {
+      const typescriptEnable = await confirm({
+        message: 'Would you like to use TypeScript?',
+        initialValue: true,
+      })
+      if (isCancel(typescriptEnable)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      options.typescript = typescriptEnable
+    } else {
+      options.typescript = true
+    }
+  }
+
+  // Tailwind selection
+  if (cliOptions.tailwind === undefined) {
+    const tailwind = await confirm({
+      message: 'Would you like to use Tailwind CSS?',
+      initialValue: true,
+    })
+    if (isCancel(tailwind)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+    options.tailwind = tailwind
+  } else {
+    options.tailwind = cliOptions.tailwind
+  }
+
+  // Package manager selection
+  if (cliOptions.packageManager === undefined) {
+    const detectedPackageManager = getPackageManager()
+    if (!detectedPackageManager) {
+      const pm = await select({
+        message: 'Select package manager:',
+        options: SUPPORTED_PACKAGE_MANAGERS.map((pm) => ({
+          value: pm,
+          label: pm,
+        })),
+        initialValue: DEFAULT_PACKAGE_MANAGER,
+      })
+      if (isCancel(pm)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      options.packageManager = pm
+    } else {
+      options.packageManager = detectedPackageManager
+    }
+  } else {
+    options.packageManager = cliOptions.packageManager
+  }
+
+  // Git selection
+  if (cliOptions.git === undefined) {
+    const git = await confirm({
+      message: 'Would you like to initialize a new git repository?',
+      initialValue: true,
+    })
+    if (isCancel(git)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+    options.git = git
+  } else {
+    options.git = !!cliOptions.git
+  }
+
+  return options
+}
+
 program
   .name('create-tsrouter-app')
   .description('CLI to create a new TanStack application')
-  .argument('<project-name>', 'name of the project')
+  .argument('[project-name]', 'name of the project')
+  .option('--no-git', 'do not create a git repository')
   .option<'typescript' | 'javascript' | 'file-router'>(
     '--template <type>',
     'project template (typescript, javascript, file-router)',
@@ -293,7 +471,6 @@ program
       }
       return value
     },
-    'javascript',
   )
   .option<PackageManager>(
     `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join('|')}>`,
@@ -308,28 +485,25 @@ program
       }
       return value as PackageManager
     },
-    getPackageManager(),
   )
-  .option('--tailwind', 'add Tailwind CSS', false)
-  .action(
-    (
-      projectName: string,
-      options: {
-        template: 'typescript' | 'javascript' | 'file-router'
-        tailwind: boolean
-        packageManager: PackageManager
-      },
-    ) => {
-      const typescript =
-        options.template === 'typescript' || options.template === 'file-router'
-
-      createApp(projectName, {
-        typescript,
-        tailwind: options.tailwind,
-        packageManager: options.packageManager,
-        mode: options.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
-      })
-    },
-  )
+  .option('--tailwind', 'add Tailwind CSS')
+  .action(async (projectName: string, options: CliOptions) => {
+    try {
+      const cliOptions = {
+        projectName,
+        ...options,
+      } as CliOptions
+      let finalOptions = normalizeOptions(cliOptions)
+      if (!finalOptions) {
+        finalOptions = await promptForOptions(cliOptions)
+      }
+      await createApp(finalOptions)
+    } catch (error) {
+      log.error(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      )
+      process.exit(1)
+    }
+  })
 
 program.parse()
