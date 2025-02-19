@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-store'
 
 import { store } from '../lib/demo-store'
 
-export const Route = createFileRoute('/store-page1')({
+export const Route = createFileRoute('/demo/store/page2')({
   component: App,
 })
 
