@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 export type AddOn = {
   id: string
+  type: 'add-on' | 'example'
   name: string
   description: string
   link: string
@@ -50,38 +51,42 @@ function isDirectory(path: string): boolean {
 }
 
 export async function getAllAddOns(): Promise<Array<AddOn>> {
-  const addOnsBase = fileURLToPath(
-    new URL('../templates/add-ons', import.meta.url),
-  )
-
   const addOns: Array<AddOn> = []
 
-  for (const dir of await readdirSync(addOnsBase).filter((file) =>
-    isDirectory(resolve(addOnsBase, file)),
-  )) {
-    const filePath = resolve(addOnsBase, dir, 'info.json')
-    const fileContent = await readFile(filePath, 'utf-8')
+  for (const type of ['add-on', 'example']) {
+    const addOnsBase = fileURLToPath(
+      new URL(`../templates/${type}`, import.meta.url),
+    )
 
-    let packageAdditions: Record<string, string> = {}
-    if (existsSync(resolve(addOnsBase, dir, 'package.json'))) {
-      packageAdditions = JSON.parse(
-        await readFile(resolve(addOnsBase, dir, 'package.json'), 'utf-8'),
-      )
+    for (const dir of await readdirSync(addOnsBase).filter((file) =>
+      isDirectory(resolve(addOnsBase, file)),
+    )) {
+      const filePath = resolve(addOnsBase, dir, 'info.json')
+      const fileContent = await readFile(filePath, 'utf-8')
+
+      let packageAdditions: Record<string, string> = {}
+      if (existsSync(resolve(addOnsBase, dir, 'package.json'))) {
+        packageAdditions = JSON.parse(
+          await readFile(resolve(addOnsBase, dir, 'package.json'), 'utf-8'),
+        )
+      }
+
+      let readme: string | undefined
+      if (existsSync(resolve(addOnsBase, dir, 'README.md'))) {
+        readme = await readFile(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
+      }
+
+      addOns.push({
+        id: dir,
+        type,
+        ...JSON.parse(fileContent),
+        directory: resolve(addOnsBase, dir),
+        packageAdditions,
+        readme,
+      })
     }
-
-    let readme: string | undefined
-    if (existsSync(resolve(addOnsBase, dir, 'README.md'))) {
-      readme = await readFile(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
-    }
-
-    addOns.push({
-      id: dir,
-      ...JSON.parse(fileContent),
-      directory: resolve(addOnsBase, dir),
-      packageAdditions,
-      readme,
-    })
   }
+
   return addOns
 }
 

@@ -357,7 +357,7 @@ export async function createApp(options: Required<Options>) {
 
   // Copy all the asset files from the addons
   const s = spinner()
-  for (const phase of ['setup', 'add-on']) {
+  for (const phase of ['setup', 'add-on', 'example']) {
     for (const addOn of options.chosenAddOns.filter(
       (addOn) => addOn.phase === phase,
     )) {

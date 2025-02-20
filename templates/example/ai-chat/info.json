@@ -1,0 +1,14 @@
+{
+  "name": "AI Chat",
+  "description": "An example OpenAI chat integration.",
+  "phase": "example",
+  "link": "https://sdk.vercel.ai/docs/introduction",
+  "routes": [
+    {
+      "url": "/example/ai-chat",
+      "name": "AI Chat"
+    }
+  ],
+  "shadcnComponents": ["input"],
+  "dependsOn": ["start", "shadcn"]
+}

@@ -152,12 +152,14 @@ export async function promptForOptions(
     const addOns = await getAllAddOns()
 
     const selectedAddOns = await multiselect({
-      message: 'Select add-ons:',
-      options: addOns.map((addOn) => ({
-        value: addOn.id,
-        label: addOn.name,
-        hint: addOn.description,
-      })),
+      message: 'What add-ons would you like for your project:',
+      options: addOns
+        .filter((addOn) => addOn.type === 'add-on')
+        .map((addOn) => ({
+          value: addOn.id,
+          label: addOn.name,
+          hint: addOn.description,
+        })),
       required: false,
     })
 
@@ -166,7 +168,27 @@ export async function promptForOptions(
       process.exit(0)
     }
 
-    options.chosenAddOns = await finalizeAddOns(selectedAddOns)
+    const selectedExamples = await multiselect({
+      message: 'Would you like any examples?',
+      options: addOns
+        .filter((addOn) => addOn.type === 'example')
+        .map((addOn) => ({
+          value: addOn.id,
+          label: addOn.name,
+          hint: addOn.description,
+        })),
+      required: false,
+    })
+
+    if (isCancel(selectedExamples)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
+
+    options.chosenAddOns = await finalizeAddOns([
+      ...selectedAddOns,
+      ...selectedExamples,
+    ])
     options.tailwind = true
   } else {
     options.chosenAddOns = []
