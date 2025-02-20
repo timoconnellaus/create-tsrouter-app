@@ -1,13 +1,13 @@
 {
   "name": "create-tsrouter-app",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Tanstack Application Builder",
   "bin": "./dist/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "npm run test:lint",
     "cipublish": "node scripts/publish.js",
     "test:lint": "eslint ./src"
   },
