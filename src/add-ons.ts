@@ -42,6 +42,7 @@ export type AddOn = {
   phase: 'setup' | 'add-on'
   shadcnComponents?: Array<string>
   warning?: string
+  dependsOn?: Array<string>
 }
 
 function isDirectory(path: string): boolean {
@@ -82,4 +83,30 @@ export async function getAllAddOns(): Promise<Array<AddOn>> {
     })
   }
   return addOns
+}
+
+// Turn the list of chosen add-on IDs into a final list of add-ons by resolving dependencies
+export async function finalizeAddOns(
+  chosenAddOnIDs: Array<string>,
+): Promise<Array<AddOn>> {
+  const finalAddOnIDs = new Set(chosenAddOnIDs)
+
+  const addOns = await getAllAddOns()
+
+  for (const addOnID of finalAddOnIDs) {
+    const addOn = addOns.find((a) => a.id === addOnID)
+    if (!addOn) {
+      throw new Error(`Add-on ${addOnID} not found`)
+    }
+
+    for (const dependsOn of addOn.dependsOn || []) {
+      const dep = addOns.find((a) => a.id === dependsOn)
+      if (!dep) {
+        throw new Error(`Dependency ${dependsOn} not found`)
+      }
+      finalAddOnIDs.add(dep.id)
+    }
+  }
+
+  return [...finalAddOnIDs].map((id) => addOns.find((a) => a.id === id)!)
 }

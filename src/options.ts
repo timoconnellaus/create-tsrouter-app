@@ -13,7 +13,7 @@ import {
   getPackageManager,
 } from './package-manager.js'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
-import { getAllAddOns } from './add-ons.js'
+import { finalizeAddOns, getAllAddOns } from './add-ons.js'
 
 import type { CliOptions, Options } from './types.js'
 
@@ -166,9 +166,7 @@ export async function promptForOptions(
       process.exit(0)
     }
 
-    options.chosenAddOns = addOns.filter((addOn) =>
-      selectedAddOns.includes(addOn.id),
-    )
+    options.chosenAddOns = await finalizeAddOns(selectedAddOns)
     options.tailwind = true
   } else {
     options.chosenAddOns = []
