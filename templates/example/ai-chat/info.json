@@ -9,6 +9,5 @@
       "name": "AI Chat"
     }
   ],
-  "shadcnComponents": ["input"],
-  "dependsOn": ["start", "shadcn"]
+  "dependsOn": ["start"]
 }
