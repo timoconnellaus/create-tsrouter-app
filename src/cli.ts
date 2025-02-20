@@ -1,5 +1,5 @@
 import { Command, InvalidArgumentError } from 'commander'
-import { log } from '@clack/prompts'
+import { intro, log } from '@clack/prompts'
 
 import { createApp } from './create-app.js'
 import { normalizeOptions, promptForOptions } from './options.js'
@@ -55,7 +55,10 @@ export function cli() {
           ...options,
         } as CliOptions
         let finalOptions = normalizeOptions(cliOptions)
-        if (!finalOptions) {
+        if (finalOptions) {
+          intro(`Creating a new TanStack app in ${projectName}...`)
+        } else {
+          intro("Let's configure your TanStack application")
           finalOptions = await promptForOptions(cliOptions)
         }
         await createApp(finalOptions)

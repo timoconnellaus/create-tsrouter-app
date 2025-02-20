@@ -8,9 +8,9 @@ import {
   writeFile,
 } from 'node:fs/promises'
 import { existsSync, readdirSync, statSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { intro, log, outro, spinner } from '@clack/prompts'
+import { log, outro, spinner } from '@clack/prompts'
 import { execa } from 'execa'
 import { render } from 'ejs'
 import { format } from 'prettier'
@@ -241,7 +241,7 @@ export async function createApp(options: Required<Options>) {
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
-  intro(`Creating a new TanStack app in ${targetDir}...`)
+  log.info(`Creating a new TanStack app in '${basename(targetDir)}'...`)
 
   // Make the root directory
   await mkdir(targetDir, { recursive: true })
@@ -434,7 +434,7 @@ export async function createApp(options: Required<Options>) {
     s.stop(`Initialized git repository`)
   }
 
-  outro(`Created your new TanStack app in ${targetDir}.
+  outro(`Created your new TanStack app in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
