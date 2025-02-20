@@ -38,7 +38,7 @@ export function cli() {
       (value) => {
         if (!SUPPORTED_PACKAGE_MANAGERS.includes(value as PackageManager)) {
           throw new InvalidArgumentError(
-            `Invalid package manager: ${value}. Only the following are allowed: ${SUPPORTED_PACKAGE_MANAGERS.join(
+            `Invalid package manager: ${value}. The following are allowed: ${SUPPORTED_PACKAGE_MANAGERS.join(
               ', ',
             )}`,
           )
