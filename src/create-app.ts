@@ -273,6 +273,14 @@ export async function createApp(options: Required<Options>) {
     await mkdir(resolve(targetDir, 'src/components'), { recursive: true })
   }
 
+  // Check for a .cursorrules file
+  if (existsSync(resolve(templateDirBase, '.cursorrules'))) {
+    await copyFile(
+      resolve(templateDirBase, '.cursorrules'),
+      resolve(targetDir, '.cursorrules'),
+    )
+  }
+
   // Copy in Vite and Tailwind config and CSS
   if (!options.tailwind) {
     await copyFiles(templateDirBase, ['./src/App.css'])

@@ -1,0 +1,12 @@
+{
+  "name": "Sentry",
+  "phase": "setup",
+  "description": "Add Sentry for error monitoring and crash reporting (requires Start).",
+  "link": "https://sentry.com/",
+  "routes": [
+    {
+      "url": "/demo/sentry/bad-event-handler",
+      "name": "Sentry"
+    }
+  ]
+}

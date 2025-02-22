@@ -1,0 +1,10 @@
+{
+  "name": "Solid-UI",
+  "description": "Add Solid-UI to your application.",
+  "phase": "add-on",
+  "link": "https://ui.shadcn.com/",
+  "command": {
+    "command": "npx",
+    "args": ["solidui-cli@latest", "add", "button", "input"]
+  }
+}
