@@ -9,5 +9,19 @@
       "name": "AI Chat"
     }
   ],
-  "dependsOn": ["start"]
+  "dependsOn": ["start", "shadcn"],
+  "variables": [
+    {
+      "name": "ai_chat_title",
+      "default": "Your Amazing AI Chat",
+      "description": "The title of the AI chat.",
+      "type": "string"
+    },
+    {
+      "name": "ai_chat_system",
+      "default": "You are a helpful assistant.",
+      "description": "The system prompt of the AI chat.",
+      "type": "string"
+    }
+  ]
 }

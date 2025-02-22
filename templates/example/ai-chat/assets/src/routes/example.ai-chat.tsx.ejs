@@ -27,6 +27,7 @@ const chat = createServerFn({ method: 'POST' })
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
+        system: `<%= variables.ai_chat_system %>`,
         messages: data,
       }),
     }).then((response) => {
@@ -59,6 +60,7 @@ function AIChat() {
 
   return (
     <div className="flex flex-col py-10 px-10 text-2xl">
+      <h1><%= variables.ai_chat_title %></h1>
       {messages.map((m) => (
         <div key={m.id} className="whitespace-pre-wrap">
           {m.role === 'user' ? 'User: ' : 'AI: '}

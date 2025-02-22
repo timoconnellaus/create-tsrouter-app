@@ -11,6 +11,7 @@ export interface Options {
   addOns: boolean
   chosenAddOns: Array<AddOn>
   git: boolean
+  variableValues: Record<string, string | number | boolean>
 }
 
 export interface CliOptions {

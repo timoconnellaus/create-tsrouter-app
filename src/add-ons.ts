@@ -3,6 +3,29 @@ import { existsSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+type BooleanVariable = {
+  name: string
+  default: boolean
+  description: string
+  type: 'boolean'
+}
+
+type NumberVariable = {
+  name: string
+  default: number
+  description: string
+  type: 'number'
+}
+
+type StringVariable = {
+  name: string
+  default: string
+  description: string
+  type: 'string'
+}
+
+export type Variable = BooleanVariable | NumberVariable | StringVariable
+
 export type AddOn = {
   id: string
   type: 'add-on' | 'example'
@@ -44,6 +67,7 @@ export type AddOn = {
   shadcnComponents?: Array<string>
   warning?: string
   dependsOn?: Array<string>
+  variables?: Array<Variable>
 }
 
 function isDirectory(path: string): boolean {

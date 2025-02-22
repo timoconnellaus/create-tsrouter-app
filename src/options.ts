@@ -14,6 +14,7 @@ import {
 } from './package-manager.js'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { finalizeAddOns, getAllAddOns } from './add-ons.js'
+import type { Variable } from './add-ons.js'
 
 import type { CliOptions, Options } from './types.js'
 
@@ -35,8 +36,49 @@ export function normalizeOptions(
       git: !!cliOptions.git,
       addOns: !!cliOptions.addOns,
       chosenAddOns: [],
+      variableValues: {},
     }
   }
+}
+
+async function collectVariables(
+  variables: Array<Variable>,
+): Promise<Record<string, string | number | boolean>> {
+  const responses: Record<string, string | number | boolean> = {}
+  for (const variable of variables) {
+    if (variable.type === 'string') {
+      const response = await text({
+        message: variable.description,
+        initialValue: variable.default,
+      })
+      if (isCancel(response)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      responses[variable.name] = response
+    } else if (variable.type === 'number') {
+      const response = await text({
+        message: variable.description,
+        initialValue: variable.default.toString(),
+      })
+      if (isCancel(response)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      responses[variable.name] = Number(response)
+    } else {
+      const response = await confirm({
+        message: variable.description,
+        initialValue: variable.default === true,
+      })
+      if (isCancel(response)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      responses[variable.name] = response
+    }
+  }
+  return responses
 }
 
 export async function promptForOptions(
@@ -193,6 +235,15 @@ export async function promptForOptions(
   } else {
     options.chosenAddOns = []
   }
+
+  // Collect variables
+  const variables: Array<Variable> = []
+  for (const addOn of options.chosenAddOns) {
+    for (const variable of addOn.variables ?? []) {
+      variables.push(variable)
+    }
+  }
+  options.variableValues = await collectVariables(variables)
 
   // Git selection
   if (cliOptions.git === undefined) {
