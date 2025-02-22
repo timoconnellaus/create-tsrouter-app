@@ -86,6 +86,10 @@ export async function getAllAddOns(
       new URL(`../templates/${framework}/${type}`, import.meta.url),
     )
 
+    if (!existsSync(addOnsBase)) {
+      continue
+    }
+
     for (const dir of await readdirSync(addOnsBase).filter((file) =>
       isDirectory(resolve(addOnsBase, file)),
     )) {
