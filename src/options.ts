@@ -12,7 +12,7 @@ import {
   SUPPORTED_PACKAGE_MANAGERS,
   getPackageManager,
 } from './package-manager.js'
-import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
+import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
 import { finalizeAddOns, getAllAddOns } from './add-ons.js'
 import type { Variable } from './add-ons.js'
 
@@ -25,12 +25,19 @@ export function normalizeOptions(
   if (cliOptions.projectName) {
     const typescript =
       cliOptions.template === 'typescript' ||
-      cliOptions.template === 'file-router'
+      cliOptions.template === 'file-router' ||
+      cliOptions.framework === 'solid'
+
+    const tailwind =
+      cliOptions.tailwind === undefined
+        ? cliOptions.framework === 'solid'
+        : cliOptions.tailwind
 
     return {
+      framework: cliOptions.framework || 'react',
       projectName: cliOptions.projectName,
       typescript,
-      tailwind: !!cliOptions.tailwind,
+      tailwind: !!tailwind,
       packageManager: cliOptions.packageManager || DEFAULT_PACKAGE_MANAGER,
       mode: cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
       git: !!cliOptions.git,
@@ -85,6 +92,12 @@ export async function promptForOptions(
   cliOptions: CliOptions,
 ): Promise<Required<Options>> {
   const options = {} as Required<Options>
+
+  options.framework = cliOptions.framework || DEFAULT_FRAMEWORK
+  if (options.framework === 'solid') {
+    options.typescript = true
+    options.tailwind = true
+  }
 
   if (!cliOptions.projectName) {
     const value = await text({
@@ -151,7 +164,7 @@ export async function promptForOptions(
   }
 
   // Tailwind selection
-  if (cliOptions.tailwind === undefined) {
+  if (cliOptions.tailwind === undefined && options.framework === 'react') {
     const tailwind = await confirm({
       message: 'Would you like to use Tailwind CSS?',
       initialValue: true,
@@ -162,7 +175,7 @@ export async function promptForOptions(
     }
     options.tailwind = tailwind
   } else {
-    options.tailwind = cliOptions.tailwind
+    options.tailwind = options.framework === 'solid' || !!cliOptions.tailwind
   }
 
   // Package manager selection
@@ -190,18 +203,17 @@ export async function promptForOptions(
   }
 
   // Select any add-ons
-  if (options.mode === FILE_ROUTER && cliOptions.addOns) {
-    const addOns = await getAllAddOns()
-
-    const selectedAddOns = await multiselect({
+  const allAddOns = await getAllAddOns(options.framework)
+  const addOns = allAddOns.filter((addOn) => addOn.type === 'add-on')
+  let selectedAddOns: Array<string> = []
+  if (options.mode === FILE_ROUTER && cliOptions.addOns && addOns.length > 0) {
+    const value = await multiselect({
       message: 'What add-ons would you like for your project:',
-      options: addOns
-        .filter((addOn) => addOn.type === 'add-on')
-        .map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
+      options: addOns.map((addOn) => ({
+        value: addOn.id,
+        label: addOn.name,
+        hint: addOn.description,
+      })),
       required: false,
     })
 
@@ -209,25 +221,36 @@ export async function promptForOptions(
       cancel('Operation cancelled.')
       process.exit(0)
     }
+    selectedAddOns = value as Array<string>
+  }
 
-    const selectedExamples = await multiselect({
+  // Select any examples
+  const examples = allAddOns.filter((addOn) => addOn.type === 'example')
+  let selectedExamples: Array<string> = []
+  if (
+    options.mode === FILE_ROUTER &&
+    cliOptions.addOns &&
+    examples.length > 0
+  ) {
+    const value = await multiselect({
       message: 'Would you like any examples?',
-      options: addOns
-        .filter((addOn) => addOn.type === 'example')
-        .map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
+      options: examples.map((addOn) => ({
+        value: addOn.id,
+        label: addOn.name,
+        hint: addOn.description,
+      })),
       required: false,
     })
 
-    if (isCancel(selectedExamples)) {
+    if (isCancel(value)) {
       cancel('Operation cancelled.')
       process.exit(0)
     }
+    selectedExamples = value
+  }
 
-    options.chosenAddOns = await finalizeAddOns([
+  if (selectedAddOns.length > 0 || selectedExamples.length > 0) {
+    options.chosenAddOns = await finalizeAddOns(options.framework, [
       ...selectedAddOns,
       ...selectedExamples,
     ])

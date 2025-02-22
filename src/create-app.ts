@@ -219,10 +219,13 @@ async function copyFilesRecursively(
 
 export async function createApp(options: Required<Options>) {
   const templateDirBase = fileURLToPath(
-    new URL('../templates/base', import.meta.url),
+    new URL(`../templates/${options.framework}/base`, import.meta.url),
   )
   const templateDirRouter = fileURLToPath(
-    new URL(`../templates/${options.mode}`, import.meta.url),
+    new URL(
+      `../templates/${options.framework}/${options.mode}`,
+      import.meta.url,
+    ),
   )
   const targetDir = resolve(process.cwd(), options.projectName)
 
@@ -302,11 +305,13 @@ export async function createApp(options: Required<Options>) {
       './src/App.tsx.ejs',
       options.typescript ? undefined : './src/App.jsx',
     )
-    await templateFile(
-      templateDirBase,
-      './src/App.test.tsx.ejs',
-      options.typescript ? undefined : './src/App.test.jsx',
-    )
+    if (options.framework === 'react') {
+      await templateFile(
+        templateDirBase,
+        './src/App.test.tsx.ejs',
+        options.typescript ? undefined : './src/App.test.jsx',
+      )
+    }
   }
 
   // Create the main entry point
@@ -323,7 +328,7 @@ export async function createApp(options: Required<Options>) {
   }
 
   // Setup the main, reportWebVitals and index.html files
-  if (!isAddOnEnabled('start')) {
+  if (!isAddOnEnabled('start') && options.framework === 'react') {
     if (options.typescript) {
       await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
     } else {
@@ -333,6 +338,8 @@ export async function createApp(options: Required<Options>) {
         './src/reportWebVitals.js',
       )
     }
+  }
+  if (!isAddOnEnabled('start')) {
     await templateFile(templateDirBase, './index.html.ejs')
   }
 

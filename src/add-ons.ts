@@ -3,6 +3,8 @@ import { existsSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import type { Framework } from './types.js'
+
 type BooleanVariable = {
   name: string
   default: boolean
@@ -74,12 +76,14 @@ function isDirectory(path: string): boolean {
   return statSync(path).isDirectory()
 }
 
-export async function getAllAddOns(): Promise<Array<AddOn>> {
+export async function getAllAddOns(
+  framework: Framework,
+): Promise<Array<AddOn>> {
   const addOns: Array<AddOn> = []
 
   for (const type of ['add-on', 'example']) {
     const addOnsBase = fileURLToPath(
-      new URL(`../templates/${type}`, import.meta.url),
+      new URL(`../templates/${framework}/${type}`, import.meta.url),
     )
 
     for (const dir of await readdirSync(addOnsBase).filter((file) =>
@@ -116,11 +120,12 @@ export async function getAllAddOns(): Promise<Array<AddOn>> {
 
 // Turn the list of chosen add-on IDs into a final list of add-ons by resolving dependencies
 export async function finalizeAddOns(
+  framework: Framework,
   chosenAddOnIDs: Array<string>,
 ): Promise<Array<AddOn>> {
   const finalAddOnIDs = new Set(chosenAddOnIDs)
 
-  const addOns = await getAllAddOns()
+  const addOns = await getAllAddOns(framework)
 
   for (const addOnID of finalAddOnIDs) {
     const addOn = addOns.find((a) => a.id === addOnID)

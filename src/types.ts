@@ -2,7 +2,10 @@ import type { AddOn } from './add-ons.js'
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 
+export type Framework = 'solid' | 'react'
+
 export interface Options {
+  framework: Framework
   projectName: string
   typescript: boolean
   tailwind: boolean
@@ -16,6 +19,7 @@ export interface Options {
 
 export interface CliOptions {
   template?: 'typescript' | 'javascript' | 'file-router'
+  framework?: Framework
   tailwind?: boolean
   packageManager?: PackageManager
   projectName?: string

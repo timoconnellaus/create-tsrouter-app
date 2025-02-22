@@ -5,8 +5,9 @@ import { createApp } from './create-app.js'
 import { normalizeOptions, promptForOptions } from './options.js'
 import { SUPPORTED_PACKAGE_MANAGERS } from './package-manager.js'
 
+import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
 import type { PackageManager } from './package-manager.js'
-import type { CliOptions } from './types.js'
+import type { CliOptions, Framework } from './types.js'
 
 export function cli() {
   const program = new Command()
@@ -16,6 +17,21 @@ export function cli() {
     .description('CLI to create a new TanStack application')
     .argument('[project-name]', 'name of the project')
     .option('--no-git', 'do not create a git repository')
+    .option<Framework>(
+      '--framework <type>',
+      'project framework (solid, react)',
+      (value) => {
+        if (!SUPPORTED_FRAMEWORKS.includes(value as Framework)) {
+          throw new InvalidArgumentError(
+            `Invalid framework: ${value}. Only the following are allowed: ${SUPPORTED_FRAMEWORKS.join(
+              ', ',
+            )}`,
+          )
+        }
+        return value as Framework
+      },
+      DEFAULT_FRAMEWORK,
+    )
     .option<'typescript' | 'javascript' | 'file-router'>(
       '--template <type>',
       'project template (typescript, javascript, file-router)',
