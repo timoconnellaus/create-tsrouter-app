@@ -7,8 +7,18 @@ export default function Header() {
         <div class="px-2 font-bold">
           <Link to="/">Home</Link>
         </div>
+        <% for(const addOn of addOns) {
+          for(const route of addOn?.routes || []) { %>
+        <div class="px-2 font-bold"><Link to="<%= route.url %>"><%= route.name %></Link></div>
+        <% } } %>
       </nav>
-      <div></div>
+
+      <div>
+        <% for(const addOn of addOns) {
+          if(addOn?.userUi) { %>
+        <%- addOn.userUi.jsx %>
+        <% } } %>
+      </div>
     </header>
   )
 }

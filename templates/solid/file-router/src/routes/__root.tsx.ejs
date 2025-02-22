@@ -1,8 +1,19 @@
 import * as Solid from 'solid-js'
 import { Outlet, createRootRouteWithContext } from '@tanstack/solid-router'
-// import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+// import { TanStackRouterDevtools } from '@tanstack/router-devtools'<% for(const addOn of addOns) {
+  for(const imp of addOn.main?.imports || []) { %>
+<%- imp %>
+<% } } %><% for(const addOn of addOns) {
+  for(const imp of addOn.layout?.imports || []) { %>
+<%- imp %>
+<% } } %>
 
 import Header from '../components/Header'
+
+<% for(const addOn of addOns) {
+  for(const init of addOn.main?.initialize || []) { %>
+  <%- init %>
+<% } } %>
 
 export const Route = createRootRouteWithContext<{}>()({
   component: RootComponent,
@@ -11,9 +22,23 @@ export const Route = createRootRouteWithContext<{}>()({
 function RootComponent() {
   return (
     <>
+    <% for(const addOn of addOns) {
+      for(const provider of addOn.main?.providers || []) { %>
+      <%- provider.open %>
+      <% } } %>
+      
       <Header />
       <Outlet />
       {/* <TanStackRouterDevtools /> */}
+      
+      <% for(const addOn of addOns) { %>
+        <%- addOn.layout?.jsx %>
+        <% } %>
+
+        <% for(const addOn of addOns.toReversed()) {
+        for(const provider of addOn.main?.providers?.toReversed() || []) { %>
+        <%- provider.close %>
+        <% } } %>        
     </>
   )
 }
