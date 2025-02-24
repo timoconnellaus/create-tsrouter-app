@@ -448,8 +448,6 @@ export async function createApp(options: Required<Options>) {
     }
   }
 
-  console.log(integrations)
-
   const routes: Array<{
     path: string
     name: string
