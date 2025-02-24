@@ -35,26 +35,10 @@ export type AddOn = {
   description: string
   link: string
   templates: Array<string>
-  main?: Array<{
-    imports: Array<string>
-    initialize: Array<string>
-    providers: Array<{
-      open: string
-      close: string
-    }>
-  }>
-  layout?: {
-    imports: Array<string>
-    jsx: string
-  }
   routes: Array<{
     url: string
     name: string
   }>
-  userUi?: {
-    import: string
-    jsx: string
-  }
   directory: string
   packageAdditions: {
     dependencies?: Record<string, string>

@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-store'
 
 import { store } from '../lib/demo-store'
 <% if (codeRouter) { %>
-  import type { RootRoute } from '@tanstack/react-router'
+import type { RootRoute } from '@tanstack/react-router'
 <% } else { %>
 export const Route = createFileRoute('/demo/store/page1')({
   component: StorePage1,

@@ -41,6 +41,13 @@ function createCopyFiles(targetDir: string) {
   }
 }
 
+function jsSafeName(name: string) {
+  return name
+    .split(/[^a-zA-Z0-9]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+}
+
 function createTemplateFile(
   projectName: string,
   options: Required<Options>,
@@ -73,7 +80,14 @@ function createTemplateFile(
     }
 
     const template = await readFile(resolve(templateDir, file), 'utf-8')
-    let content = render(template, templateValues)
+    let content = ''
+    try {
+      content = render(template, templateValues)
+    } catch (error) {
+      console.error(chalk.red(`EJS error in file ${file}`))
+      console.error(error)
+      process.exit(1)
+    }
     const target = targetFileName ?? file.replace('.ejs', '')
 
     if (target.endsWith('.ts') || target.endsWith('.tsx')) {
@@ -300,33 +314,6 @@ export async function createApp(options: Required<Options>) {
 
   copyFiles(templateDirBase, ['./src/logo.svg'])
 
-  // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
-  if (options.mode === FILE_ROUTER) {
-    await templateFile(
-      templateDirRouter,
-      './src/routes/__root.tsx.ejs',
-      './src/routes/__root.tsx',
-    )
-    await templateFile(
-      templateDirBase,
-      './src/App.tsx.ejs',
-      './src/routes/index.tsx',
-    )
-  } else {
-    await templateFile(
-      templateDirBase,
-      './src/App.tsx.ejs',
-      options.typescript ? undefined : './src/App.jsx',
-    )
-    if (options.framework === 'react') {
-      await templateFile(
-        templateDirBase,
-        './src/App.test.tsx.ejs',
-        options.typescript ? undefined : './src/App.test.jsx',
-      )
-    }
-  }
-
   // Setup the main, reportWebVitals and index.html files
   if (!isAddOnEnabled('start') && options.framework === 'react') {
     if (options.typescript) {
@@ -410,6 +397,59 @@ export async function createApp(options: Required<Options>) {
     }
   }
 
+  const integrations: Array<{
+    type: 'layout' | 'provider' | 'header-user'
+    name: string
+    path: string
+  }> = []
+  if (existsSync(resolve(targetDir, 'src/integrations'))) {
+    for (const integration of readdirSync(
+      resolve(targetDir, 'src/integrations'),
+    )) {
+      const integrationName = jsSafeName(integration)
+      if (
+        existsSync(
+          resolve(targetDir, 'src/integrations', integration, 'layout.tsx'),
+        )
+      ) {
+        integrations.push({
+          type: 'layout',
+          name: `${integrationName}Layout`,
+          path: `integrations/${integration}/layout`,
+        })
+      }
+      if (
+        existsSync(
+          resolve(targetDir, 'src/integrations', integration, 'provider.tsx'),
+        )
+      ) {
+        integrations.push({
+          type: 'provider',
+          name: `${integrationName}Provider`,
+          path: `integrations/${integration}/provider`,
+        })
+      }
+      if (
+        existsSync(
+          resolve(
+            targetDir,
+            'src/integrations',
+            integration,
+            'header-user.tsx',
+          ),
+        )
+      ) {
+        integrations.push({
+          type: 'header-user',
+          name: `${integrationName}Header`,
+          path: `integrations/${integration}/header-user`,
+        })
+      }
+    }
+  }
+
+  console.log(integrations)
+
   const routes: Array<{
     path: string
     name: string
@@ -417,12 +457,10 @@ export async function createApp(options: Required<Options>) {
   if (existsSync(resolve(targetDir, 'src/routes'))) {
     for (const file of readdirSync(resolve(targetDir, 'src/routes'))) {
       const name = file.replace(/\.tsx?|\.jsx?/, '')
+      const safeRouteName = jsSafeName(name)
       routes.push({
         path: `./routes/${name}`,
-        name: name
-          .split('.')
-          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-          .join(''),
+        name: safeRouteName,
       })
     }
   }
@@ -436,6 +474,7 @@ export async function createApp(options: Required<Options>) {
         './src/main.tsx',
         {
           routes,
+          integrations,
         },
       )
     } else {
@@ -445,7 +484,38 @@ export async function createApp(options: Required<Options>) {
         './src/main.jsx',
         {
           routes,
+          integrations,
         },
+      )
+    }
+  }
+
+  // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
+  if (options.mode === FILE_ROUTER) {
+    await templateFile(
+      templateDirRouter,
+      './src/routes/__root.tsx.ejs',
+      './src/routes/__root.tsx',
+      {
+        integrations,
+      },
+    )
+    await templateFile(
+      templateDirBase,
+      './src/App.tsx.ejs',
+      './src/routes/index.tsx',
+    )
+  } else {
+    await templateFile(
+      templateDirBase,
+      './src/App.tsx.ejs',
+      options.typescript ? undefined : './src/App.jsx',
+    )
+    if (options.framework === 'react') {
+      await templateFile(
+        templateDirBase,
+        './src/App.test.tsx.ejs',
+        options.typescript ? undefined : './src/App.test.jsx',
       )
     }
   }
@@ -455,6 +525,9 @@ export async function createApp(options: Required<Options>) {
       templateDirBase,
       './src/components/Header.tsx.ejs',
       './src/components/Header.tsx',
+      {
+        integrations,
+      },
     )
   }
 
