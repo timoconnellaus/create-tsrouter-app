@@ -99,6 +99,10 @@ export async function promptForOptions(
     options.tailwind = true
   }
 
+  if (cliOptions.addOns) {
+    options.typescript = true
+  }
+
   if (!cliOptions.projectName) {
     const value = await text({
       message: 'What would you like to name your project?',

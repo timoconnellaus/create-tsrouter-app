@@ -1,13 +1,17 @@
-import { createFileRoute } from '@tanstack/solid-router'
+import { <% if (fileRouter) { %>createFileRoute<% } else { %>createRoute<% } %> } from '@tanstack/solid-router'
 import { useStore } from '@tanstack/solid-store'
 
 import { store } from '../lib/demo-store'
 
+<% if (codeRouter) { %>
+import type { RootRoute } from '@tanstack/react-router'
+<% } else { %>
 export const Route = createFileRoute('/demo/store/page1')({
-  component: App,
+  component: DemoStorePage1,
 })
+<% } %>
 
-function App() {
+function DemoStorePage1() {
   const count = useStore(store, (state) => state.count)
 
   return (
@@ -27,4 +31,11 @@ function App() {
   )
 }
 
-export default App
+<% if (codeRouter) { %>
+export default (parentRoute: RootRoute) => createRoute({
+  path: '/demo/store/page1',
+  component: DemoStorePage1,
+  getParentRoute: () => parentRoute,
+})
+<% } %>
+    

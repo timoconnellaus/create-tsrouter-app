@@ -7,6 +7,10 @@ import {
 } from "@tanstack/solid-router";
 // import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { render } from 'solid-js/web'
+<% for(const route of routes) { %>import <%= route.name %> from "<%= route.path %>";
+<% } %><% if (routes.length > 0) { %>
+import Header from "./components/Header";
+<% } %>
 
 import "./styles.css";
 
@@ -15,6 +19,7 @@ import App from "./App.<%= jsx %>";
 const rootRoute = createRootRoute({
   component: () => (
     <>
+      <% if (routes.length > 0) { %><Header /><% } %>
       <Outlet />
       {/* <TanStackRouterDevtools /> */}
     </>
@@ -27,7 +32,7 @@ const indexRoute = createRoute({
   component: App,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const routeTree = rootRoute.addChildren([indexRoute<%= routes.map(route => `, ${route.name}(rootRoute)`).join('') %>]);
 
 const router = createRouter({
   routeTree,

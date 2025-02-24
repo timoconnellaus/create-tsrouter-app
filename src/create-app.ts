@@ -50,6 +50,7 @@ function createTemplateFile(
     templateDir: string,
     file: string,
     targetFileName?: string,
+    extraTemplateValues?: Record<string, any>,
   ) {
     const templateValues = {
       packageManager: options.packageManager,
@@ -68,6 +69,7 @@ function createTemplateFile(
         {},
       ),
       addOns: options.chosenAddOns,
+      ...extraTemplateValues,
     }
 
     const template = await readFile(resolve(templateDir, file), 'utf-8')
@@ -302,11 +304,6 @@ export async function createApp(options: Required<Options>) {
   if (options.mode === FILE_ROUTER) {
     await templateFile(
       templateDirRouter,
-      './src/components/Header.tsx.ejs',
-      './src/components/Header.tsx',
-    )
-    await templateFile(
-      templateDirRouter,
       './src/routes/__root.tsx.ejs',
       './src/routes/__root.tsx',
     )
@@ -326,19 +323,6 @@ export async function createApp(options: Required<Options>) {
         templateDirBase,
         './src/App.test.tsx.ejs',
         options.typescript ? undefined : './src/App.test.jsx',
-      )
-    }
-  }
-
-  // Create the main entry point
-  if (!isAddOnEnabled('start')) {
-    if (options.typescript) {
-      await templateFile(templateDirRouter, './src/main.tsx.ejs')
-    } else {
-      await templateFile(
-        templateDirRouter,
-        './src/main.tsx.ejs',
-        './src/main.jsx',
       )
     }
   }
@@ -424,6 +408,54 @@ export async function createApp(options: Required<Options>) {
       })
       s.stop(`Installed shadcn components`)
     }
+  }
+
+  const routes: Array<{
+    path: string
+    name: string
+  }> = []
+  if (existsSync(resolve(targetDir, 'src/routes'))) {
+    for (const file of readdirSync(resolve(targetDir, 'src/routes'))) {
+      const name = file.replace(/\.tsx?|\.jsx?/, '')
+      routes.push({
+        path: `./routes/${name}`,
+        name: name
+          .split('.')
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(''),
+      })
+    }
+  }
+
+  // Create the main entry point
+  if (!isAddOnEnabled('start')) {
+    if (options.typescript) {
+      await templateFile(
+        templateDirRouter,
+        './src/main.tsx.ejs',
+        './src/main.tsx',
+        {
+          routes,
+        },
+      )
+    } else {
+      await templateFile(
+        templateDirRouter,
+        './src/main.jsx.ejs',
+        './src/main.jsx',
+        {
+          routes,
+        },
+      )
+    }
+  }
+
+  if (routes.length > 0) {
+    await templateFile(
+      templateDirBase,
+      './src/components/Header.tsx.ejs',
+      './src/components/Header.tsx',
+    )
   }
 
   const warnings: Array<string> = []
