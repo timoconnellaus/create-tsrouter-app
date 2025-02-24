@@ -195,23 +195,31 @@ async function copyFilesRecursively(
       )
     }
   } else {
-    if (source.endsWith('.ejs')) {
-      const targetPath = target.replace('.ejs', '')
-      await mkdir(dirname(targetPath), {
-        recursive: true,
-      })
+    let targetFile = basename(target).replace(/_dot_/, '.')
+    let isTemplate = false
+    if (targetFile.endsWith('.ejs')) {
+      targetFile = targetFile.replace('.ejs', '')
+      isTemplate = true
+    }
+    let isAppend = false
+    if (targetFile.endsWith('.append')) {
+      targetFile = targetFile.replace('.append', '')
+      isAppend = true
+    }
+
+    const targetPath = resolve(dirname(target), targetFile)
+
+    await mkdir(dirname(targetPath), {
+      recursive: true,
+    })
+
+    if (isTemplate) {
       await templateFile(source, targetPath)
     } else {
-      await mkdir(dirname(target), {
-        recursive: true,
-      })
-      if (source.endsWith('.append')) {
-        await appendFile(
-          target.replace('.append', ''),
-          (await readFile(source)).toString(),
-        )
+      if (isAppend) {
+        await appendFile(targetPath, (await readFile(source)).toString())
       } else {
-        await copyFile(source, target)
+        await copyFile(source, targetPath)
       }
     }
   }
@@ -252,7 +260,7 @@ export async function createApp(options: Required<Options>) {
   // Setup the .vscode directory
   await mkdir(resolve(targetDir, '.vscode'), { recursive: true })
   await copyFile(
-    resolve(templateDirBase, '.vscode/settings.json'),
+    resolve(templateDirBase, '_dot_vscode/settings.json'),
     resolve(targetDir, '.vscode/settings.json'),
   )
 
@@ -427,7 +435,7 @@ export async function createApp(options: Required<Options>) {
 
   // Add .gitignore
   await copyFile(
-    resolve(templateDirBase, 'gitignore'),
+    resolve(templateDirBase, '_dot_gitignore'),
     resolve(targetDir, '.gitignore'),
   )
 
@@ -453,7 +461,7 @@ export async function createApp(options: Required<Options>) {
 
 Use the following commands to start your app:
 % cd ${options.projectName}
-% ${options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}
+% ${options.packageManager === 'deno' ? 'deno start' : options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}
 
 Please read README.md for more information on testing, styling, adding routes, react-query, etc.
 `)
