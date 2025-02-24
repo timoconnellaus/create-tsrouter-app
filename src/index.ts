@@ -186,7 +186,7 @@ async function createApp(options: Required<Options>) {
   // Setup the .vscode directory
   await mkdir(resolve(targetDir, '.vscode'), { recursive: true })
   await copyFile(
-    resolve(templateDirBase, '.vscode/settings.json'),
+    resolve(templateDirBase, '_dot_vscode/settings.json'),
     resolve(targetDir, '.vscode/settings.json'),
   )
 
@@ -275,7 +275,7 @@ async function createApp(options: Required<Options>) {
 
   // Add .gitignore
   await copyFile(
-    resolve(templateDirBase, 'gitignore'),
+    resolve(templateDirBase, '_dot_gitignore'),
     resolve(targetDir, '.gitignore'),
   )
 
