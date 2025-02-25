@@ -2,13 +2,11 @@ import { Outlet, createRootRouteWithContext } from '@tanstack/solid-router'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'<% for(const integration of integrations.filter(i => i.type === 'layout' || i.type === 'provider')) { %>
 import <%= integration.name %> from "../<%= integration.path %>";
 <% } %>
-
 <% if (addOnEnabled['solid-ui']) { %>
 import "@fontsource/inter"
 <% } %>
-
-import Header from '../components/Header'
-
+<% if (addOns.length) { %>import Header from '../components/Header'
+<% } %>
 <% for(const addOn of addOns) {
   for(const init of addOn.main?.initialize || []) { %>
   <%- init %>
@@ -25,7 +23,9 @@ function RootComponent() {
         <<%= integration.name %>>
       <% } %>
         
-      <Header />
+      <% if (addOns.length) { %>
+        <Header />
+      <% } %>
       <Outlet />
       {/* <TanStackRouterDevtools /> */}
       

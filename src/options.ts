@@ -28,10 +28,10 @@ export async function normalizeOptions(
       cliOptions.template === 'file-router' ||
       cliOptions.framework === 'solid'
 
-    let tailwind =
-      cliOptions.tailwind === undefined
-        ? cliOptions.framework === 'solid'
-        : cliOptions.tailwind
+    let tailwind = !!cliOptions.tailwind
+    if (cliOptions.framework === 'solid') {
+      tailwind = true
+    }
 
     let addOns = false
     let chosenAddOns: Array<AddOn> = []
@@ -250,25 +250,25 @@ export async function promptForOptions(
     }
 
     // Select any examples
-    const examples = allAddOns.filter((addOn) => addOn.type === 'example')
-    let selectedExamples: Array<string> = []
-    if (options.typescript && examples.length > 0) {
-      const value = await multiselect({
-        message: 'Would you like any examples?',
-        options: examples.map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
-        required: false,
-      })
+    const selectedExamples: Array<string> = []
+    // const examples = allAddOns.filter((addOn) => addOn.type === 'example')
+    // if (options.typescript && examples.length > 0) {
+    //   const value = await multiselect({
+    //     message: 'Would you like any examples?',
+    //     options: examples.map((addOn) => ({
+    //       value: addOn.id,
+    //       label: addOn.name,
+    //       hint: addOn.description,
+    //     })),
+    //     required: false,
+    //   })
 
-      if (isCancel(value)) {
-        cancel('Operation cancelled.')
-        process.exit(0)
-      }
-      selectedExamples = value
-    }
+    //   if (isCancel(value)) {
+    //     cancel('Operation cancelled.')
+    //     process.exit(0)
+    //   }
+    //   selectedExamples = value
+    // }
 
     if (selectedAddOns.length > 0 || selectedExamples.length > 0) {
       options.chosenAddOns = await finalizeAddOns(

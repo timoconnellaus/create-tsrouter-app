@@ -50,7 +50,7 @@ const tanStackReactAddOns = [
   },
 ]
 
-server.tool('listTanStackReactAddOns', {}, async () => {
+server.tool('listTanStackReactAddOns', {}, () => {
   return {
     content: [{ type: 'text', text: JSON.stringify(tanStackReactAddOns) }],
   }
@@ -93,6 +93,86 @@ server.tool(
         {
           projectName: projectName.replace(/^\//, './'),
           framework: 'react',
+          typescript: true,
+          tailwind: true,
+          packageManager: 'pnpm',
+          mode: 'file-router',
+          addOns: true,
+          chosenAddOns,
+          git: true,
+          variableValues: {},
+        },
+        {
+          silent: true,
+        },
+      )
+      return {
+        content: [{ type: 'text', text: 'Application created successfully' }],
+      }
+    } catch (error) {
+      return {
+        content: [
+          { type: 'text', text: `Error creating application: ${error}` },
+        ],
+      }
+    }
+  },
+)
+
+const tanStackSolidAddOns = [
+  {
+    id: 'solid-ui',
+    description: 'Enable integration of the Solid UI component library',
+  },
+  {
+    id: 'form',
+    description: 'Form handling library',
+  },
+  {
+    id: 'sentry',
+    description: 'Enable Sentry error tracking',
+  },
+  {
+    id: 'store',
+    description: 'Enable the TanStack Store state management library',
+  },
+  {
+    id: 'tanstack-query',
+    description: 'Enable TanStack Query for data fetching',
+  },
+]
+
+server.tool('listTanStackSolidAddOns', {}, () => {
+  return {
+    content: [{ type: 'text', text: JSON.stringify(tanStackSolidAddOns) }],
+  }
+})
+
+server.tool(
+  'createTanStackSolidApplication',
+  {
+    projectName: z
+      .string()
+      .describe(
+        'The package.json module name of the application (will also be the directory name)',
+      ),
+    cwd: z.string().describe('The directory to create the application in'),
+    addOns: z
+      .array(z.enum(['solid-ui', 'form', 'sentry', 'store', 'tanstack-query']))
+      .describe('The IDs of the add-ons to install'),
+  },
+  async ({ projectName, addOns, cwd }) => {
+    try {
+      process.chdir(cwd)
+      const chosenAddOns = await finalizeAddOns(
+        'solid',
+        'file-router',
+        addOns as unknown as Array<string>,
+      )
+      await createApp(
+        {
+          projectName: projectName.replace(/^\//, './'),
+          framework: 'solid',
           typescript: true,
           tailwind: true,
           packageManager: 'pnpm',

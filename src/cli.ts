@@ -1,16 +1,16 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { intro, log } from '@clack/prompts'
-import chalk from 'chalk'
 
 import { createApp } from './create-app.js'
 import { normalizeOptions, promptForOptions } from './options.js'
 import { SUPPORTED_PACKAGE_MANAGERS } from './package-manager.js'
 
-import { getAllAddOns, listAddOns } from './add-ons.js'
+import runServer from './mcp.js'
+import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
+
 import type { PackageManager } from './package-manager.js'
 import type { CliOptions, Framework } from './types.js'
-import runServer from './mcp.js'
 
 export function cli() {
   const program = new Command()
