@@ -124,6 +124,18 @@ npx create-tsrouter-app@latest --list-add-ons --framework solid --template file-
 
 Will get you a list of all available add-ons for Solid that are compatible with the File Router.
 
+## MCP (Model Context Protocol) Support (experimental)
+
+You can launch the `create-tsrouter-app` CLI with the `--mcp` flag to enable MCP support. Use this in your MCP enabled IDE to allow the Agent model to generate TanStack Router applications.
+
+```bash
+npx create-tsrouter-app@latest --mcp
+```
+
+Shown below is the configuration for MCP support in Cursor.
+
+![MCP Configuration](./images/mcp-configuration.png)
+
 # Contributing
 
 Check out the [Contributing](CONTRIBUTING.md) guide.
