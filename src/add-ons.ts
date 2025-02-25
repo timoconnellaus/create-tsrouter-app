@@ -2,8 +2,10 @@ import { readFile } from 'node:fs/promises'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import chalk from 'chalk'
 
-import type { Framework } from './types.js'
+import { DEFAULT_FRAMEWORK } from './constants.js'
+import type { CliOptions, Framework } from './types.js'
 
 type BooleanVariable = {
   name: string
@@ -139,4 +141,16 @@ export async function finalizeAddOns(
   }
 
   return [...finalAddOnIDs].map((id) => addOns.find((a) => a.id === id)!)
+}
+
+export async function listAddOns(options: CliOptions) {
+  const mode =
+    options.template === 'file-router' ? 'file-router' : 'code-router'
+  const addOns = await getAllAddOns(
+    options.framework || DEFAULT_FRAMEWORK,
+    mode,
+  )
+  for (const addOn of addOns) {
+    console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
+  }
 }

@@ -268,8 +268,6 @@ export async function createApp(options: Required<Options>) {
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
-  log.info(`Creating a new TanStack app in '${basename(targetDir)}'...`)
-
   // Make the root directory
   await mkdir(targetDir, { recursive: true })
 
@@ -478,7 +476,7 @@ export async function createApp(options: Required<Options>) {
     } else {
       await templateFile(
         templateDirRouter,
-        './src/main.jsx.ejs',
+        './src/main.tsx.ejs',
         './src/main.jsx',
         {
           routes,
