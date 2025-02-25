@@ -10,6 +10,7 @@ import { getAllAddOns, listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 import type { CliOptions, Framework } from './types.js'
+import runServer from './mcp.js'
 
 export function cli() {
   const program = new Command()
@@ -77,9 +78,12 @@ export function cli() {
       },
     )
     .option('--list-add-ons', 'list all available add-ons', false)
+    .option('--mcp', 'run the MCP server', false)
     .action(async (projectName: string, options: CliOptions) => {
       if (options.listAddOns) {
         await listAddOns(options)
+      } else if (options.mcp) {
+        await runServer()
       } else {
         try {
           const cliOptions = {

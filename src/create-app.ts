@@ -241,7 +241,14 @@ async function copyFilesRecursively(
   }
 }
 
-export async function createApp(options: Required<Options>) {
+export async function createApp(
+  options: Required<Options>,
+  {
+    silent = false,
+  }: {
+    silent?: boolean
+  } = {},
+) {
   const templateDirBase = fileURLToPath(
     new URL(`../templates/${options.framework}/base`, import.meta.url),
   )
@@ -254,7 +261,9 @@ export async function createApp(options: Required<Options>) {
   const targetDir = resolve(process.cwd(), options.projectName)
 
   if (existsSync(targetDir)) {
-    log.error(`Directory "${options.projectName}" already exists`)
+    if (!silent) {
+      log.error(`Directory "${options.projectName}" already exists`)
+    }
     return
   }
 
@@ -348,12 +357,12 @@ export async function createApp(options: Required<Options>) {
   )
 
   // Copy all the asset files from the addons
-  const s = spinner()
+  const s = silent ? null : spinner()
   for (const phase of ['setup', 'add-on', 'example']) {
     for (const addOn of options.chosenAddOns.filter(
       (addOn) => addOn.phase === phase,
     )) {
-      s.start(`Setting up ${addOn.name}...`)
+      s?.start(`Setting up ${addOn.name}...`)
       const addOnDir = resolve(addOn.directory, 'assets')
       if (existsSync(addOnDir)) {
         await copyFilesRecursively(
@@ -370,7 +379,7 @@ export async function createApp(options: Required<Options>) {
           cwd: targetDir,
         })
       }
-      s.stop(`${addOn.name} setup complete`)
+      s?.stop(`${addOn.name} setup complete`)
     }
   }
 
@@ -385,13 +394,13 @@ export async function createApp(options: Required<Options>) {
     }
 
     if (shadcnComponents.size > 0) {
-      s.start(
+      s?.start(
         `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
       )
       await execa('npx', ['shadcn@canary', 'add', ...shadcnComponents], {
         cwd: targetDir,
       })
-      s.stop(`Installed shadcn components`)
+      s?.stop(`Installed shadcn components`)
     }
   }
 
@@ -544,21 +553,24 @@ export async function createApp(options: Required<Options>) {
   await templateFile(templateDirBase, 'README.md.ejs')
 
   // Install dependencies
-  s.start(`Installing dependencies via ${options.packageManager}...`)
+  s?.start(`Installing dependencies via ${options.packageManager}...`)
   await execa(options.packageManager, ['install'], { cwd: targetDir })
-  s.stop(`Installed dependencies`)
+  s?.stop(`Installed dependencies`)
 
   if (warnings.length > 0) {
-    log.warn(chalk.red(warnings.join('\n')))
+    if (!silent) {
+      log.warn(chalk.red(warnings.join('\n')))
+    }
   }
 
   if (options.git) {
-    s.start(`Initializing git repository...`)
+    s?.start(`Initializing git repository...`)
     await execa('git', ['init'], { cwd: targetDir })
-    s.stop(`Initialized git repository`)
+    s?.stop(`Initialized git repository`)
   }
 
-  outro(`Created your new TanStack app in '${basename(targetDir)}'.
+  if (!silent) {
+    outro(`Created your new TanStack app in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
@@ -566,4 +578,5 @@ Use the following commands to start your app:
 
 Please read README.md for more information on testing, styling, adding routes, react-query, etc.
 `)
+  }
 }

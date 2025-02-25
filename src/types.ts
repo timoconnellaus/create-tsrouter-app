@@ -26,4 +26,5 @@ export interface CliOptions {
   git?: boolean
   addOns?: Array<string> | boolean
   listAddOns?: boolean
+  mcp?: boolean
 }
