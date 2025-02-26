@@ -1,5 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import express from 'express'
 import { z } from 'zod'
 
 import { createApp } from './create-app.js'
@@ -199,7 +201,29 @@ server.tool(
   },
 )
 
-export default async function runServer() {
-  const transport = new StdioServerTransport()
-  await server.connect(transport)
+export default async function runServer(sse: boolean) {
+  if (sse) {
+    const app = express()
+
+    let transport: SSEServerTransport | null = null
+
+    app.get('/sse', (req, res) => {
+      transport = new SSEServerTransport('/messages', res)
+      server.connect(transport)
+    })
+
+    app.post('/messages', (req, res) => {
+      if (transport) {
+        transport.handlePostMessage(req, res)
+      }
+    })
+
+    const port = process.env.PORT || 8080
+    app.listen(port, () => {
+      console.log(`Server is running on port http://localhost:${port}`)
+    })
+  } else {
+    const transport = new StdioServerTransport()
+    await server.connect(transport)
+  }
 }

@@ -27,4 +27,5 @@ export interface CliOptions {
   addOns?: Array<string> | boolean
   listAddOns?: boolean
   mcp?: boolean
+  mcpSse?: boolean
 }

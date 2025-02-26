@@ -79,11 +79,12 @@ export function cli() {
     )
     .option('--list-add-ons', 'list all available add-ons', false)
     .option('--mcp', 'run the MCP server', false)
+    .option('--mcp-sse', 'run the MCP server in SSE mode', false)
     .action(async (projectName: string, options: CliOptions) => {
       if (options.listAddOns) {
         await listAddOns(options)
-      } else if (options.mcp) {
-        await runServer()
+      } else if (options.mcp || options.mcpSse) {
+        await runServer(!!options.mcpSse)
       } else {
         try {
           const cliOptions = {
