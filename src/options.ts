@@ -23,7 +23,7 @@ export async function normalizeOptions(
   cliOptions: CliOptions,
 ): Promise<Required<Options> | undefined> {
   if (cliOptions.projectName) {
-    const typescript =
+    let typescript =
       cliOptions.template === 'typescript' ||
       cliOptions.template === 'file-router' ||
       cliOptions.framework === 'solid'
@@ -43,6 +43,7 @@ export async function normalizeOptions(
         cliOptions.addOns,
       )
       tailwind = true
+      typescript = true
     }
 
     return {
