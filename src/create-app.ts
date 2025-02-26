@@ -525,7 +525,11 @@ export async function createApp(
     }
   }
 
-  if (routes.length > 0) {
+  if (
+    routes.length > 0 ||
+    options.chosenAddOns.length > 0 ||
+    integrations.length > 0
+  ) {
     await templateFile(
       templateDirBase,
       './src/components/Header.tsx.ejs',
