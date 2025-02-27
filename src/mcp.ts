@@ -220,7 +220,7 @@ export default async function runServer(sse: boolean) {
 
     const port = process.env.PORT || 8080
     app.listen(port, () => {
-      console.log(`Server is running on port http://localhost:${port}`)
+      console.log(`Server is running on port http://localhost:${port}/sse`)
     })
   } else {
     const transport = new StdioServerTransport()
