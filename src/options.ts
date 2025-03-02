@@ -251,25 +251,25 @@ export async function promptForOptions(
     }
 
     // Select any examples
-    const selectedExamples: Array<string> = []
-    // const examples = allAddOns.filter((addOn) => addOn.type === 'example')
-    // if (options.typescript && examples.length > 0) {
-    //   const value = await multiselect({
-    //     message: 'Would you like any examples?',
-    //     options: examples.map((addOn) => ({
-    //       value: addOn.id,
-    //       label: addOn.name,
-    //       hint: addOn.description,
-    //     })),
-    //     required: false,
-    //   })
+    let selectedExamples: Array<string> = []
+    const examples = allAddOns.filter((addOn) => addOn.type === 'example')
+    if (options.typescript && examples.length > 0) {
+      const value = await multiselect({
+        message: 'Would you like any examples?',
+        options: examples.map((addOn) => ({
+          value: addOn.id,
+          label: addOn.name,
+          hint: addOn.description,
+        })),
+        required: false,
+      })
 
-    //   if (isCancel(value)) {
-    //     cancel('Operation cancelled.')
-    //     process.exit(0)
-    //   }
-    //   selectedExamples = value
-    // }
+      if (isCancel(value)) {
+        cancel('Operation cancelled.')
+        process.exit(0)
+      }
+      selectedExamples = value
+    }
 
     if (selectedAddOns.length > 0 || selectedExamples.length > 0) {
       options.chosenAddOns = await finalizeAddOns(
