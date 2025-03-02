@@ -50,6 +50,10 @@ const tanStackReactAddOns = [
     id: 'store',
     description: 'Enable the TanStack Store state management library',
   },
+  {
+    id: 'tanchat',
+    description: 'Add an AI chatbot example to the application',
+  },
 ]
 
 server.tool('listTanStackReactAddOns', {}, () => {
@@ -98,6 +102,7 @@ server.tool(
           typescript: true,
           tailwind: true,
           packageManager: 'pnpm',
+          toolchain: 'none',
           mode: 'file-router',
           addOns: true,
           chosenAddOns,
@@ -142,6 +147,10 @@ const tanStackSolidAddOns = [
     id: 'tanstack-query',
     description: 'Enable TanStack Query for data fetching',
   },
+  {
+    id: 'tanchat',
+    description: 'Add an AI chatbot example to the application',
+  },
 ]
 
 server.tool('listTanStackSolidAddOns', {}, () => {
@@ -178,6 +187,7 @@ server.tool(
           typescript: true,
           tailwind: true,
           packageManager: 'pnpm',
+          toolchain: 'none',
           mode: 'file-router',
           addOns: true,
           chosenAddOns,
