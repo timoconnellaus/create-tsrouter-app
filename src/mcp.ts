@@ -83,6 +83,7 @@ server.tool(
           'start',
           'store',
           'tanstack-query',
+          'tanchat',
         ]),
       )
       .describe('The IDs of the add-ons to install'),
@@ -169,7 +170,16 @@ server.tool(
       ),
     cwd: z.string().describe('The directory to create the application in'),
     addOns: z
-      .array(z.enum(['solid-ui', 'form', 'sentry', 'store', 'tanstack-query']))
+      .array(
+        z.enum([
+          'solid-ui',
+          'form',
+          'sentry',
+          'store',
+          'tanstack-query',
+          'tanchat',
+        ]),
+      )
       .describe('The IDs of the add-ons to install'),
   },
   async ({ projectName, addOns, cwd }) => {
