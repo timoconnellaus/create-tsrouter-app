@@ -17,6 +17,25 @@ export function SubscribeButton({ label }: { label: string }) {
   )
 }
 
+function ErrorMessages({
+  errors,
+}: {
+  errors: Array<string | { message: string }>
+}) {
+  return (
+    <>
+      {errors.map((error) => (
+        <div
+          key={typeof error === 'string' ? error : error.message}
+          className="text-red-500 mt-1 font-bold"
+        >
+          {typeof error === 'string' ? error : error.message}
+        </div>
+      ))}
+    </>
+  )
+}
+
 export function TextField({
   label,
   placeholder,
@@ -39,11 +58,7 @@ export function TextField({
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </label>
-      {errors.map((error: string) => (
-        <div key={error} className="text-red-500 mt-1 font-bold">
-          {error}
-        </div>
-      ))}
+      {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
     </div>
   )
 }
@@ -70,11 +85,7 @@ export function TextArea({
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </label>
-      {errors.map((error: string) => (
-        <div key={error} className="text-red-500 mt-1 font-bold">
-          {error}
-        </div>
-      ))}
+      {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
     </div>
   )
 }
@@ -103,11 +114,7 @@ export function Select({
       >
         {children}
       </select>
-      {errors.map((error: string) => (
-        <div key={error} className="text-red-500 mt-1 font-bold">
-          {error}
-        </div>
-      ))}
+      {field.state.meta.isTouched && <ErrorMessages errors={errors} />}
     </div>
   )
 }
