@@ -10,6 +10,10 @@ import { dirname } from 'node:path'
 import { execa } from 'execa'
 
 export type Environment = {
+  startRun: () => void
+  finishRun: () => void
+  getErrors: () => Array<string>
+
   appendFile: (path: string, contents: string) => Promise<void>
   copyFile: (from: string, to: string) => Promise<void>
   writeFile: (path: string, contents: string) => Promise<void>
@@ -22,7 +26,14 @@ export type Environment = {
 }
 
 export function createDefaultEnvironment(): Environment {
+  let errors: Array<string> = []
   return {
+    startRun: () => {
+      errors = []
+    },
+    finishRun: () => {},
+    getErrors: () => errors,
+
     appendFile: async (path: string, contents: string) => {
       await mkdir(dirname(path), { recursive: true })
       return appendFile(path, contents)
@@ -36,9 +47,15 @@ export function createDefaultEnvironment(): Environment {
       return writeFile(path, contents)
     },
     execute: async (command: string, args: Array<string>, cwd: string) => {
-      await execa(command, args, {
-        cwd,
-      })
+      try {
+        await execa(command, args, {
+          cwd,
+        })
+      } catch {
+        errors.push(
+          `Command "${command} ${args.join(' ')}" did not run successfully. Please run this manually in your project.`,
+        )
+      }
     },
 
     readFile: (path: string, encoding?: BufferEncoding) =>

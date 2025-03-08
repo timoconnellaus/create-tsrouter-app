@@ -275,6 +275,8 @@ export async function createApp(
     environment: Environment
   },
 ) {
+  environment.startRun()
+
   const templateDirBase = fileURLToPath(
     new URL(`../templates/${options.framework}/base`, import.meta.url),
   )
@@ -630,6 +632,17 @@ export async function createApp(
     s?.stop(`Initialized git repository`)
   }
 
+  environment.finishRun()
+
+  let errorStatement = ''
+  if (environment.getErrors().length) {
+    errorStatement = `
+
+${chalk.red('There were errors encountered during this process:')}
+
+${environment.getErrors().join('\n')}`
+  }
+
   if (!silent) {
     outro(`Created your new TanStack app in '${basename(targetDir)}'.
 
@@ -637,7 +650,6 @@ Use the following commands to start your app:
 % cd ${options.projectName}
 % ${options.packageManager === 'deno' ? 'deno start' : options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}
 
-Please read README.md for more information on testing, styling, adding routes, react-query, etc.
-`)
+Please read README.md for more information on testing, styling, adding routes, react-query, etc.${errorStatement}`)
   }
 }
