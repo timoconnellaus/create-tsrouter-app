@@ -1,23 +1,13 @@
-#!/usr/bin/env node
-
-import {
-  appendFile,
-  copyFile,
-  mkdir,
-  readFile,
-  writeFile,
-} from 'node:fs/promises'
-import { existsSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { log, outro, spinner } from '@clack/prompts'
-import { execa } from 'execa'
 import { render } from 'ejs'
 import { format } from 'prettier'
 import chalk from 'chalk'
 
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 
+import type { Environment } from './environment.js'
 import type { Options } from './types.js'
 
 function sortObject(obj: Record<string, string>): Record<string, string> {
@@ -29,7 +19,7 @@ function sortObject(obj: Record<string, string>): Record<string, string> {
     }, {})
 }
 
-function createCopyFiles(targetDir: string) {
+function createCopyFiles(environment: Environment, targetDir: string) {
   return async function copyFiles(
     templateDir: string,
     files: Array<string>,
@@ -42,7 +32,7 @@ function createCopyFiles(targetDir: string) {
         const fileNoPath = targetFileName.split('/').pop()
         targetFileName = fileNoPath ? `./${fileNoPath}` : targetFileName
       }
-      await copyFile(
+      await environment.copyFile(
         resolve(templateDir, file),
         resolve(targetDir, targetFileName),
       )
@@ -58,6 +48,7 @@ function jsSafeName(name: string) {
 }
 
 function createTemplateFile(
+  environment: Environment,
   projectName: string,
   options: Required<Options>,
   targetDir: string,
@@ -89,7 +80,10 @@ function createTemplateFile(
       ...extraTemplateValues,
     }
 
-    const template = await readFile(resolve(templateDir, file), 'utf-8')
+    const template = await environment.readFile(
+      resolve(templateDir, file),
+      'utf-8',
+    )
     let content = ''
     try {
       content = render(template, templateValues)
@@ -109,15 +103,12 @@ function createTemplateFile(
       })
     }
 
-    await mkdir(dirname(resolve(targetDir, target)), {
-      recursive: true,
-    })
-
-    await writeFile(resolve(targetDir, target), content)
+    await environment.writeFile(resolve(targetDir, target), content)
   }
 }
 
 async function createPackageJSON(
+  environment: Environment,
   projectName: string,
   options: Required<Options>,
   templateDir: string,
@@ -130,12 +121,15 @@ async function createPackageJSON(
   }>,
 ) {
   let packageJSON = JSON.parse(
-    await readFile(resolve(templateDir, 'package.json'), 'utf8'),
+    await environment.readFile(resolve(templateDir, 'package.json'), 'utf8'),
   )
   packageJSON.name = projectName
   if (options.typescript) {
     const tsPackageJSON = JSON.parse(
-      await readFile(resolve(templateDir, 'package.ts.json'), 'utf8'),
+      await environment.readFile(
+        resolve(templateDir, 'package.ts.json'),
+        'utf8',
+      ),
     )
     packageJSON = {
       ...packageJSON,
@@ -147,7 +141,10 @@ async function createPackageJSON(
   }
   if (options.tailwind) {
     const twPackageJSON = JSON.parse(
-      await readFile(resolve(templateDir, 'package.tw.json'), 'utf8'),
+      await environment.readFile(
+        resolve(templateDir, 'package.tw.json'),
+        'utf8',
+      ),
     )
     packageJSON = {
       ...packageJSON,
@@ -159,7 +156,10 @@ async function createPackageJSON(
   }
   if (options.toolchain === 'biome') {
     const biomePackageJSON = JSON.parse(
-      await readFile(resolve(templateDir, 'package.biome.json'), 'utf8'),
+      await environment.readFile(
+        resolve(templateDir, 'package.biome.json'),
+        'utf8',
+      ),
     )
     packageJSON = {
       ...packageJSON,
@@ -175,7 +175,7 @@ async function createPackageJSON(
   }
   if (options.mode === FILE_ROUTER) {
     const frPackageJSON = JSON.parse(
-      await readFile(resolve(routerDir, 'package.fr.json'), 'utf8'),
+      await environment.readFile(resolve(routerDir, 'package.fr.json'), 'utf8'),
     )
     packageJSON = {
       ...packageJSON,
@@ -211,28 +211,27 @@ async function createPackageJSON(
     packageJSON.devDependencies as Record<string, string>,
   )
 
-  await writeFile(
+  await environment.writeFile(
     resolve(targetDir, 'package.json'),
     JSON.stringify(packageJSON, null, 2),
   )
 }
 
 async function copyFilesRecursively(
+  environment: Environment,
   source: string,
   target: string,
-  copyFile: (source: string, target: string) => Promise<void>,
   templateFile: (file: string, targetFileName?: string) => Promise<void>,
 ) {
-  const sourceStat = statSync(source)
-  if (sourceStat.isDirectory()) {
-    const files = readdirSync(source)
+  if (environment.isDirectory(source)) {
+    const files = environment.readdir(source)
     for (const file of files) {
       const sourceChild = resolve(source, file)
       const targetChild = resolve(target, file)
       await copyFilesRecursively(
+        environment,
         sourceChild,
         targetChild,
-        copyFile,
         templateFile,
       )
     }
@@ -251,17 +250,16 @@ async function copyFilesRecursively(
 
     const targetPath = resolve(dirname(target), targetFile)
 
-    await mkdir(dirname(targetPath), {
-      recursive: true,
-    })
-
     if (isTemplate) {
       await templateFile(source, targetPath)
     } else {
       if (isAppend) {
-        await appendFile(targetPath, (await readFile(source)).toString())
+        await environment.appendFile(
+          targetPath,
+          (await environment.readFile(source)).toString(),
+        )
       } else {
-        await copyFile(source, targetPath)
+        await environment.copyFile(source, targetPath)
       }
     }
   }
@@ -271,9 +269,11 @@ export async function createApp(
   options: Required<Options>,
   {
     silent = false,
+    environment,
   }: {
     silent?: boolean
-  } = {},
+    environment: Environment
+  },
 ) {
   const templateDirBase = fileURLToPath(
     new URL(`../templates/${options.framework}/base`, import.meta.url),
@@ -286,15 +286,16 @@ export async function createApp(
   )
   const targetDir = resolve(process.cwd(), options.projectName)
 
-  if (existsSync(targetDir)) {
+  if (environment.exists(targetDir)) {
     if (!silent) {
       log.error(`Directory "${options.projectName}" already exists`)
     }
     return
   }
 
-  const copyFiles = createCopyFiles(targetDir)
+  const copyFiles = createCopyFiles(environment, targetDir)
   const templateFile = createTemplateFile(
+    environment,
     options.projectName,
     options,
     targetDir,
@@ -303,28 +304,23 @@ export async function createApp(
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
-  // Make the root directory
-  await mkdir(targetDir, { recursive: true })
-
   // Setup the .vscode directory
-  await mkdir(resolve(targetDir, '.vscode'), { recursive: true })
   switch (options.toolchain) {
     case 'biome':
-      await copyFile(
+      await environment.copyFile(
         resolve(templateDirBase, '_dot_vscode/settings.biome.json'),
         resolve(targetDir, '.vscode/settings.json'),
       )
       break
     case 'none':
     default:
-      await copyFile(
+      await environment.copyFile(
         resolve(templateDirBase, '_dot_vscode/settings.json'),
         resolve(targetDir, '.vscode/settings.json'),
       )
   }
 
   // Fill the public directory
-  await mkdir(resolve(targetDir, 'public'), { recursive: true })
   copyFiles(templateDirBase, [
     './public/robots.txt',
     './public/favicon.ico',
@@ -333,16 +329,9 @@ export async function createApp(
     './public/logo512.png',
   ])
 
-  // Make the src directory
-  await mkdir(resolve(targetDir, 'src'), { recursive: true })
-  if (options.mode === FILE_ROUTER) {
-    await mkdir(resolve(targetDir, 'src/routes'), { recursive: true })
-    await mkdir(resolve(targetDir, 'src/components'), { recursive: true })
-  }
-
   // Check for a .cursorrules file
-  if (existsSync(resolve(templateDirBase, '.cursorrules'))) {
-    await copyFile(
+  if (environment.exists(resolve(templateDirBase, '.cursorrules'))) {
+    await environment.copyFile(
       resolve(templateDirBase, '.cursorrules'),
       resolve(targetDir, '.cursorrules'),
     )
@@ -388,6 +377,7 @@ export async function createApp(
 
   // Setup the package.json file, optionally with typescript, tailwind and biome
   await createPackageJSON(
+    environment,
     options.projectName,
     options,
     templateDirBase,
@@ -404,21 +394,24 @@ export async function createApp(
     )) {
       s?.start(`Setting up ${addOn.name}...`)
       const addOnDir = resolve(addOn.directory, 'assets')
-      if (existsSync(addOnDir)) {
+      if (environment.exists(addOnDir)) {
         await copyFilesRecursively(
+          environment,
           addOnDir,
           targetDir,
-          copyFile,
           async (file: string, targetFileName?: string) =>
             templateFile(addOnDir, file, targetFileName),
         )
       }
 
       if (addOn.command) {
-        await execa(addOn.command.command, addOn.command.args || [], {
-          cwd: targetDir,
-        })
+        await environment.execute(
+          addOn.command.command,
+          addOn.command.args || [],
+          targetDir,
+        )
       }
+
       s?.stop(`${addOn.name} setup complete`)
     }
   }
@@ -437,9 +430,11 @@ export async function createApp(
       s?.start(
         `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
       )
-      await execa('npx', ['shadcn@canary', 'add', ...shadcnComponents], {
-        cwd: targetDir,
-      })
+      await environment.execute(
+        'npx',
+        ['shadcn@canary', 'add', ...shadcnComponents],
+        targetDir,
+      )
       s?.stop(`Installed shadcn components`)
     }
   }
@@ -449,13 +444,13 @@ export async function createApp(
     name: string
     path: string
   }> = []
-  if (existsSync(resolve(targetDir, 'src/integrations'))) {
-    for (const integration of readdirSync(
+  if (environment.exists(resolve(targetDir, 'src/integrations'))) {
+    for (const integration of environment.readdir(
       resolve(targetDir, 'src/integrations'),
     )) {
       const integrationName = jsSafeName(integration)
       if (
-        existsSync(
+        environment.exists(
           resolve(targetDir, 'src/integrations', integration, 'layout.tsx'),
         )
       ) {
@@ -466,7 +461,7 @@ export async function createApp(
         })
       }
       if (
-        existsSync(
+        environment.exists(
           resolve(targetDir, 'src/integrations', integration, 'provider.tsx'),
         )
       ) {
@@ -477,7 +472,7 @@ export async function createApp(
         })
       }
       if (
-        existsSync(
+        environment.exists(
           resolve(
             targetDir,
             'src/integrations',
@@ -499,8 +494,8 @@ export async function createApp(
     path: string
     name: string
   }> = []
-  if (existsSync(resolve(targetDir, 'src/routes'))) {
-    for (const file of readdirSync(resolve(targetDir, 'src/routes'))) {
+  if (environment.exists(resolve(targetDir, 'src/routes'))) {
+    for (const file of environment.readdir(resolve(targetDir, 'src/routes'))) {
       const name = file.replace(/\.tsx?|\.jsx?/, '')
       const safeRouteName = jsSafeName(name)
       routes.push({
@@ -588,7 +583,7 @@ export async function createApp(
   }
 
   // Add .gitignore
-  await copyFile(
+  await environment.copyFile(
     resolve(templateDirBase, '_dot_gitignore'),
     resolve(targetDir, '.gitignore'),
   )
@@ -598,7 +593,7 @@ export async function createApp(
 
   // Install dependencies
   s?.start(`Installing dependencies via ${options.packageManager}...`)
-  await execa(options.packageManager, ['install'], { cwd: targetDir })
+  await environment.execute(options.packageManager, ['install'], targetDir)
   s?.stop(`Installed dependencies`)
 
   if (warnings.length > 0) {
@@ -612,14 +607,18 @@ export async function createApp(
     switch (options.packageManager) {
       case 'pnpm':
         // pnpm automatically forwards extra arguments
-        await execa(options.packageManager, ['run', 'check', '--fix'], {
-          cwd: targetDir,
-        })
+        await environment.execute(
+          options.packageManager,
+          ['run', 'check', '--fix'],
+          targetDir,
+        )
         break
       default:
-        await execa(options.packageManager, ['run', 'check', '--', '--fix'], {
-          cwd: targetDir,
-        })
+        await environment.execute(
+          options.packageManager,
+          ['run', 'check', '--', '--fix'],
+          targetDir,
+        )
         break
     }
     s?.stop(`Applied toolchain ${options.toolchain}...`)
@@ -627,7 +626,7 @@ export async function createApp(
 
   if (options.git) {
     s?.start(`Initializing git repository...`)
-    await execa('git', ['init'], { cwd: targetDir })
+    await environment.execute('git', ['init'], targetDir)
     s?.stop(`Initialized git repository`)
   }
 

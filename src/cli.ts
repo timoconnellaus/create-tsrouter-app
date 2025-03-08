@@ -10,6 +10,8 @@ import runServer from './mcp.js'
 import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
 
+import { createDefaultEnvironment } from './environment.js'
+
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
 import type { CliOptions, Framework } from './types.js'
@@ -115,7 +117,9 @@ export function cli() {
             intro("Let's configure your TanStack application")
             finalOptions = await promptForOptions(cliOptions)
           }
-          await createApp(finalOptions)
+          await createApp(finalOptions, {
+            environment: createDefaultEnvironment(),
+          })
         } catch (error) {
           log.error(
             error instanceof Error

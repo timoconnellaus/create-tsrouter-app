@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { createApp } from './create-app.js'
 import { finalizeAddOns } from './add-ons.js'
+import { createDefaultEnvironment } from './environment.js'
 
 const server = new McpServer({
   name: 'Demo',
@@ -112,6 +113,7 @@ server.tool(
         },
         {
           silent: true,
+          environment: createDefaultEnvironment(),
         },
       )
       return {
@@ -206,6 +208,7 @@ server.tool(
         },
         {
           silent: true,
+          environment: createDefaultEnvironment(),
         },
       )
       return {
