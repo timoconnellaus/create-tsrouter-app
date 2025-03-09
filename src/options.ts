@@ -157,9 +157,8 @@ export async function promptForOptions(
     }
     options.mode = routerType as typeof CODE_ROUTER | typeof FILE_ROUTER
   } else {
-    options.mode = cliOptions.template as
-      | typeof CODE_ROUTER
-      | typeof FILE_ROUTER
+    options.mode =
+      cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
     if (options.mode === FILE_ROUTER) {
       options.typescript = true
     }
