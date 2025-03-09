@@ -6,7 +6,7 @@ To run this application:
 
 ```bash
 <%= packageManager %> install
-<%= packageManager %> start
+<%= getPackageManagerRunScript('start') %>
 ```
 
 # Building For Production
@@ -14,7 +14,7 @@ To run this application:
 To build this application for production:
 
 ```bash
-<%= packageManager %> run build
+<%= getPackageManagerRunScript('build') %>
 ```
 
 ## Styling
