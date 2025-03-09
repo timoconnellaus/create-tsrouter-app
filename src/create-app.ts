@@ -644,11 +644,16 @@ ${environment.getErrors().join('\n')}`
   }
 
   if (!silent) {
+    let startCommand = `${options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}`
+    if (options.packageManager === 'deno') {
+      startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`
+    }
+
     outro(`Created your new TanStack app in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
-% ${options.packageManager === 'deno' ? 'deno start' : options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}
+% ${startCommand}
 
 Please read README.md for more information on testing, styling, adding routes, react-query, etc.${errorStatement}`)
   }
