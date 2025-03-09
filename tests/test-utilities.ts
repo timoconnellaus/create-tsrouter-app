@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { dirname, resolve, basename, extname } from 'node:path'
+import { dirname, join, basename, extname } from 'node:path'
 
 import { createDefaultEnvironment } from '../src/environment.js'
 
@@ -13,7 +13,6 @@ export function createTestEnvironment(projectName: string) {
     commands: Array<{
       command: string
       args: Array<string>
-      cwd: string
     }>
   } = {
     files: {},
@@ -22,7 +21,7 @@ export function createTestEnvironment(projectName: string) {
 
   const isTemplatePath = (path: string) => dirname(path).includes('templates')
   const trimProjectRelativePath = (path: string) =>
-    resolve(
+    join(
       dirname(path).replace(new RegExp(`^.*/${projectName}`), ''),
       basename(path),
     )
@@ -38,15 +37,10 @@ export function createTestEnvironment(projectName: string) {
       output.files[relPath] = contents
     }
   }
-  environment.execute = async (
-    command: string,
-    args: Array<string>,
-    cwd: string,
-  ) => {
+  environment.execute = async (command: string, args: Array<string>) => {
     output.commands.push({
       command,
       args,
-      cwd,
     })
   }
   environment.readFile = async (path: string, encoding?: BufferEncoding) => {

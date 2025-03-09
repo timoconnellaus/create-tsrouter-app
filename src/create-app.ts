@@ -352,7 +352,7 @@ export async function createApp(
     copyFiles(templateDirBase, ['./toolchain/biome.json'], true)
   }
 
-  // Setup the main, reportWebVitals and index.html files
+  // Setup reportWebVitals
   if (!isAddOnEnabled('start') && options.framework === 'react') {
     if (options.typescript) {
       await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
