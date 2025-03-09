@@ -1,6 +1,9 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+<% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+import * as <%= integration.name %> from "./<%= integration.path %>";
+<% } %>
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -9,7 +12,17 @@ import "./styles.css";
 import reportWebVitals from "./reportWebVitals.<%= js %>";
 
 // Create a new router instance
-const router = createRouter({ routeTree, defaultPreload: "intent", scrollRestoration: true, defaultStructuralSharing: true });
+const router = createRouter({
+  routeTree,
+  context: {
+    <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+      ...<%= integration.name %>.getContext(),
+    <% } %>
+  },
+  defaultPreload: "intent",
+  scrollRestoration: true,
+  defaultStructuralSharing: true
+});
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -24,7 +37,13 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+        <<%= integration.name %>.Provider>
+      <% } %>
+          <RouterProvider router={router} />
+      <% for(const integration of integrations.filter(i => i.type === 'root-provider').reverse()) { %>
+        </<%= integration.name %>.Provider>
+      <% } %>
     </StrictMode>
   );
 }

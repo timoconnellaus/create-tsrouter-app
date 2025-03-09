@@ -13,6 +13,8 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import Header from "./components/Header";
 <% } %><% for(const integration of integrations.filter(i => i.type === 'layout' || i.type === 'provider')) { %>
 import <%= integration.name %> from "./<%= integration.path %>";
+<% } %><% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+import * as <%= integration.name %> from "./<%= integration.path %>";
 <% } %>
 
 import "./styles.css";
@@ -49,6 +51,11 @@ const routeTree = rootRoute.addChildren([indexRoute<%= routes.map(route => `, ${
 
 const router = createRouter({
   routeTree,
+  context: {
+    <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+      ...<%= integration.name %>.getContext(),
+    <% } %>
+  },
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
@@ -67,7 +74,13 @@ const rootElement = document.getElementById("app");
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
+        <<%= integration.name %>.Provider>
+      <% } %>
+        <RouterProvider router={router} />
+      <% for(const integration of integrations.filter(i => i.type === 'root-provider').reverse()) { %>
+        </<%= integration.name %>.Provider>
+      <% } %>
     </StrictMode>
   );
 }

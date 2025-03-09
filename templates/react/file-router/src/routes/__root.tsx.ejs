@@ -1,5 +1,5 @@
-import { createRootRoute, Outlet<% if (addOnEnabled.start) { %>
-,HeadContent, Scripts<% } %> } from '@tanstack/react-router'
+import { Outlet<% if (addOnEnabled.start) { %>
+, HeadContent, Scripts<% } %>, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 <% if (addOns.length) { %>
 import Header from '../components/Header'

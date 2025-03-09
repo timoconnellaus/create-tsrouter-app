@@ -152,7 +152,7 @@ const rootRoute = createRootRoute({
 Here is an example layout that includes a header:
 
 ```tsx
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { Link } from "@tanstack/react-router";
@@ -214,7 +214,7 @@ mkdir src/routes
 Then you'll need to create a `src/routes/__root.<%= jsx %>` file with the contents of the root route that was in `main.<%= jsx %>`.
 
 ```tsx
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRoute({

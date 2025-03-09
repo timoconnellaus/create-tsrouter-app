@@ -442,7 +442,7 @@ export async function createApp(
   }
 
   const integrations: Array<{
-    type: 'layout' | 'provider' | 'header-user'
+    type: 'layout' | 'provider' | 'root-provider' | 'header-user'
     name: string
     path: string
   }> = []
@@ -471,6 +471,22 @@ export async function createApp(
           type: 'provider',
           name: `${integrationName}Provider`,
           path: `integrations/${integration}/provider`,
+        })
+      }
+      if (
+        environment.exists(
+          resolve(
+            targetDir,
+            'src/integrations',
+            integration,
+            'root-provider.tsx',
+          ),
+        )
+      ) {
+        integrations.push({
+          type: 'root-provider',
+          name: integrationName,
+          path: `integrations/${integration}/root-provider`,
         })
       }
       if (
