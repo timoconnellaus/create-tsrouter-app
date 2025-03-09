@@ -7,7 +7,7 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 <% for(const route of routes) { %>import <%= route.name %> from "<%= route.path %>";
 <% } %><% if (routes.length > 0) { %>
 import Header from "./components/Header";
