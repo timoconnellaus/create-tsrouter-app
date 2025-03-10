@@ -385,7 +385,12 @@ export async function createApp(
   if (!options.tailwind) {
     await copyFiles(templateDirBase, ['./src/App.css'])
   }
-  await templateFile(templateDirBase, './vite.config.js.ejs')
+
+  // Don't create a vite.config.js file if we are building a Start app
+  if (!isAddOnEnabled('start')) {
+    await templateFile(templateDirBase, './vite.config.js.ejs')
+  }
+
   await templateFile(templateDirBase, './src/styles.css.ejs')
 
   copyFiles(templateDirBase, ['./src/logo.svg'])
