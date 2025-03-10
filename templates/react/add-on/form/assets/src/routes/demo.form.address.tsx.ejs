@@ -61,10 +61,9 @@ function AddressForm() {
           }}
           className="space-y-6"
         >
-          <form.AppField
-            name="fullName"
-            children={(field) => <field.TextField label="Full Name" />}
-          />
+          <form.AppField name="fullName">
+            {(field) => <field.TextField label="Full Name" />}
+          </form.AppField>
 
           <form.AppField
             name="email"
@@ -79,8 +78,9 @@ function AddressForm() {
                 return undefined
               },
             }}
-            children={(field) => <field.TextField label="Email" />}
-          />
+          >
+            {(field) => <field.TextField label="Email" />}
+          </form.AppField>
 
           <form.AppField
             name="address.street"
@@ -92,8 +92,9 @@ function AddressForm() {
                 return undefined
               },
             }}
-            children={(field) => <field.TextField label="Street Address" />}
-          />
+          >
+            {(field) => <field.TextField label="Street Address" />}
+          </form.AppField>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <form.AppField
@@ -106,8 +107,9 @@ function AddressForm() {
                   return undefined
                 },
               }}
-              children={(field) => <field.TextField label="City" />}
-            />
+            >
+              {(field) => <field.TextField label="City" />}
+            </form.AppField>
             <form.AppField
               name="address.state"
               validators={{
@@ -118,8 +120,9 @@ function AddressForm() {
                   return undefined
                 },
               }}
-              children={(field) => <field.TextField label="State" />}
-            />
+            >
+              {(field) => <field.TextField label="State" />}
+            </form.AppField>
             <form.AppField
               name="address.zipCode"
               validators={{
@@ -133,8 +136,9 @@ function AddressForm() {
                   return undefined
                 },
               }}
-              children={(field) => <field.TextField label="Zip Code" />}
-            />
+            >
+              {(field) => <field.TextField label="Zip Code" />}
+            </form.AppField>
           </div>
 
           <form.AppField
@@ -147,7 +151,8 @@ function AddressForm() {
                 return undefined
               },
             }}
-            children={(field) => (
+          >
+            {(field) => (
               <field.Select label="Country">
                 <option value="">Select a country</option>
                 <option value="US">United States</option>
@@ -159,7 +164,7 @@ function AddressForm() {
                 <option value="JP">Japan</option>
               </field.Select>
             )}
-          />
+          </form.AppField>
 
           <form.AppField
             name="phone"
@@ -178,10 +183,11 @@ function AddressForm() {
                 return undefined
               },
             }}
-            children={(field) => (
+          >
+            {(field) => (
               <field.TextField label="Phone" placeholder="123-456-7890" />
             )}
-          />
+          </form.AppField>
 
           <div className="flex justify-end">
             <form.AppForm>
@@ -193,6 +199,7 @@ function AddressForm() {
     </div>
   )
 }
+
 
 <% if (codeRouter) { %>
 export default (parentRoute: RootRoute) => createRoute({

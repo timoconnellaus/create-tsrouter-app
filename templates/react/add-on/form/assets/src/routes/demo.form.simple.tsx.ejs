@@ -49,15 +49,13 @@ function SimpleForm() {
           }}
           className="space-y-6"
         >
-          <form.AppField
-            name="title"
-            children={(field) => <field.TextField label="Title" />}
-          />
+          <form.AppField name="title">
+            {(field) => <field.TextField label="Title" />}
+          </form.AppField>
 
-          <form.AppField
-            name="description"
-            children={(field) => <field.TextArea label="Description" />}
-          />
+          <form.AppField name="description">
+            {(field) => <field.TextArea label="Description" />}
+          </form.AppField>
 
           <div className="flex justify-end">
             <form.AppForm>
