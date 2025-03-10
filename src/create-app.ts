@@ -712,7 +712,7 @@ ${environment.getErrors().join('\n')}`
       startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`
     }
 
-    outro(`Created your new TanStack app in '${basename(targetDir)}'.
+    outro(`Created your TanStack app in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
