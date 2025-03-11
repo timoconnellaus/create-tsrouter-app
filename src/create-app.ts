@@ -415,6 +415,12 @@ export async function createApp(
     await templateFile(templateDirBase, './index.html.ejs')
   }
 
+  // Add .gitignore
+  await environment.copyFile(
+    resolve(templateDirBase, '_dot_gitignore'),
+    resolve(targetDir, '.gitignore'),
+  )
+
   // Setup tsconfig
   if (options.typescript) {
     await templateFile(
@@ -646,12 +652,6 @@ export async function createApp(
       warnings.push(addOn.warning)
     }
   }
-
-  // Add .gitignore
-  await environment.copyFile(
-    resolve(templateDirBase, '_dot_gitignore'),
-    resolve(targetDir, '.gitignore'),
-  )
 
   // Create the README.md
   await templateFile(templateDirBase, 'README.md.ejs')
