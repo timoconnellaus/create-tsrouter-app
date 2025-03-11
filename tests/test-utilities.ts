@@ -61,3 +61,23 @@ export function createTestEnvironment(projectName: string) {
     output,
   }
 }
+
+export function cleanupOutput(output: {
+  files: Record<string, string>
+  commands: Array<{
+    command: string
+    args: Array<string>
+  }>
+}) {
+  const sortedFiles = Object.keys(output.files)
+    .sort()
+    .reduce(
+      (acc, key) => {
+        acc[key] = output.files[key]
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+
+  output.files = sortedFiles
+}
