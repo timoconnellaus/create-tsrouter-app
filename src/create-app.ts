@@ -701,7 +701,7 @@ export async function createApp(
   if (environment.getErrors().length) {
     errorStatement = `
 
-${chalk.red('There were errors encountered during this process:')}
+${chalk.red('Errors were encountered during this process:')}
 
 ${environment.getErrors().join('\n')}`
   }
