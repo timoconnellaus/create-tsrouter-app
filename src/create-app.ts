@@ -490,7 +490,7 @@ export async function createApp(
         ['shadcn@canary', 'add', ...shadcnComponents],
         targetDir,
       )
-      s?.stop(`Installed required shadcn components`)
+      s?.stop(`Installed additional shadcn components`)
     }
   }
 
