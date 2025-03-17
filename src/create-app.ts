@@ -463,7 +463,7 @@ export async function createApp(
         await environment.execute(
           addOn.command.command,
           addOn.command.args || [],
-          targetDir,
+          resolve(targetDir),
         )
       }
 
@@ -488,7 +488,7 @@ export async function createApp(
       await environment.execute(
         'npx',
         ['shadcn@canary', 'add', ...shadcnComponents],
-        targetDir,
+        resolve(targetDir),
       )
       s?.stop(`Installed additional shadcn components`)
     }
@@ -658,7 +658,11 @@ export async function createApp(
 
   // Install dependencies
   s?.start(`Installing dependencies via ${options.packageManager}...`)
-  await environment.execute(options.packageManager, ['install'], targetDir)
+  await environment.execute(
+    options.packageManager,
+    ['install'],
+    resolve(targetDir),
+  )
   s?.stop(`Installed dependencies`)
 
   if (warnings.length > 0) {
@@ -675,14 +679,14 @@ export async function createApp(
         await environment.execute(
           options.packageManager,
           ['run', 'check', '--fix'],
-          targetDir,
+          resolve(targetDir),
         )
         break
       default:
         await environment.execute(
           options.packageManager,
           ['run', 'check', '--', '--fix'],
-          targetDir,
+          resolve(targetDir),
         )
         break
     }
@@ -691,7 +695,7 @@ export async function createApp(
 
   if (options.git) {
     s?.start(`Initializing git repository...`)
-    await environment.execute('git', ['init'], targetDir)
+    await environment.execute('git', ['init'], resolve(targetDir))
     s?.stop(`Initialized git repository`)
   }
 
