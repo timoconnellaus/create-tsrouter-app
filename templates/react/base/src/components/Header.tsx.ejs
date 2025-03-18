@@ -15,11 +15,13 @@ export default function Header() {
 <div className="px-2 font-bold"><Link to="<%= route.url %>"><%= route.name %></Link></div>
 <% } } %>
       </nav>
+<% if (integrations.filter(i => i.type === 'header-user').length > 0) { %>
       <div>
 <% for(const integration of integrations.filter(i => i.type === 'header-user')) { %>
   <<%= integration.name %> />
 <% } %>
-        </div>
+      </div>
+<% } %>
     </header>
   )
 }

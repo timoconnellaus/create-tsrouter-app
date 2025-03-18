@@ -5,3 +5,5 @@ export const FILE_ROUTER = 'file-router'
 
 export const SUPPORTED_FRAMEWORKS: Array<Framework> = ['solid', 'react']
 export const DEFAULT_FRAMEWORK: Framework = 'react'
+
+export const CONFIG_FILE = '.cta.json'

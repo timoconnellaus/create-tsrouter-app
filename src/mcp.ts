@@ -1,9 +1,12 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import express from 'express'
 import { z } from 'zod'
 
 import { createApp } from './create-app.js'
 import { finalizeAddOns } from './add-ons.js'
+import { createDefaultEnvironment } from './environment.js'
 
 const server = new McpServer({
   name: 'Demo',
@@ -48,6 +51,10 @@ const tanStackReactAddOns = [
     id: 'store',
     description: 'Enable the TanStack Store state management library',
   },
+  {
+    id: 'tanchat',
+    description: 'Add an AI chatbot example to the application',
+  },
 ]
 
 server.tool('listTanStackReactAddOns', {}, () => {
@@ -77,6 +84,7 @@ server.tool(
           'start',
           'store',
           'tanstack-query',
+          'tanchat',
         ]),
       )
       .describe('The IDs of the add-ons to install'),
@@ -96,6 +104,7 @@ server.tool(
           typescript: true,
           tailwind: true,
           packageManager: 'pnpm',
+          toolchain: 'none',
           mode: 'file-router',
           addOns: true,
           chosenAddOns,
@@ -104,6 +113,7 @@ server.tool(
         },
         {
           silent: true,
+          environment: createDefaultEnvironment(),
         },
       )
       return {
@@ -140,6 +150,10 @@ const tanStackSolidAddOns = [
     id: 'tanstack-query',
     description: 'Enable TanStack Query for data fetching',
   },
+  {
+    id: 'tanchat',
+    description: 'Add an AI chatbot example to the application',
+  },
 ]
 
 server.tool('listTanStackSolidAddOns', {}, () => {
@@ -158,7 +172,16 @@ server.tool(
       ),
     cwd: z.string().describe('The directory to create the application in'),
     addOns: z
-      .array(z.enum(['solid-ui', 'form', 'sentry', 'store', 'tanstack-query']))
+      .array(
+        z.enum([
+          'solid-ui',
+          'form',
+          'sentry',
+          'store',
+          'tanstack-query',
+          'tanchat',
+        ]),
+      )
       .describe('The IDs of the add-ons to install'),
   },
   async ({ projectName, addOns, cwd }) => {
@@ -176,6 +199,7 @@ server.tool(
           typescript: true,
           tailwind: true,
           packageManager: 'pnpm',
+          toolchain: 'none',
           mode: 'file-router',
           addOns: true,
           chosenAddOns,
@@ -184,6 +208,7 @@ server.tool(
         },
         {
           silent: true,
+          environment: createDefaultEnvironment(),
         },
       )
       return {
@@ -199,7 +224,29 @@ server.tool(
   },
 )
 
-export default async function runServer() {
-  const transport = new StdioServerTransport()
-  await server.connect(transport)
+export default async function runServer(sse: boolean) {
+  if (sse) {
+    const app = express()
+
+    let transport: SSEServerTransport | null = null
+
+    app.get('/sse', (req, res) => {
+      transport = new SSEServerTransport('/messages', res)
+      server.connect(transport)
+    })
+
+    app.post('/messages', (req, res) => {
+      if (transport) {
+        transport.handlePostMessage(req, res)
+      }
+    })
+
+    const port = process.env.PORT || 8080
+    app.listen(port, () => {
+      console.log(`Server is running on port http://localhost:${port}/sse`)
+    })
+  } else {
+    const transport = new StdioServerTransport()
+    await server.connect(transport)
+  }
 }

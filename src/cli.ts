@@ -4,12 +4,17 @@ import { intro, log } from '@clack/prompts'
 import { createApp } from './create-app.js'
 import { normalizeOptions, promptForOptions } from './options.js'
 import { SUPPORTED_PACKAGE_MANAGERS } from './package-manager.js'
+import { SUPPORTED_TOOLCHAINS } from './toolchain.js'
 
 import runServer from './mcp.js'
 import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
 
+import { createDefaultEnvironment } from './environment.js'
+import { add } from './add.js'
+
 import type { PackageManager } from './package-manager.js'
+import type { ToolChain } from './toolchain.js'
 import type { CliOptions, Framework } from './types.js'
 
 export function cli() {
@@ -18,6 +23,15 @@ export function cli() {
   program
     .name('create-tsrouter-app')
     .description('CLI to create a new TanStack application')
+
+  program
+    .command('add')
+    .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
+    .action(async (addOn: string) => {
+      await add(addOn.split(',').map((addon) => addon.trim()))
+    })
+
+  program // 104 22
     .argument('[project-name]', 'name of the project')
     .option('--no-git', 'do not create a git repository')
     .option<Framework>(
@@ -65,6 +79,20 @@ export function cli() {
         return value as PackageManager
       },
     )
+    .option<ToolChain>(
+      `--toolchain <${SUPPORTED_TOOLCHAINS.join('|')}>`,
+      `Explicitly tell the CLI to use this toolchain`,
+      (value) => {
+        if (!SUPPORTED_TOOLCHAINS.includes(value as ToolChain)) {
+          throw new InvalidArgumentError(
+            `Invalid toolchain: ${value}. The following are allowed: ${SUPPORTED_TOOLCHAINS.join(
+              ', ',
+            )}`,
+          )
+        }
+        return value as ToolChain
+      },
+    )
     .option('--tailwind', 'add Tailwind CSS', false)
     .option<Array<string> | boolean>(
       '--add-ons [...add-ons]',
@@ -79,11 +107,12 @@ export function cli() {
     )
     .option('--list-add-ons', 'list all available add-ons', false)
     .option('--mcp', 'run the MCP server', false)
+    .option('--mcp-sse', 'run the MCP server in SSE mode', false)
     .action(async (projectName: string, options: CliOptions) => {
       if (options.listAddOns) {
         await listAddOns(options)
-      } else if (options.mcp) {
-        await runServer()
+      } else if (options.mcp || options.mcpSse) {
+        await runServer(!!options.mcpSse)
       } else {
         try {
           const cliOptions = {
@@ -98,7 +127,9 @@ export function cli() {
             intro("Let's configure your TanStack application")
             finalOptions = await promptForOptions(cliOptions)
           }
-          await createApp(finalOptions)
+          await createApp(finalOptions, {
+            environment: createDefaultEnvironment(),
+          })
         } catch (error) {
           log.error(
             error instanceof Error

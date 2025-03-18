@@ -6,7 +6,7 @@ To run this application:
 
 ```bash
 <%= packageManager %> install
-<%= packageManager %> start
+<%= getPackageManagerRunScript('start') %>  
 ```
 
 # Building For Production
@@ -14,7 +14,7 @@ To run this application:
 To build this application for production:
 
 ```bash
-<%= packageManager %> run build
+<%= getPackageManagerRunScript('build') %>
 ```
 
 ## Testing
@@ -22,7 +22,7 @@ To build this application for production:
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
 ```bash
-<%= packageManager %> run test
+<%= getPackageManagerRunScript('test') %>
 ```
 
 ## Styling
@@ -31,13 +31,23 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 <% } else { %>
 This project uses CSS for styling.
 <% } %>
+<% if (toolchain && toolchain === 'biome') { %>
+## Linting & Formatting
+This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+
+```bash
+<%= getPackageManagerRunScript('lint') %>
+<%= getPackageManagerRunScript('format') %>
+<%= getPackageManagerRunScript('check') %>
+```
+<% } %>
 
 <% for(const addon of addOns.filter(addon => addon.readme)) { %>
 <%- addon.readme %>
 <% } %>
 
 ## Routing
-<% if (fileRouter) { %>This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as fiels in `src/routes`.<% } else { %>This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a code based router. Which means that the routes are defined in code (in the `./src/main.<%= jsx %>` file). If you like you can also use a file based routing setup by following the [File Based Routing](https://tanstack.com/router/latest/docs/framework/react/guide/file-based-routing) guide.<% } %>
+<% if (fileRouter) { %>This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.<% } else { %>This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a code based router. Which means that the routes are defined in code (in the `./src/main.<%= jsx %>` file). If you like you can also use a file based routing setup by following the [File Based Routing](https://tanstack.com/router/latest/docs/framework/react/guide/file-based-routing) guide.<% } %>
 
 ### Adding A Route
 <% if (fileRouter) { %>
@@ -142,8 +152,8 @@ const rootRoute = createRootRoute({
 Here is an example layout that includes a header:
 
 ```tsx
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { Link } from "@tanstack/react-router";
 
@@ -165,7 +175,7 @@ export const Route = createRootRoute({
 <% } %>
 The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
 
-More information on layouts can be found in the [Layouts documentation](hthttps://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
 
 <% if (codeRouter) { %>
 ### Migrating To File Base Routing
@@ -173,7 +183,7 @@ More information on layouts can be found in the [Layouts documentation](hthttps:
 First you need to add the Vite plugin for Tanstack Router:
 
 ```bash
-<%= packageManager %> install -D @tanstack/router-plugin
+<%= getPackageManagerAddScript("@tanstack/router-plugin", true) %>
 ```
 
 From there you need to update your `vite.config.js` file to use the plugin:
@@ -204,8 +214,8 @@ mkdir src/routes
 Then you'll need to create a `src/routes/__root.<%= jsx %>` file with the contents of the root route that was in `main.<%= jsx %>`.
 
 ```tsx
-import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRoute({
   component: () => (
@@ -306,7 +316,13 @@ import "./styles.css";
 import reportWebVitals from "./reportWebVitals.<%= js %>";
 
 // Create a new router instance
-const router = createRouter({ routeTree, defaultPreload: "intent", scrollRestoration: true, defaultStructuralSharing: true });
+const router = createRouter({
+  routeTree,
+  defaultPreload: "intent",
+  defaultPreloadStaleTime: 0,
+  scrollRestoration: true,
+  defaultStructuralSharing: true
+});
 <% if (typescript) { %>
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -381,10 +397,10 @@ React-Query is an excellent addition or alternative to route loading and integra
 First add your dependencies:
 
 ```bash
-<%= packageManager %> install @tanstack/react-query @tanstack/react-query-devtools
+<%= getPackageManagerAddScript("@tanstack/react-query @tanstack/react-query-devtools") %>
 ```
 
-Next we'll need to creata query client and provider. We recommend putting those in `main.<%= jsx %>`.
+Next we'll need to create a query client and provider. We recommend putting those in `main.<%= jsx %>`.
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -464,7 +480,7 @@ Another common requirement for React applications is state management. There are
 First you need to add TanStack Store as a dependency:
 
 ```bash
-<%= packageManager %> install @tanstack/store
+<%= getPackageManagerAddScript("@tanstack/store") %>
 ```
 
 Now let's create a simple counter in the `src/App.<%= jsx %>` file as a demonstration.

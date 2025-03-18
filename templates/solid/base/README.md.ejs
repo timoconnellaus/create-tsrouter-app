@@ -6,7 +6,7 @@ To run this application:
 
 ```bash
 <%= packageManager %> install
-<%= packageManager %> start
+<%= getPackageManagerRunScript('start') %>
 ```
 
 # Building For Production
@@ -14,7 +14,7 @@ To run this application:
 To build this application for production:
 
 ```bash
-<%= packageManager %> run build
+<%= getPackageManagerRunScript('build') %>
 ```
 
 ## Styling
@@ -131,8 +131,8 @@ const rootRoute = createRootRoute({
 Here is an example layout that includes a header:
 
 ```tsx
-import { createRootRoute, Outlet } from '@tanstack/solid-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { Outlet, createRootRoute } from '@tanstack/solid-router'
+import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
 
 import { Link } from "@tanstack/solid-router";
 
@@ -154,7 +154,7 @@ export const Route = createRootRoute({
 <% } %>
 The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
 
-More information on layouts can be found in the [Layouts documentation](hthttps://tanstack.com/router/latest/docs/framework/solid/guide/routing-concepts#layouts).
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/solid/guide/routing-concepts#layouts).
 
 ## Data Fetching
 

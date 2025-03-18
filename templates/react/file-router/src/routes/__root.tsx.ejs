@@ -1,17 +1,20 @@
-import { createRootRoute, Outlet<% if (addOnEnabled.start) { %>
-,HeadContent, Scripts<% } %> } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { Outlet<% if (addOnEnabled.start) { %>
+, HeadContent, Scripts<% } %>, <% if (addOnEnabled["tanstack-query"]) { %>createRootRouteWithContext<% } else { %>createRootRoute<% } %> } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 <% if (addOns.length) { %>
 import Header from '../components/Header'
 <% } %><% for(const integration of integrations.filter(i => i.type === 'layout' || i.type === 'provider')) { %>
 import <%= integration.name %> from "../<%= integration.path %>";
 <% } %>
-  
 <% if (addOnEnabled.start) { %>
 import appCss from '../styles.css?url'
-<% } %>
-
-export const Route = createRootRoute({
+<% } %><% if (addOnEnabled["tanstack-query"]) { %>
+import type { QueryClient } from '@tanstack/react-query'
+interface MyRouterContext {
+  queryClient: QueryClient
+}<% } %>
+  
+export const Route = <% if (addOnEnabled["tanstack-query"]) { %>createRootRouteWithContext<MyRouterContext>()<% } else { %>createRootRoute<% } %>({
 <% if (addOnEnabled.start) { %>
     head: () => ({
     meta: [
@@ -47,7 +50,7 @@ export const Route = createRootRoute({
       <% for(const integration of integrations.filter(i => i.type === 'layout')) { %>
         <<%= integration.name %> />
       <% } %>
-    <% for(const integration of integrations.filter(i => i.type === 'provider').toReversed()) { %>
+    <% for(const integration of integrations.filter(i => i.type === 'provider').reverse()) { %>
       </<%= integration.name %>>
     <% } %>
 <% if (addOnEnabled.start) { %></RootDocument><% } else { %></><% } %>
@@ -57,7 +60,7 @@ export const Route = createRootRoute({
 <% if (addOnEnabled.start) { %>
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html>
+    <html lang="en">
       <head>
         <HeadContent />
       </head>

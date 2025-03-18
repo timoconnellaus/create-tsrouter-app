@@ -10,6 +10,7 @@ const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
+  defaultPreloadStaleTime: 0,
 })
 
 <% if (addOnEnabled.sentry) { %>
@@ -40,5 +41,7 @@ function App() {
   )
 }
 
-const rootElement = document.getElementById('app')!
-render(() => <App />, rootElement!)
+const rootElement = document.getElementById('app')
+if(rootElement) {
+  render(() => <App />, rootElement)
+}
