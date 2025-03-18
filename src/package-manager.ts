@@ -37,7 +37,7 @@ export function packageManagerExecute(
     case 'pnpm':
       return environment.execute('pnpx', [pkg, ...args], cwd)
     case 'bun':
-      return environment.execute('bunx', [pkg, ...args], cwd)
+      return environment.execute('bunx', ['--bun', pkg, ...args], cwd)
     case 'deno':
       return environment.execute('deno', ['run', `npm:${pkg}`, ...args], cwd)
     default:
