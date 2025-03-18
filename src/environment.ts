@@ -5,7 +5,7 @@ import {
   readFile,
   writeFile,
 } from 'node:fs/promises'
-import { existsSync, readdir, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, statSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
@@ -109,6 +109,7 @@ export function createMemoryEnvironment() {
       command,
       args,
     })
+    return Promise.resolve()
   }
   environment.readFile = async (path: string, encoding?: BufferEncoding) => {
     if (isTemplatePath(path)) {
