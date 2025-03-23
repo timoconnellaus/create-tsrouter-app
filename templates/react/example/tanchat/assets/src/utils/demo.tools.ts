@@ -1,24 +1,28 @@
 import { experimental_createMCPClient, tool } from 'ai'
+//import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { z } from 'zod'
 import guitars from '../data/example-guitars'
 
-// Example of using an MCP server to get tools
-// const mcpCient = await experimental_createMCPClient({
+// Example of using an SSE MCP server
+// const mcpClient = await experimental_createMCPClient({
 //   transport: {
-//     type: 'stdio',
-//     args: [
-//       '--directory',
-//       '~/mcp/servers/src/sqlite',
-//       'run',
-//       'mcp-server-sqlite',
-//       '--db-path',
-//       '~/sqlite-example/orders.db',
-//     ],
-//     command: 'uv',
+//     type: "sse",
+//     url: "http://localhost:8081/sse",
 //   },
-// })
+//   name: "Demo Service",
+// });
 
-const getProducts = tool({
+// Example of using an STDIO MCP server
+// const mcpClient = await experimental_createMCPClient({
+//   transport: new StdioClientTransport({
+//     command: "node",
+//     args: [
+//       "stdio-server.js",
+//     ],
+//   }),
+// });
+
+const getGuitars = tool({
   description: 'Get all products from the database',
   parameters: z.object({}),
   execute: async () => {
@@ -37,7 +41,7 @@ export default async function getTools() {
   // const mcpTools = await mcpCient.tools()
   return {
     // ...mcpTools,
-    getProducts,
+    getGuitars,
     recommendGuitar,
   }
 }

@@ -8,6 +8,7 @@ import chalk from 'chalk'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { sortObject } from './utils.js'
 import { writeConfigFile } from './config-file.js'
+import { packageManagerExecute } from './package-manager.js'
 
 import type { Environment } from './environment.js'
 import type { Options } from './types.js'
@@ -484,9 +485,11 @@ export async function createApp(
       s?.start(
         `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
       )
-      await environment.execute(
-        'npx',
-        ['shadcn@canary', 'add', '--silent', '--yes', ...shadcnComponents],
+      await packageManagerExecute(
+        environment,
+        options.packageManager,
+        'shadcn@latest',
+        ['add', '--silent', '--yes', ...shadcnComponents],
         resolve(targetDir),
       )
       s?.stop(`Installed additional shadcn components`)
@@ -723,6 +726,6 @@ Use the following commands to start your app:
 % cd ${options.projectName}
 % ${startCommand}
 
-Please read README.md for more information on testing, styling, adding routes, react-query, etc.${errorStatement}`)
+Please read the README.md for more information on testing, styling, adding routes, react-query, etc.${errorStatement}`)
   }
 }

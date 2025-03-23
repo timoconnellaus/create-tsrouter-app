@@ -10,9 +10,15 @@ export interface Message {
   content: string
 }
 
-const SYSTEM_PROMPT = `You are TanStack Chat, an AI assistant using Markdown for clear and structured responses.`
+const SYSTEM_PROMPT = `You are a helpful assistant for a store that sells guitars.
 
-export const genAIResponse = createServerFn({ method: 'GET', response: 'raw' })
+You can use the following tools to help the user:
+
+- getGuitars: Get all guitars from the database
+- recommendGuitar: Recommend a guitar to the user
+`
+
+export const genAIResponse = createServerFn({ method: 'POST', response: 'raw' })
   .validator(
     (d: {
       messages: Array<Message>
