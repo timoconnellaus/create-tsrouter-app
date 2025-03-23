@@ -1,4 +1,4 @@
-import type { Environment } from './environment'
+import type { Environment } from './types.js'
 
 export const SUPPORTED_PACKAGE_MANAGERS = [
   'npm',

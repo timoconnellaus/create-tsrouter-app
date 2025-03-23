@@ -100,7 +100,7 @@ export async function finalizeAddOns(
     let addOn: AddOn | undefined
     const localAddOn = addOns.find((a) => a.id === addOnID)
     if (localAddOn) {
-      addOn = localAddOn
+      addOn = loadAddOn(localAddOn)
     } else if (addOnID.startsWith('http')) {
       addOn = await loadRemoteAddOn(addOnID)
     } else {
@@ -131,12 +131,11 @@ export async function listAddOns(options: CliOptions) {
   }
 }
 
-function loadAddOn(path: string): AddOn {
-  const fileContent = await readFile(path, 'utf-8')
-  return JSON.parse(fileContent)
+function loadAddOn(addOn: AddOn): AddOn {
+  return addOn
 }
 
-async function loadRemoteAddOn(url: string): AddOn {
+async function loadRemoteAddOn(url: string): Promise<AddOn> {
   const response = await fetch(url)
   const fileContent = await response.json()
   return JSON.parse(fileContent)

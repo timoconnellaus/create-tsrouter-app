@@ -3,8 +3,7 @@ import { resolve } from 'node:path'
 
 import { CONFIG_FILE } from './constants.js'
 
-import type { Environment } from './environment'
-import type { Options } from './types'
+import type { Environment, Options } from './types'
 
 export type PersistedOptions = Exclude<
   Partial<Options>,

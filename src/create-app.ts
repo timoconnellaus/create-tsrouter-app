@@ -251,6 +251,7 @@ async function copyAddOnFile(
   environment: Environment,
   content: string,
   target: string,
+  targetPath: string,
   templateFile: (content: string, targetFileName: string) => Promise<void>,
 ) {
   let targetFile = basename(target).replace(/_dot_/, '.')
@@ -264,8 +265,6 @@ async function copyAddOnFile(
     targetFile = targetFile.replace('.append', '')
     isAppend = true
   }
-
-  const targetPath = resolve(dirname(target), targetFile)
 
   if (isTemplate) {
     await templateFile(content, targetPath)
@@ -445,10 +444,11 @@ export async function createApp(
       s?.start(`Setting up ${addOn.name}...`)
       if (addOn.files) {
         for (const file of Object.keys(addOn.files)) {
-          copyAddOnFile(
+          await copyAddOnFile(
             environment,
             addOn.files[file],
             file,
+            resolve(targetDir, file),
             (content, targetFileName) =>
               templateFileFromContent(targetFileName, content),
           )
