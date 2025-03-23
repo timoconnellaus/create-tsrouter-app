@@ -43,6 +43,10 @@ export function createTestEnvironment(projectName: string) {
       args,
     })
   }
+  environment.deleteFile = async (path: string) => {
+    const relPath = trimProjectRelativePath(path)
+    delete output.files[relPath]
+  }
   environment.readFile = async (path: string, encoding?: BufferEncoding) => {
     if (isTemplatePath(path)) {
       return (await readFile(path, encoding)).toString()

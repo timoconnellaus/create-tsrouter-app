@@ -3,6 +3,7 @@ import {
   copyFile,
   mkdir,
   readFile,
+  unlink,
   writeFile,
 } from 'node:fs/promises'
 import { existsSync, readdirSync, statSync } from 'node:fs'
@@ -43,6 +44,9 @@ export function createDefaultEnvironment(): Environment {
           `Command "${command} ${args.join(' ')}" did not run successfully. Please run this manually in your project.`,
         )
       }
+    },
+    deleteFile: async (path: string) => {
+      await unlink(path)
     },
 
     readFile: (path: string, encoding?: BufferEncoding) =>
@@ -106,6 +110,9 @@ export function createMemoryEnvironment() {
   environment.writeFile = async (path: string, contents: string) => {
     fs.mkdirSync(dirname(path), { recursive: true })
     await fs.writeFileSync(path, contents)
+  }
+  environment.deleteFile = async (path: string) => {
+    await fs.unlinkSync(path)
   }
   environment.exists = (path: string) => {
     if (isTemplatePath(path)) {

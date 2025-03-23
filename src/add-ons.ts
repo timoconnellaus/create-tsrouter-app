@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import chalk from 'chalk'
@@ -103,6 +103,7 @@ export async function finalizeAddOns(
       addOn = loadAddOn(localAddOn)
     } else if (addOnID.startsWith('http')) {
       addOn = await loadRemoteAddOn(addOnID)
+      addOns.push(addOn)
     } else {
       throw new Error(`Add-on ${addOnID} not found`)
     }
@@ -116,7 +117,10 @@ export async function finalizeAddOns(
     }
   }
 
-  return [...finalAddOnIDs].map((id) => addOns.find((a) => a.id === id)!)
+  const finalAddOns = [...finalAddOnIDs].map(
+    (id) => addOns.find((a) => a.id === id)!,
+  )
+  return finalAddOns
 }
 
 export async function listAddOns(options: CliOptions) {
@@ -138,5 +142,6 @@ function loadAddOn(addOn: AddOn): AddOn {
 async function loadRemoteAddOn(url: string): Promise<AddOn> {
   const response = await fetch(url)
   const fileContent = await response.json()
-  return JSON.parse(fileContent)
+  fileContent.id = url
+  return fileContent
 }

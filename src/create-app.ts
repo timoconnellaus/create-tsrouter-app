@@ -1,4 +1,4 @@
-import { basename, dirname, resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { log, outro, spinner } from '@clack/prompts'
 import { render } from 'ejs'
@@ -10,7 +10,7 @@ import { sortObject } from './utils.js'
 import { writeConfigFile } from './config-file.js'
 import { packageManagerExecute } from './package-manager.js'
 
-import type { Environment, Options } from './types.js'
+import type { AddOn, Environment, Options } from './types.js'
 
 function createCopyFiles(environment: Environment, targetDir: string) {
   return async function copyFiles(
@@ -342,6 +342,34 @@ export async function createApp(
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
+  async function runAddOn(addOn: AddOn) {
+    if (addOn.files) {
+      for (const file of Object.keys(addOn.files)) {
+        await copyAddOnFile(
+          environment,
+          addOn.files[file],
+          file,
+          resolve(targetDir, file),
+          (content, targetFileName) =>
+            templateFileFromContent(targetFileName, content),
+        )
+      }
+    }
+    if (addOn.deletedFiles) {
+      for (const file of addOn.deletedFiles) {
+        await environment.deleteFile(resolve(targetDir, file))
+      }
+    }
+
+    if (addOn.command && addOn.command.command) {
+      await environment.execute(
+        addOn.command.command,
+        addOn.command.args || [],
+        resolve(targetDir),
+      )
+    }
+  }
+
   // Setup the .vscode directory
   switch (options.toolchain) {
     case 'biome':
@@ -437,33 +465,15 @@ export async function createApp(
 
   // Copy all the asset files from the addons
   const s = silent ? null : spinner()
-  for (const phase of ['setup', 'add-on', 'example']) {
-    for (const addOn of options.chosenAddOns.filter(
-      (addOn) => addOn.phase === phase,
-    )) {
-      s?.start(`Setting up ${addOn.name}...`)
-      if (addOn.files) {
-        for (const file of Object.keys(addOn.files)) {
-          await copyAddOnFile(
-            environment,
-            addOn.files[file],
-            file,
-            resolve(targetDir, file),
-            (content, targetFileName) =>
-              templateFileFromContent(targetFileName, content),
-          )
-        }
+  for (const type of ['add-on', 'example']) {
+    for (const phase of ['setup', 'add-on']) {
+      for (const addOn of options.chosenAddOns.filter(
+        (addOn) => addOn.phase === phase && addOn.type === type,
+      )) {
+        s?.start(`Setting up ${addOn.name}...`)
+        await runAddOn(addOn)
+        s?.stop(`${addOn.name} setup complete`)
       }
-
-      if (addOn.command) {
-        await environment.execute(
-          addOn.command.command,
-          addOn.command.args || [],
-          resolve(targetDir),
-        )
-      }
-
-      s?.stop(`${addOn.name} setup complete`)
     }
   }
 
@@ -653,6 +663,15 @@ export async function createApp(
 
   // Create the README.md
   await templateFile(templateDirBase, 'README.md.ejs')
+
+  // Adding overlays
+  for (const addOn of options.chosenAddOns.filter(
+    (addOn) => addOn.type === 'overlay',
+  )) {
+    s?.start(`Setting up overlay ${addOn.name}...`)
+    await runAddOn(addOn)
+    s?.stop(`Overlay ${addOn.name} setup complete`)
+  }
 
   // Install dependencies
   s?.start(`Installing dependencies via ${options.packageManager}...`)

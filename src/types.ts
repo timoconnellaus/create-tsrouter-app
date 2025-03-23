@@ -41,6 +41,7 @@ export type Environment = {
   copyFile: (from: string, to: string) => Promise<void>
   writeFile: (path: string, contents: string) => Promise<void>
   execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
+  deleteFile: (path: string) => Promise<void>
 
   readFile: (path: string, encoding?: BufferEncoding) => Promise<string>
   exists: (path: string) => boolean
@@ -73,9 +74,9 @@ export type Variable = BooleanVariable | NumberVariable | StringVariable
 
 export type AddOn = {
   id: string
-  type: 'add-on' | 'example'
   name: string
   description: string
+  type: 'add-on' | 'example' | 'overlay'
   link: string
   templates: Array<string>
   routes: Array<{
