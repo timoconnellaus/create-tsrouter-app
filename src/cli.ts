@@ -114,6 +114,7 @@ export function cli() {
       },
     )
     .option('--list-add-ons', 'list all available add-ons', false)
+    .option('--overlay [url]', 'add an overlay from a URL', false)
     .option('--mcp', 'run the MCP server', false)
     .option('--mcp-sse', 'run the MCP server in SSE mode', false)
     .action(async (projectName: string, options: CliOptions) => {

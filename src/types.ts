@@ -16,6 +16,7 @@ export interface Options {
   chosenAddOns: Array<AddOn>
   git: boolean
   variableValues: Record<string, string | number | boolean>
+  overlay?: AddOn | undefined
 }
 
 export interface CliOptions {
@@ -30,6 +31,7 @@ export interface CliOptions {
   listAddOns?: boolean
   mcp?: boolean
   mcpSse?: boolean
+  overlay?: string
 }
 
 export type Environment = {
@@ -101,4 +103,16 @@ export type AddOn = {
 
   files?: Record<string, string>
   deletedFiles?: Array<string>
+}
+
+export type Overlay = AddOn & {
+  type: 'overlay'
+  version: string
+  author: string
+  link: string
+  license: string
+  mode: typeof CODE_ROUTER | typeof FILE_ROUTER
+  framework: Framework
+  typescript: boolean
+  tailwind: boolean
 }

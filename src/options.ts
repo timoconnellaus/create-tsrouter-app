@@ -14,14 +14,14 @@ import {
 } from './package-manager.js'
 import { DEFAULT_TOOLCHAIN, SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
-import { finalizeAddOns, getAllAddOns } from './add-ons.js'
+import { finalizeAddOns, getAllAddOns, loadRemoteAddOn } from './add-ons.js'
 
-import type { AddOn, CliOptions, Options, Variable } from './types.js'
+import type { AddOn, CliOptions, Options, Overlay, Variable } from './types.js'
 
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(
   cliOptions: CliOptions,
-): Promise<Required<Options> | undefined> {
+): Promise<Options | undefined> {
   // in some cases, if you use windows/powershell, the argument for addons
   // if sepparated by comma is not really passed as an array, but as a string
   // with spaces, We need to normalize this edge case.
@@ -42,14 +42,32 @@ export async function normalizeOptions(
       tailwind = true
     }
 
+    let mode: typeof FILE_ROUTER | typeof CODE_ROUTER =
+      cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
+
+    const overlay = cliOptions.overlay
+      ? ((await loadRemoteAddOn(cliOptions.overlay)) as Overlay)
+      : undefined
+
+    if (overlay) {
+      tailwind = overlay.tailwind
+      typescript = overlay.typescript
+      cliOptions.framework = overlay.framework
+      mode = overlay.mode
+    }
+
     let addOns = false
     let chosenAddOns: Array<AddOn> = []
-    if (Array.isArray(cliOptions.addOns)) {
+    if (Array.isArray(cliOptions.addOns) || overlay?.dependsOn) {
       addOns = true
+      let finalAddOns = [...(overlay?.dependsOn || [])]
+      if (cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
+        finalAddOns = [...finalAddOns, ...cliOptions.addOns]
+      }
       chosenAddOns = await finalizeAddOns(
         cliOptions.framework || DEFAULT_FRAMEWORK,
         cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
-        cliOptions.addOns,
+        finalAddOns,
       )
       tailwind = true
       typescript = true
@@ -65,11 +83,12 @@ export async function normalizeOptions(
         getPackageManager() ||
         DEFAULT_PACKAGE_MANAGER,
       toolchain: cliOptions.toolchain || DEFAULT_TOOLCHAIN,
-      mode: cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
+      mode,
       git: !!cliOptions.git,
       addOns,
       chosenAddOns,
       variableValues: {},
+      overlay,
     }
   }
 }

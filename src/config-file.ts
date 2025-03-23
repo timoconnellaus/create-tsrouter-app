@@ -15,7 +15,7 @@ export type PersistedOptions = Exclude<
 export async function writeConfigFile(
   environment: Environment,
   targetDir: string,
-  options: Required<Options>,
+  options: Options,
 ) {
   const persistedOptions: PersistedOptions = {
     ...options,

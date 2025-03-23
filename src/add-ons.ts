@@ -139,7 +139,7 @@ function loadAddOn(addOn: AddOn): AddOn {
   return addOn
 }
 
-async function loadRemoteAddOn(url: string): Promise<AddOn> {
+export async function loadRemoteAddOn(url: string): Promise<AddOn> {
   const response = await fetch(url)
   const fileContent = await response.json()
   fileContent.id = url

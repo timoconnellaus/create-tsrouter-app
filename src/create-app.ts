@@ -43,7 +43,7 @@ function jsSafeName(name: string) {
 function createTemplateFile(
   environment: Environment,
   projectName: string,
-  options: Required<Options>,
+  options: Options,
   targetDir: string,
 ) {
   return async function templateFile(
@@ -140,7 +140,7 @@ function createTemplateFile(
 async function createPackageJSON(
   environment: Environment,
   projectName: string,
-  options: Required<Options>,
+  options: Options,
   templateDir: string,
   routerDir: string,
   targetDir: string,
@@ -278,7 +278,7 @@ async function copyAddOnFile(
 }
 
 export async function createApp(
-  options: Required<Options>,
+  options: Options,
   {
     silent = false,
     environment,
@@ -486,6 +486,13 @@ export async function createApp(
         }
       }
     }
+    if (options.overlay) {
+      if (options.overlay.shadcnComponents) {
+        for (const component of options.overlay.shadcnComponents) {
+          shadcnComponents.add(component)
+        }
+      }
+    }
 
     if (shadcnComponents.size > 0) {
       s?.start(
@@ -664,13 +671,11 @@ export async function createApp(
   // Create the README.md
   await templateFile(templateDirBase, 'README.md.ejs')
 
-  // Adding overlays
-  for (const addOn of options.chosenAddOns.filter(
-    (addOn) => addOn.type === 'overlay',
-  )) {
-    s?.start(`Setting up overlay ${addOn.name}...`)
-    await runAddOn(addOn)
-    s?.stop(`Overlay ${addOn.name} setup complete`)
+  // Adding overlay
+  if (options.overlay) {
+    s?.start(`Setting up overlay ${options.overlay.name}...`)
+    await runAddOn(options.overlay)
+    s?.stop(`Overlay ${options.overlay.name} setup complete`)
   }
 
   // Install dependencies
