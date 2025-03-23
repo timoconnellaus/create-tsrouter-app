@@ -15,22 +15,21 @@ import {
 import { DEFAULT_TOOLCHAIN, SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
 import { finalizeAddOns, getAllAddOns } from './add-ons.js'
-import type { AddOn, Variable } from './add-ons.js'
 
-import type { CliOptions, Options } from './types.js'
+import type { AddOn, CliOptions, Options, Variable } from './types.js'
 
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(
   cliOptions: CliOptions,
 ): Promise<Required<Options> | undefined> {
   // in some cases, if you use windows/powershell, the argument for addons
-  // if sepparated by comma is not really passed as an array, but as a string 
+  // if sepparated by comma is not really passed as an array, but as a string
   // with spaces, We need to normalize this edge case.
   if (Array.isArray(cliOptions.addOns) && cliOptions.addOns.length === 1) {
-      const parseSeparatedArgs = cliOptions.addOns[0].split(' ');
-      if (parseSeparatedArgs.length > 1) {
-          cliOptions.addOns = parseSeparatedArgs;
-      }
+    const parseSeparatedArgs = cliOptions.addOns[0].split(' ')
+    if (parseSeparatedArgs.length > 1) {
+      cliOptions.addOns = parseSeparatedArgs
+    }
   }
   if (cliOptions.projectName) {
     let typescript =
@@ -61,7 +60,10 @@ export async function normalizeOptions(
       projectName: cliOptions.projectName,
       typescript,
       tailwind,
-      packageManager: cliOptions.packageManager || getPackageManager() || DEFAULT_PACKAGE_MANAGER,
+      packageManager:
+        cliOptions.packageManager ||
+        getPackageManager() ||
+        DEFAULT_PACKAGE_MANAGER,
       toolchain: cliOptions.toolchain || DEFAULT_TOOLCHAIN,
       mode: cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
       git: !!cliOptions.git,

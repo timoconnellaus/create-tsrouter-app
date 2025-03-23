@@ -1,4 +1,3 @@
-import type { AddOn } from './add-ons.js'
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
@@ -31,4 +30,74 @@ export interface CliOptions {
   listAddOns?: boolean
   mcp?: boolean
   mcpSse?: boolean
+}
+
+export type Environment = {
+  startRun: () => void
+  finishRun: () => void
+  getErrors: () => Array<string>
+
+  appendFile: (path: string, contents: string) => Promise<void>
+  copyFile: (from: string, to: string) => Promise<void>
+  writeFile: (path: string, contents: string) => Promise<void>
+  execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
+
+  readFile: (path: string, encoding?: BufferEncoding) => Promise<string>
+  exists: (path: string) => boolean
+  readdir: (path: string) => Array<string>
+  isDirectory: (path: string) => boolean
+}
+
+type BooleanVariable = {
+  name: string
+  default: boolean
+  description: string
+  type: 'boolean'
+}
+
+type NumberVariable = {
+  name: string
+  default: number
+  description: string
+  type: 'number'
+}
+
+type StringVariable = {
+  name: string
+  default: string
+  description: string
+  type: 'string'
+}
+
+export type Variable = BooleanVariable | NumberVariable | StringVariable
+
+export type AddOn = {
+  id: string
+  type: 'add-on' | 'example'
+  name: string
+  description: string
+  link: string
+  templates: Array<string>
+  routes: Array<{
+    url: string
+    name: string
+  }>
+  packageAdditions: {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+    scripts?: Record<string, string>
+  }
+  command?: {
+    command: string
+    args?: Array<string>
+  }
+  readme?: string
+  phase: 'setup' | 'add-on'
+  shadcnComponents?: Array<string>
+  warning?: string
+  dependsOn?: Array<string>
+  variables?: Array<Variable>
+
+  files?: Record<string, string>
+  deletedFiles?: Array<string>
 }

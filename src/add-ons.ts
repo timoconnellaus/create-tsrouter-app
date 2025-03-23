@@ -1,66 +1,26 @@
 import { readFile } from 'node:fs/promises'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import chalk from 'chalk'
 
 import { DEFAULT_FRAMEWORK } from './constants.js'
-import type { CliOptions, Framework } from './types.js'
-
-type BooleanVariable = {
-  name: string
-  default: boolean
-  description: string
-  type: 'boolean'
-}
-
-type NumberVariable = {
-  name: string
-  default: number
-  description: string
-  type: 'number'
-}
-
-type StringVariable = {
-  name: string
-  default: string
-  description: string
-  type: 'string'
-}
-
-export type Variable = BooleanVariable | NumberVariable | StringVariable
-
-export type AddOn = {
-  id: string
-  type: 'add-on' | 'example'
-  name: string
-  description: string
-  link: string
-  templates: Array<string>
-  routes: Array<{
-    url: string
-    name: string
-  }>
-  directory: string
-  packageAdditions: {
-    dependencies?: Record<string, string>
-    devDependencies?: Record<string, string>
-    scripts?: Record<string, string>
-  }
-  command?: {
-    command: string
-    args?: Array<string>
-  }
-  readme?: string
-  phase: 'setup' | 'add-on'
-  shadcnComponents?: Array<string>
-  warning?: string
-  dependsOn?: Array<string>
-  variables?: Array<Variable>
-}
+import type { AddOn, CliOptions, Framework } from './types.js'
 
 function isDirectory(path: string): boolean {
   return statSync(path).isDirectory()
+}
+
+function findFilesRecursively(path: string, files: Record<string, string>) {
+  const dirFiles = readdirSync(path)
+  for (const file of dirFiles) {
+    const filePath = resolve(path, file)
+    if (isDirectory(filePath)) {
+      findFilesRecursively(filePath, files)
+    } else {
+      files[filePath] = readFileSync(filePath, 'utf-8').toString()
+    }
+  }
 }
 
 export async function getAllAddOns(
@@ -101,13 +61,24 @@ export async function getAllAddOns(
         readme = await readFile(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
       }
 
+      const absoluteFiles: Record<string, string> = {}
+      const assetsDir = resolve(addOnsBase, dir, 'assets')
+      if (existsSync(assetsDir)) {
+        await findFilesRecursively(assetsDir, absoluteFiles)
+      }
+      const files: Record<string, string> = {}
+      for (const file of Object.keys(absoluteFiles)) {
+        files[file.replace(assetsDir, '.')] = absoluteFiles[file]
+      }
+
       addOns.push({
         ...info,
         id: dir,
         type,
-        directory: resolve(addOnsBase, dir),
         packageAdditions,
         readme,
+        files,
+        deletedFiles: [],
       })
     }
   }
@@ -126,8 +97,13 @@ export async function finalizeAddOns(
   const addOns = await getAllAddOns(framework, template)
 
   for (const addOnID of finalAddOnIDs) {
-    const addOn = addOns.find((a) => a.id === addOnID)
-    if (!addOn) {
+    let addOn: AddOn | undefined
+    const localAddOn = addOns.find((a) => a.id === addOnID)
+    if (localAddOn) {
+      addOn = localAddOn
+    } else if (addOnID.startsWith('http')) {
+      addOn = await loadRemoteAddOn(addOnID)
+    } else {
       throw new Error(`Add-on ${addOnID} not found`)
     }
 
@@ -153,4 +129,15 @@ export async function listAddOns(options: CliOptions) {
   for (const addOn of addOns) {
     console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
   }
+}
+
+function loadAddOn(path: string): AddOn {
+  const fileContent = await readFile(path, 'utf-8')
+  return JSON.parse(fileContent)
+}
+
+async function loadRemoteAddOn(url: string): AddOn {
+  const response = await fetch(url)
+  const fileContent = await response.json()
+  return JSON.parse(fileContent)
 }

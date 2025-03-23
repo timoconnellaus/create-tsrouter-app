@@ -90,7 +90,15 @@ This is probably because this was created with an older version of create-tsrout
           description: 'A custom add-on',
           author: 'John Doe',
           license: 'MIT',
+          link: 'https://github.com/john-doe/custom-add-on',
           commands: [],
+          shadcnComponents: [],
+          templates: [persistedOptions.mode],
+          routes: [],
+          warning: '',
+          variables: {},
+          type: 'example',
+          phase: 'add-on',
         },
         null,
         2,
@@ -111,11 +119,17 @@ This is probably because this was created with an older version of create-tsrout
     (await readFile('package.json')).toString(),
   )
 
+  info.packageAdditions = {
+    scripts: {},
+    dependencies: {},
+    devDependencies: {},
+  }
+
   if (
     JSON.stringify(originalPackageJson.scripts) !==
     JSON.stringify(currentPackageJson.scripts)
   ) {
-    info.commands.push('start')
+    info.packageAdditions.scripts = currentPackageJson.scripts
   }
 
   const dependencies: Record<string, string> = {}
@@ -127,7 +141,7 @@ This is probably because this was created with an older version of create-tsrout
       dependencies[dependency] = currentPackageJson.dependencies[dependency]
     }
   }
-  info.dependencies = dependencies
+  info.packageAdditions.dependencies = dependencies
 
   const devDependencies: Record<string, string> = {}
   for (const dependency of Object.keys(currentPackageJson.devDependencies)) {
@@ -139,7 +153,7 @@ This is probably because this was created with an older version of create-tsrout
         currentPackageJson.devDependencies[dependency]
     }
   }
-  info.devDependencies = devDependencies
+  info.packageAdditions.devDependencies = devDependencies
 
   const changedFiles: Record<string, string> = {}
   await compareFiles('.', originalOutput.files, changedFiles)

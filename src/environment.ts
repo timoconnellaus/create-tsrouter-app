@@ -10,21 +10,7 @@ import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
 
-export type Environment = {
-  startRun: () => void
-  finishRun: () => void
-  getErrors: () => Array<string>
-
-  appendFile: (path: string, contents: string) => Promise<void>
-  copyFile: (from: string, to: string) => Promise<void>
-  writeFile: (path: string, contents: string) => Promise<void>
-  execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
-
-  readFile: (path: string, encoding?: BufferEncoding) => Promise<string>
-  exists: (path: string) => boolean
-  readdir: (path: string) => Array<string>
-  isDirectory: (path: string) => boolean
-}
+import type { Environment } from './types.js'
 
 export function createDefaultEnvironment(): Environment {
   let errors: Array<string> = []

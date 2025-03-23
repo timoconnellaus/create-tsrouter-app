@@ -10,8 +10,7 @@ import { sortObject } from './utils.js'
 import { writeConfigFile } from './config-file.js'
 import { packageManagerExecute } from './package-manager.js'
 
-import type { Environment } from './environment.js'
-import type { Options } from './types.js'
+import type { Environment, Options } from './types.js'
 
 function createCopyFiles(environment: Environment, targetDir: string) {
   return async function copyFiles(
@@ -48,8 +47,8 @@ function createTemplateFile(
   targetDir: string,
 ) {
   return async function templateFile(
-    templateDir: string,
     file: string,
+    content: string,
     targetFileName?: string,
     extraTemplateValues?: Record<string, any>,
   ) {
@@ -116,13 +115,8 @@ function createTemplateFile(
       getPackageManagerRunScript,
     }
 
-    const template = await environment.readFile(
-      resolve(templateDir, file),
-      'utf-8',
-    )
-    let content = ''
     try {
-      content = render(template, templateValues)
+      content = render(content, templateValues)
     } catch (error) {
       console.error(chalk.red(`EJS error in file ${file}`))
       console.error(error)
@@ -253,50 +247,33 @@ async function createPackageJSON(
   )
 }
 
-async function copyFilesRecursively(
+async function copyAddOnFile(
   environment: Environment,
-  source: string,
+  content: string,
   target: string,
-  templateFile: (file: string, targetFileName?: string) => Promise<void>,
+  templateFile: (content: string, targetFileName: string) => Promise<void>,
 ) {
-  if (environment.isDirectory(source)) {
-    const files = environment.readdir(source)
-    for (const file of files) {
-      const sourceChild = resolve(source, file)
-      const targetChild = resolve(target, file)
-      await copyFilesRecursively(
-        environment,
-        sourceChild,
-        targetChild,
-        templateFile,
-      )
-    }
+  let targetFile = basename(target).replace(/_dot_/, '.')
+  let isTemplate = false
+  if (targetFile.endsWith('.ejs')) {
+    targetFile = targetFile.replace('.ejs', '')
+    isTemplate = true
+  }
+  let isAppend = false
+  if (targetFile.endsWith('.append')) {
+    targetFile = targetFile.replace('.append', '')
+    isAppend = true
+  }
+
+  const targetPath = resolve(dirname(target), targetFile)
+
+  if (isTemplate) {
+    await templateFile(content, targetPath)
   } else {
-    let targetFile = basename(target).replace(/_dot_/, '.')
-    let isTemplate = false
-    if (targetFile.endsWith('.ejs')) {
-      targetFile = targetFile.replace('.ejs', '')
-      isTemplate = true
-    }
-    let isAppend = false
-    if (targetFile.endsWith('.append')) {
-      targetFile = targetFile.replace('.append', '')
-      isAppend = true
-    }
-
-    const targetPath = resolve(dirname(target), targetFile)
-
-    if (isTemplate) {
-      await templateFile(source, targetPath)
+    if (isAppend) {
+      await environment.appendFile(targetPath, content)
     } else {
-      if (isAppend) {
-        await environment.appendFile(
-          targetPath,
-          (await environment.readFile(source)).toString(),
-        )
-      } else {
-        await environment.copyFile(source, targetPath)
-      }
+      await environment.writeFile(targetPath, content)
     }
   }
 }
@@ -338,12 +315,30 @@ export async function createApp(
   }
 
   const copyFiles = createCopyFiles(environment, targetDir)
-  const templateFile = createTemplateFile(
+  const templateFileFromContent = createTemplateFile(
     environment,
     options.projectName,
     options,
     targetDir,
   )
+
+  async function templateFile(
+    templateBase: string,
+    file: string,
+    targetFileName?: string,
+    extraTemplateValues?: Record<string, any>,
+  ) {
+    const content = await environment.readFile(
+      resolve(templateBase, file),
+      'utf-8',
+    )
+    return templateFileFromContent(
+      file,
+      content.toString(),
+      targetFileName,
+      extraTemplateValues,
+    )
+  }
 
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
@@ -448,15 +443,16 @@ export async function createApp(
       (addOn) => addOn.phase === phase,
     )) {
       s?.start(`Setting up ${addOn.name}...`)
-      const addOnDir = resolve(addOn.directory, 'assets')
-      if (environment.exists(addOnDir)) {
-        await copyFilesRecursively(
-          environment,
-          addOnDir,
-          targetDir,
-          async (file: string, targetFileName?: string) =>
-            templateFile(addOnDir, file, targetFileName),
-        )
+      if (addOn.files) {
+        for (const file of Object.keys(addOn.files)) {
+          copyAddOnFile(
+            environment,
+            addOn.files[file],
+            file,
+            (content, targetFileName) =>
+              templateFileFromContent(targetFileName, content),
+          )
+        }
       }
 
       if (addOn.command) {
