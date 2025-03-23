@@ -9,6 +9,7 @@ import { SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import runServer from './mcp.js'
 import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
+import { initAddOn } from './custom-add-on.js'
 
 import { createDefaultEnvironment } from './environment.js'
 import { add } from './add.js'
@@ -29,6 +30,13 @@ export function cli() {
     .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
     .action(async (addOn: string) => {
       await add(addOn.split(',').map((addon) => addon.trim()))
+    })
+
+  program
+    .command('init-add-on')
+    .description('Initialize a new add-on from the current project')
+    .action(async () => {
+      await initAddOn()
     })
 
   program // 104 22
