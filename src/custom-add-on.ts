@@ -1,6 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises'
-import { existsSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { basename, dirname, resolve } from 'node:path'
 import chalk from 'chalk'
 
 import { createMemoryEnvironment } from './environment.js'
@@ -10,6 +10,96 @@ import { finalizeAddOns } from './add-ons.js'
 
 import type { Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
+
+type AddOnMode = 'add-on' | 'overlay'
+
+const INFO_FILE: Record<AddOnMode, string> = {
+  'add-on': '.add-on/info.json',
+  overlay: 'overlay-info.json',
+}
+const COMPILED_FILE: Record<AddOnMode, string> = {
+  'add-on': 'add-on.json',
+  overlay: 'overlay.json',
+}
+
+const ADD_ON_DIR = '.add-on'
+const ASSETS_DIR = 'assets'
+
+const IGNORE_FILES = [
+  ADD_ON_DIR,
+  'node_modules',
+  'dist',
+  'build',
+  '.git',
+  'pnpm-lock.yaml',
+  'package-lock.json',
+  'yarn.lock',
+  'bun.lockb',
+  'bun.lock',
+  'deno.lock',
+  'add-on.json',
+  'add-on-info.json',
+  'package.json',
+]
+
+const ADD_ON_IGNORE_FILES: Array<string> = [
+  'main.jsx',
+  'App.jsx',
+  'main.tsx',
+  'App.tsx',
+  'routeTree.gen.ts',
+]
+
+function templatize(routeCode: string, routeFile: string) {
+  let code = routeCode
+
+  // Replace the import
+  code = code.replace(
+    /import { createFileRoute } from '@tanstack\/react-router'/g,
+    `import { <% if (fileRouter) { %>createFileRoute<% } else { %>createRoute<% } %> } from '@tanstack/react-router'`,
+  )
+
+  // Extract route path and definition, then transform the route declaration
+  const routeMatch = code.match(
+    /export\s+const\s+Route\s*=\s*createFileRoute\(['"]([^'"]+)['"]\)\s*\(\{([^}]+)\}\)/,
+  )
+
+  let path = ''
+
+  if (routeMatch) {
+    const fullMatch = routeMatch[0]
+    path = routeMatch[1]
+    const routeDefinition = routeMatch[2]
+    code = code.replace(
+      fullMatch,
+      `<% if (codeRouter) { %>
+import type { RootRoute } from '@tanstack/react-router'
+<% } else { %>
+export const Route = createFileRoute('${path}')({${routeDefinition}})
+<% } %>`,
+    )
+
+    code += `
+<% if (codeRouter) { %>
+export default (parentRoute: RootRoute) => createRoute({
+  path: '${path}',
+  ${routeDefinition}
+  getParentRoute: () => parentRoute,
+})
+<% } %>
+`
+  } else {
+    console.error(`No route found in the file: ${routeFile}`)
+  }
+
+  const name = basename(path)
+    .replace('.tsx', '')
+    .replace(/^demo/, '')
+    .replace('.', ' ')
+    .trim()
+
+  return { url: path, code, name }
+}
 
 async function createOptions(
   json: PersistedOptions,
@@ -32,34 +122,34 @@ async function runCreateApp(options: Required<Options>) {
   return output
 }
 
-const IGNORE_FILES = [
-  'node_modules',
-  'dist',
-  'build',
-  '.add-ons',
-  '.git',
-  'pnpm-lock.yaml',
-  'package-lock.json',
-  'yarn.lock',
-  'bun.lockb',
-  'bun.lock',
-  'deno.lock',
-  'add-on.json',
-  'add-on-info.json',
-  'package.json',
-]
+async function recursivelyGatherFiles(
+  path: string,
+  files: Record<string, string>,
+) {
+  const dirFiles = await readdir(path, { withFileTypes: true })
+  for (const file of dirFiles) {
+    if (file.isDirectory()) {
+      await recursivelyGatherFiles(resolve(path, file.name), files)
+    } else {
+      files[resolve(path, file.name)] = (
+        await readFile(resolve(path, file.name))
+      ).toString()
+    }
+  }
+}
 
 async function compareFiles(
   path: string,
+  ignore: Array<string>,
   original: Record<string, string>,
   changedFiles: Record<string, string>,
 ) {
   const files = await readdir(path, { withFileTypes: true })
   for (const file of files) {
     const filePath = `${path}/${file.name}`
-    if (!IGNORE_FILES.includes(file.name)) {
+    if (!ignore.includes(file.name)) {
       if (file.isDirectory()) {
-        await compareFiles(filePath, original, changedFiles)
+        await compareFiles(filePath, ignore, original, changedFiles)
       } else {
         const contents = (await readFile(filePath)).toString()
         const absolutePath = resolve(process.cwd(), filePath)
@@ -71,7 +161,7 @@ async function compareFiles(
   }
 }
 
-export async function initAddOn() {
+export async function initAddOn(mode: AddOnMode) {
   const persistedOptions = await readConfigFile(process.cwd())
   if (!persistedOptions) {
     console.error(`${chalk.red('There is no .cta.json file in your project.')}
@@ -80,33 +170,52 @@ This is probably because this was created with an older version of create-tsrout
     return
   }
 
-  if (!existsSync('add-on-info.json')) {
-    writeFileSync(
-      'add-on-info.json',
-      JSON.stringify(
-        {
-          name: 'custom-add-on',
-          version: '0.0.1',
-          description: 'A custom add-on',
-          author: 'John Doe',
-          license: 'MIT',
-          link: 'https://github.com/john-doe/custom-add-on',
-          command: {},
-          shadcnComponents: [],
-          templates: [persistedOptions.mode],
-          routes: [],
-          warning: '',
-          variables: {},
-          phase: 'add-on',
-          type: 'overlay',
-        },
-        null,
-        2,
-      ),
-    )
+  if (mode === 'add-on') {
+    if (persistedOptions.mode !== 'file-router') {
+      console.error(`${chalk.red('This project is not using file-router mode.')}
+
+To create an add-on, the project must be created with the file-router mode.`)
+      return
+    }
+    if (!persistedOptions.tailwind) {
+      console.error(`${chalk.red('This project is not using Tailwind CSS.')}
+
+To create an add-on, the project must be created with Tailwind CSS.`)
+      return
+    }
+    if (!persistedOptions.typescript) {
+      console.error(`${chalk.red('This project is not using TypeScript.')}
+
+To create an add-on, the project must be created with TypeScript.`)
+      return
+    }
   }
 
-  const info = JSON.parse((await readFile('add-on-info.json')).toString())
+  const info = existsSync(INFO_FILE[mode])
+    ? JSON.parse((await readFile(INFO_FILE[mode])).toString())
+    : {
+        name: `${persistedOptions.projectName}-${mode}`,
+        version: '0.0.1',
+        description: mode === 'add-on' ? 'Add-on' : 'Project overlay',
+        author: 'Jane Smith <jane.smith@example.com>',
+        license: 'MIT',
+        link: `https://github.com/jane-smith/${persistedOptions.projectName}-${mode}`,
+        command: {},
+        shadcnComponents: [],
+        templates: [persistedOptions.mode],
+        routes: [],
+        warning: '',
+        variables: {},
+        phase: 'add-on',
+        type: mode,
+        packageAdditions: {
+          scripts: {},
+          dependencies: {},
+          devDependencies: {},
+        },
+      }
+
+  const compiledInfo = JSON.parse(JSON.stringify(info))
 
   const originalOutput = await runCreateApp(
     await createOptions(persistedOptions),
@@ -119,17 +228,12 @@ This is probably because this was created with an older version of create-tsrout
     (await readFile('package.json')).toString(),
   )
 
-  info.packageAdditions = {
-    scripts: {},
-    dependencies: {},
-    devDependencies: {},
-  }
-
-  if (
-    JSON.stringify(originalPackageJson.scripts) !==
-    JSON.stringify(currentPackageJson.scripts)
-  ) {
-    info.packageAdditions.scripts = currentPackageJson.scripts
+  for (const script of Object.keys(currentPackageJson.scripts)) {
+    if (
+      originalPackageJson.scripts[script] !== currentPackageJson.scripts[script]
+    ) {
+      info.packageAdditions.scripts[script] = currentPackageJson.scripts[script]
+    }
   }
 
   const dependencies: Record<string, string> = {}
@@ -155,23 +259,65 @@ This is probably because this was created with an older version of create-tsrout
   }
   info.packageAdditions.devDependencies = devDependencies
 
+  // Find altered files
   const changedFiles: Record<string, string> = {}
-  await compareFiles('.', originalOutput.files, changedFiles)
+  await compareFiles('.', IGNORE_FILES, originalOutput.files, changedFiles)
+  if (mode === 'overlay') {
+    compiledInfo.files = changedFiles
+  } else {
+    const assetsDir = resolve(ADD_ON_DIR, ASSETS_DIR)
+    if (!existsSync(assetsDir)) {
+      await compareFiles('.', IGNORE_FILES, originalOutput.files, changedFiles)
+      for (const file of Object.keys(changedFiles).filter(
+        (file) => !ADD_ON_IGNORE_FILES.includes(basename(file)),
+      )) {
+        mkdirSync(dirname(resolve(assetsDir, file)), {
+          recursive: true,
+        })
+        if (file.includes('/routes/')) {
+          const { url, code, name } = templatize(changedFiles[file], file)
+          info.routes.push({
+            url,
+            name,
+          })
+          writeFileSync(resolve(assetsDir, `${file}.ejs`), code)
+        } else {
+          writeFileSync(resolve(assetsDir, file), changedFiles[file])
+        }
+      }
+    }
+    const addOnFiles: Record<string, string> = {}
+    await recursivelyGatherFiles(assetsDir, addOnFiles)
+    compiledInfo.files = Object.keys(addOnFiles).reduce(
+      (acc, file) => {
+        acc[file.replace(assetsDir, '.')] = addOnFiles[file]
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+  }
 
-  info.files = changedFiles
-  info.deletedFiles = []
+  compiledInfo.routes = info.routes
+  compiledInfo.framework = persistedOptions.framework
+  compiledInfo.addDependencies = persistedOptions.existingAddOns
 
-  info.mode = persistedOptions.mode
-  info.framework = persistedOptions.framework
-  info.typescript = persistedOptions.typescript
-  info.tailwind = persistedOptions.tailwind
-  info.addDependencies = persistedOptions.existingAddOns
+  if (mode === 'overlay') {
+    compiledInfo.mode = persistedOptions.mode
+    compiledInfo.typescript = persistedOptions.typescript
+    compiledInfo.tailwind = persistedOptions.tailwind
 
-  for (const file of Object.keys(originalOutput.files)) {
-    if (!existsSync(file)) {
-      info.deletedFiles.push(file.replace(process.cwd(), '.'))
+    compiledInfo.deletedFiles = []
+    for (const file of Object.keys(originalOutput.files)) {
+      if (!existsSync(file)) {
+        compiledInfo.deletedFiles.push(file.replace(process.cwd(), '.'))
+      }
     }
   }
 
-  writeFileSync('add-on.json', JSON.stringify(info, null, 2))
+  if (!existsSync(resolve(INFO_FILE[mode]))) {
+    mkdirSync(resolve(dirname(INFO_FILE[mode])), { recursive: true })
+    writeFileSync(INFO_FILE[mode], JSON.stringify(info, null, 2))
+  }
+
+  writeFileSync(COMPILED_FILE[mode], JSON.stringify(compiledInfo, null, 2))
 }

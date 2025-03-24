@@ -3,7 +3,7 @@ import { <% if (fileRouter) { %>createFileRoute<% } else { %>createRoute<% } %> 
 import { useAppForm } from '../hooks/demo.form'
 
 <% if (codeRouter) { %>
-  import type { RootRoute } from '@tanstack/react-router'
+import type { RootRoute } from '@tanstack/react-router'
 <% } else { %>
 export const Route = createFileRoute('/demo/form')({
   component: AddressForm,

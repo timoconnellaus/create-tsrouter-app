@@ -33,10 +33,17 @@ export function cli() {
     })
 
   program
-    .command('init-add-on')
-    .description('Initialize a new add-on from the current project')
+    .command('update-add-on')
+    .description('Create or update an add-on from the current project')
     .action(async () => {
-      await initAddOn()
+      await initAddOn('add-on')
+    })
+
+  program
+    .command('update-overlay')
+    .description('Create or update a project overlay from the current project')
+    .action(async () => {
+      await initAddOn('overlay')
     })
 
   program // 104 22
