@@ -2,10 +2,10 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import guitars from '../../data/example-guitars'
 
 export const Route = createFileRoute('/example/guitars/')({
-  component: App,
+  component: GuitarsIndex,
 })
 
-export default function App() {
+function GuitarsIndex() {
   return (
     <div className="bg-black text-white p-5">
       <h1 className="text-3xl font-bold mb-8 text-center">Featured Guitars</h1>
