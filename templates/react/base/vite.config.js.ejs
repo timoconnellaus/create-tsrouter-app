@@ -3,8 +3,8 @@ import viteReact from "@vitejs/plugin-react";<% if (tailwind) { %>
 import tailwindcss from "@tailwindcss/vite";
 <% } %><%if (fileRouter) { %>
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";<% } %><% if (addOnEnabled['module-federation']) { %>
-import { federation } from "@module-federation/vite";<% } %><% if (addOnEnabled.shadcn) { %>
-import { resolve } from "node:path";<% } %><% if (addOnEnabled['module-federation']) { %>
+import { federation } from "@module-federation/vite";<% } %>
+import { resolve } from "node:path";<% if (addOnEnabled['module-federation']) { %>
 import federationConfig from "./module-federation.config.js";
 <% } %>
 
@@ -15,10 +15,9 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
   },
-<% if (addOnEnabled.shadcn) { %>  resolve: {
+  resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
     },
-  },
-<% } %>
+  }
 });

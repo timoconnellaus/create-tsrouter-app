@@ -1,5 +1,6 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  <% if (toolchain && toolchain === 'eslint+prettier') { %>"include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js"],
+  <% } else { %>"include": ["**/*.ts", "**/*.tsx"],<% } %>
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
@@ -19,10 +20,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true<% if (addOnEnabled.shadcn) { %>,
+    "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-    }<% } %>
+    }
   }
 }

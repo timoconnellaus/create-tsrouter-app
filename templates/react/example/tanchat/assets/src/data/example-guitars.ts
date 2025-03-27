@@ -10,16 +10,26 @@ export interface Guitar {
 const guitars: Array<Guitar> = [
   {
     id: 1,
-    name: 'Dune Guitar',
-    image: '/example-guitar-dune.jpg',
+    name: 'Video Game Guitar',
+    image: '/example-guitar-video-games.jpg',
     description:
-      'Inspired by the desert, this guitar will transport you to a world of sand and adventure. Its warm, amber-toned finish mimics the endless dunes of Arrakis, while the custom fretboard inlays resemble ancient desert glyphs. The resonant hollow body produces tones that range from whispered sandstorm hushes to the booming echo of desert thunder. Perfect for musicians seeking an instrument with both visual impact and sonic versatility, the Dune Guitar carries the mystique of distant worlds in every note.',
+      "The Video Game Guitar is a unique acoustic guitar that features a design inspired by video games. It has a sleek, high-gloss finish and a comfortable playability. The guitar's ergonomic body and fast neck profile ensure comfortable playability for hours on end.",
     shortDescription:
-      'A desert-inspired hollow body guitar with warm tones and custom desert glyph inlays.',
-    price: 599,
+      'A unique electric guitar with a video game design, high-gloss finish, and comfortable playability.',
+    price: 699,
   },
   {
     id: 2,
+    name: 'Superhero Guitar',
+    image: '/example-guitar-superhero.jpg',
+    description:
+      "The Superhero Guitar is a bold black electric guitar that stands out with its unique superhero logo design. Its sleek, high-gloss finish and powerful pickups make it perfect for high-energy performances. The guitar's ergonomic body and fast neck profile ensure comfortable playability for hours on end.",
+    shortDescription:
+      'A bold black electric guitar with a unique superhero logo, high-gloss finish, and powerful pickups.',
+    price: 699,
+  },
+  {
+    id: 3,
     name: 'Motherboard Guitar',
     image: '/example-guitar-motherboard.jpg',
     description:
@@ -29,7 +39,7 @@ const guitars: Array<Guitar> = [
     price: 649,
   },
   {
-    id: 3,
+    id: 4,
     name: 'Racing Guitar',
     image: '/example-guitar-racing.jpg',
     description:
@@ -39,34 +49,34 @@ const guitars: Array<Guitar> = [
     price: 679,
   },
   {
-    id: 4,
+    id: 5,
     name: 'Steamer Trunk Guitar',
     image: '/example-guitar-steamer-trunk.jpg',
     description:
-      "The Steamer Trunk Guitar carries the nostalgic essence of vintage travel in its unique design. Crafted with reclaimed wood from authentic antique luggage, each instrument tells a story of journeys past through its weathered finish and brass hardware accents. The body features decorative leather straps and corner protectors reminiscent of classic travel trunks, while the neck is inlaid with miniature world map markers denoting famous destinations. Its warm, rich tone has a distinctive aged quality that can't be replicated, producing sounds that evoke distant shores and adventures waiting to be had. Perfect for the musician whose playing is a journey unto itself.",
+      'The Steamer Trunk Guitar is a semi-hollow body instrument that exudes vintage charm and character. Crafted from reclaimed antique luggage wood, it features brass hardware that adds a touch of elegance and durability. The fretboard is adorned with a world map inlay, making it a unique piece that tells a story of travel and adventure.',
     shortDescription:
-      'A nostalgic guitar crafted from reclaimed antique luggage wood with brass accents and world map inlays.',
+      'A semi-hollow body guitar with brass hardware and a world map inlay, crafted from reclaimed antique luggage wood.',
     price: 629,
   },
   {
-    id: 5,
-    name: 'Steampunk Guitar',
-    image: '/example-guitar-steampunk.jpg',
+    id: 6,
+    name: "Travelin' Man Guitar",
+    image: '/example-guitar-traveling.jpg',
     description:
-      "The Steampunk Guitar is a magnificent fusion of Victorian aesthetics and industrial innovation, featuring an array of functional brass gears, pressure gauges, and copper tubing that adorn its mahogany body. Each component has been meticulously hand-crafted by master artisans, creating not just an instrument but a work of mechanical art. The fretboard is inlaid with vintage clockwork designs that seem to move as you play, while the custom-wound pickups are housed in polished brass casings that enhance the guitar's warm, slightly overdriven tone. Steam-powered tremolo effects can be activated via the special valve system, producing otherworldly sounds that transport listeners to an alternate history where steam and music power the world.",
+      "The Travelin' Man Guitar is an acoustic masterpiece adorned with vintage postcards from around the world. Each postcard tells a story of adventure and wanderlust, making this guitar a unique piece of art. Its rich, resonant tones and comfortable playability make it perfect for musicians who love to travel and perform.",
     shortDescription:
-      'A Victorian-inspired masterpiece featuring functional brass gears, pressure gauges, and copper tubing on a mahogany body.',
-    price: 699,
+      'An acoustic guitar with vintage postcards, rich tones, and comfortable playability.',
+    price: 499,
   },
   {
-    id: 6,
-    name: 'Underwater Guitar',
-    image: '/example-guitar-underwater.jpg',
+    id: 7,
+    name: 'Flowerly Love Guitar',
+    image: '/example-guitar-flowers.jpg',
     description:
-      'Dive into the depths of sonic exploration with the Underwater Guitar, an instrument designed to capture the mysterious beauty of the ocean. Its translucent blue-green finish creates the illusion of being submerged, with mother-of-pearl inlays resembling bubbles rising along the fretboard. The body is contoured like ocean waves, featuring hand-painted coral reef details and iridescent abalone accents that shimmer like sunlight through water. Specially designed pickups produce ethereal, fluid tones with extended sustain that mimics the endless nature of the sea. Water-resistant components make this guitar surprisingly practical for beachside performances, while its unique resonant chamber creates haunting harmonics reminiscent of whale songs and the gentle lapping of waves.',
+      "The Flowerly Love Guitar is an acoustic masterpiece adorned with intricate floral designs on its body. Each flower is hand-painted, adding a touch of nature's beauty to the instrument. Its warm, resonant tones make it perfect for both intimate performances and larger gatherings.",
     shortDescription:
-      'An ocean-themed guitar with a translucent blue-green finish, bubble-like pearl inlays, and ethereal tones with extended sustain.',
-    price: 499,
+      'An acoustic guitar with hand-painted floral designs and warm, resonant tones.',
+    price: 599,
   },
 ]
 
