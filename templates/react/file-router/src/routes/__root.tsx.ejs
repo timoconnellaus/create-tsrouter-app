@@ -10,8 +10,15 @@ import <%= integration.name %> from "../<%= integration.path %>";
 import appCss from '../styles.css?url'
 <% } %><% if (addOnEnabled["tanstack-query"]) { %>
 import type { QueryClient } from '@tanstack/react-query'
+<% if (addOnEnabled.tRPC) { %>
+import { TRPCRouter } from '@/integrations/trpc/router'
+<% } %>
+
 interface MyRouterContext {
   queryClient: QueryClient
+  <% if (addOnEnabled.tRPC) { %>
+  trpc: TRPCRouter
+  <% } %>
 }<% } %>
   
 export const Route = <% if (addOnEnabled["tanstack-query"]) { %>createRootRouteWithContext<MyRouterContext>()<% } else { %>createRootRoute<% } %>({

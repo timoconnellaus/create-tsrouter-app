@@ -1,13 +1,27 @@
 import { <% if (fileRouter) { %>createFileRoute<% } else { %>createRoute<% } %> } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+<% if (addOnEnabled.tRPC) { %>
+import { useTRPC } from "@/integrations/trpc/react";
+<% } %>
 <% if (codeRouter) { %>
 import type { RootRoute } from '@tanstack/react-router'
 <% } else { %>
 export const Route = createFileRoute('/demo/tanstack-query')({
+<% if (addOnEnabled.tRPC) { %>
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
+      context.trpc.people.list.queryOptions()
+    );
+  },
+<% } %>
   component: TanStackQueryDemo,
 })
 <% } %>
 function TanStackQueryDemo() {
+<% if (addOnEnabled.tRPC) { %>
+  const trpc = useTRPC();
+  const { data } = useQuery(trpc.people.list.queryOptions());
+<% } else { %>
   const { data } = useQuery({
     queryKey: ['people'],
     queryFn: () =>
@@ -16,6 +30,7 @@ function TanStackQueryDemo() {
         .then((d) => d.results as { name: string }[]),
     initialData: [],
   })
+<% } %>
 
   return (
     <div className="p-4">
