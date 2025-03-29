@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import chalk from 'chalk'
+import { getModuleRoot } from 'templates'
 
 import { DEFAULT_FRAMEWORK } from './constants.js'
 import type { AddOn, CliOptions, Framework } from './types.js'
@@ -30,9 +30,7 @@ export async function getAllAddOns(
   const addOns: Array<AddOn> = []
 
   for (const type of ['add-on', 'example']) {
-    const addOnsBase = fileURLToPath(
-      new URL(`../templates/${framework}/${type}`, import.meta.url),
-    )
+    const addOnsBase = resolve(getModuleRoot(), framework, type)
 
     if (!existsSync(addOnsBase)) {
       continue

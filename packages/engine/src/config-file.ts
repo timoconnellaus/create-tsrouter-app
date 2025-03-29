@@ -9,6 +9,7 @@ export type PersistedOptions = Exclude<
   Partial<Options>,
   'addOns' | 'chosenAddOns'
 > & {
+  version: number
   existingAddOns: Array<string>
 }
 
@@ -19,6 +20,7 @@ export async function writeConfigFile(
 ) {
   const persistedOptions: PersistedOptions = {
     ...options,
+    version: 1,
     existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
   }
   delete persistedOptions.addOns

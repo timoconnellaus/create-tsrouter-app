@@ -1,9 +1,10 @@
-import { basename, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { basename, dirname, resolve } from 'node:path'
 import { log, outro, spinner } from '@clack/prompts'
 import { render } from 'ejs'
 import { format } from 'prettier'
 import chalk from 'chalk'
+
+import { getModuleRoot } from 'templates'
 
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { sortObject } from './utils.js'
@@ -273,7 +274,7 @@ async function copyAddOnFile(
   targetPath: string,
   templateFile: (content: string, targetFileName: string) => Promise<void>,
 ) {
-  let targetFile = basename(target).replace(/_dot_/, '.')
+  let targetFile = basename(target).replace(/^_dot_/, '.')
   let isTemplate = false
   if (targetFile.endsWith('.ejs')) {
     targetFile = targetFile.replace('.ejs', '')
@@ -285,13 +286,15 @@ async function copyAddOnFile(
     isAppend = true
   }
 
+  const finalTargetPath = resolve(dirname(targetPath), targetFile)
+
   if (isTemplate) {
-    await templateFile(content, targetPath)
+    await templateFile(content, finalTargetPath)
   } else {
     if (isAppend) {
-      await environment.appendFile(targetPath, content)
+      await environment.appendFile(finalTargetPath, content)
     } else {
-      await environment.writeFile(targetPath, content)
+      await environment.writeFile(finalTargetPath, content)
     }
   }
 }
@@ -310,14 +313,11 @@ export async function createApp(
 ) {
   environment.startRun()
 
-  const templateDirBase = fileURLToPath(
-    new URL(`../templates/${options.framework}/base`, import.meta.url),
-  )
-  const templateDirRouter = fileURLToPath(
-    new URL(
-      `../templates/${options.framework}/${options.mode}`,
-      import.meta.url,
-    ),
+  const templateDirBase = resolve(getModuleRoot(), options.framework, 'base')
+  const templateDirRouter = resolve(
+    getModuleRoot(),
+    options.framework,
+    options.mode,
   )
 
   let targetDir: string = cwd || ''

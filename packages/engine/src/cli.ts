@@ -9,10 +9,10 @@ import { SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import runServer from './mcp.js'
 import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
-import { initAddOn } from './custom-add-on.js'
+// import { initAddOn } from './custom-add-on.js'
 
 import { createDefaultEnvironment } from './environment.js'
-import { add } from './add.js'
+// import { add } from './add.js'
 
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
@@ -25,30 +25,31 @@ export function cli() {
     .name('create-tsrouter-app')
     .description('CLI to create a new TanStack application')
 
-  program
-    .command('add')
-    .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
-    .action(async (addOn: string) => {
-      await add(addOn.split(',').map((addon) => addon.trim()))
-    })
+  // program
+  //   .command('add')
+  //   .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
+  //   .action(async (addOn: string) => {
+  //     await add(addOn.split(',').map((addon) => addon.trim()))
+  //   })
 
-  program
-    .command('update-add-on')
-    .description('Create or update an add-on from the current project')
-    .action(async () => {
-      await initAddOn('add-on')
-    })
+  // program
+  //   .command('update-add-on')
+  //   .description('Create or update an add-on from the current project')
+  //   .action(async () => {
+  //     await initAddOn('add-on')
+  //   })
 
-  program
-    .command('update-overlay')
-    .description('Create or update a project overlay from the current project')
-    .action(async () => {
-      await initAddOn('overlay')
-    })
+  // program
+  //   .command('update-overlay')
+  //   .description('Create or update a project overlay from the current project')
+  //   .action(async () => {
+  //     await initAddOn('overlay')
+  //   })
 
   program // 104 22
     .argument('[project-name]', 'name of the project')
     .option('--no-git', 'do not create a git repository')
+    .option('--target-dir <path>', 'the directory to create the project in')
     .option<Framework>(
       '--framework <type>',
       'project framework (solid, react)',
@@ -145,6 +146,7 @@ export function cli() {
           }
           await createApp(finalOptions, {
             environment: createDefaultEnvironment(),
+            cwd: options.targetDir || undefined,
           })
         } catch (error) {
           log.error(

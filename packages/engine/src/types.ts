@@ -32,6 +32,7 @@ export interface CliOptions {
   mcp?: boolean
   mcpSse?: boolean
   overlay?: string
+  targetDir?: string
 }
 
 export type Environment = {

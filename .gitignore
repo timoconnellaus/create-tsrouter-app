@@ -3,5 +3,10 @@ dist
 app-*
 my-app
 .DS_Store
+**/node_modules
+**/dist
 
 .vscode
+
+.nx/cache
+.nx/workspace-data

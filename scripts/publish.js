@@ -10,7 +10,7 @@ await publish({
   packages: [
     {
       name: 'create-tsrouter-app',
-      packageDir: '.',
+      packageDir: './cli/create-tsrouter-app',
     },
   ],
   branchConfigs: {
