@@ -34,7 +34,10 @@ export async function normalizeOptions(
     if (forcedAddOns) {
       cliOptions.addOns = [...cliOptions.addOns, ...forcedAddOns]
     }
+  } else if (forcedAddOns) {
+    cliOptions.addOns = [...forcedAddOns]
   }
+
   if (cliOptions.projectName) {
     let typescript =
       cliOptions.template === 'typescript' ||
