@@ -304,10 +304,12 @@ export async function createApp(
     silent = false,
     environment,
     cwd,
+    name = 'create-tsrouter-app',
   }: {
     silent?: boolean
     environment: Environment
     cwd?: string
+    name: string
   },
 ) {
   environment.startRun()

@@ -18,7 +18,15 @@ import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
 import type { CliOptions, Framework } from './types.js'
 
-export function cli() {
+export function cli({
+  name,
+  forcedMode,
+  forcedAddOns,
+}: {
+  name: string
+  forcedMode?: 'typescript' | 'javascript' | 'file-router'
+  forcedAddOns?: Array<string>
+}) {
   const program = new Command()
 
   program
@@ -46,7 +54,7 @@ export function cli() {
   //     await initAddOn('overlay')
   //   })
 
-  program // 104 22
+  program
     .argument('[project-name]', 'name of the project')
     .option('--no-git', 'do not create a git repository')
     .option('--target-dir <path>', 'the directory to create the project in')
@@ -64,22 +72,6 @@ export function cli() {
         return value as Framework
       },
       DEFAULT_FRAMEWORK,
-    )
-    .option<'typescript' | 'javascript' | 'file-router'>(
-      '--template <type>',
-      'project template (typescript, javascript, file-router)',
-      (value) => {
-        if (
-          value !== 'typescript' &&
-          value !== 'javascript' &&
-          value !== 'file-router'
-        ) {
-          throw new InvalidArgumentError(
-            `Invalid template: ${value}. Only the following are allowed: typescript, javascript, file-router`,
-          )
-        }
-        return value
-      },
     )
     .option<PackageManager>(
       `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join('|')}>`,
@@ -122,42 +114,68 @@ export function cli() {
       },
     )
     .option('--list-add-ons', 'list all available add-ons', false)
-    .option('--overlay [url]', 'add an overlay from a URL', false)
+    // .option('--overlay [url]', 'add an overlay from a URL', false)
     .option('--mcp', 'run the MCP server', false)
     .option('--mcp-sse', 'run the MCP server in SSE mode', false)
-    .action(async (projectName: string, options: CliOptions) => {
-      if (options.listAddOns) {
-        await listAddOns(options)
-      } else if (options.mcp || options.mcpSse) {
-        await runServer(!!options.mcpSse)
-      } else {
-        try {
-          const cliOptions = {
-            projectName,
-            ...options,
-          } as CliOptions
 
-          let finalOptions = await normalizeOptions(cliOptions)
-          if (finalOptions) {
-            intro(`Creating a new TanStack app in ${projectName}...`)
-          } else {
-            intro("Let's configure your TanStack application")
-            finalOptions = await promptForOptions(cliOptions)
-          }
-          await createApp(finalOptions, {
-            environment: createDefaultEnvironment(),
-            cwd: options.targetDir || undefined,
-          })
-        } catch (error) {
-          log.error(
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
+  if (!forcedMode) {
+    program.option<'typescript' | 'javascript' | 'file-router'>(
+      '--template <type>',
+      'project template (typescript, javascript, file-router)',
+      (value) => {
+        if (
+          value !== 'typescript' &&
+          value !== 'javascript' &&
+          value !== 'file-router'
+        ) {
+          throw new InvalidArgumentError(
+            `Invalid template: ${value}. Only the following are allowed: typescript, javascript, file-router`,
           )
-          process.exit(1)
         }
+        return value
+      },
+    )
+  }
+
+  program.action(async (projectName: string, options: CliOptions) => {
+    if (options.listAddOns) {
+      await listAddOns(options)
+    } else if (options.mcp || options.mcpSse) {
+      await runServer(!!options.mcpSse)
+    } else {
+      try {
+        const cliOptions = {
+          projectName,
+          ...options,
+        } as CliOptions
+
+        if (forcedMode) {
+          cliOptions.template = forcedMode
+        }
+
+        let finalOptions = await normalizeOptions(cliOptions, forcedAddOns)
+        if (finalOptions) {
+          intro(`Creating a new TanStack app in ${projectName}...`)
+        } else {
+          intro("Let's configure your TanStack application")
+          finalOptions = await promptForOptions(cliOptions, {
+            forcedMode,
+            forcedAddOns,
+          })
+        }
+        await createApp(finalOptions, {
+          environment: createDefaultEnvironment(),
+          cwd: options.targetDir || undefined,
+          name,
+        })
+      } catch (error) {
+        log.error(
+          error instanceof Error ? error.message : 'An unknown error occurred',
+        )
+        process.exit(1)
       }
-    })
+    }
+  })
 
   program.parse()
 }

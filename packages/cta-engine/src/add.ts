@@ -25,7 +25,7 @@ import { readConfigFile, writeConfigFile } from './config-file.js'
 
 import type { PersistedOptions } from './config-file.js'
 
-import type { Options } from './types.js'
+import type { Framework, Options } from './types.js'
 
 function isDirectory(path: string) {
   return statSync(path).isDirectory()
@@ -43,10 +43,11 @@ async function createOptions(
   return {
     ...json,
     tailwind: true,
-    chosenAddOns: await finalizeAddOns(json.framework!, json.mode!, [
-      ...json.existingAddOns,
-      ...addOns,
-    ]),
+    chosenAddOns: await finalizeAddOns(
+      json.framework as Framework,
+      json.mode as string,
+      [...json.existingAddOns, ...addOns],
+    ),
   } as Required<Options>
 }
 
@@ -56,6 +57,7 @@ async function runCreateApp(options: Required<Options>) {
     silent: true,
     environment,
     cwd: process.cwd(),
+    name: 'create-tsrouter-app',
   })
   return output
 }

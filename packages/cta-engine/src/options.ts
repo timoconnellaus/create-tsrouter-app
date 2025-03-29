@@ -21,6 +21,7 @@ import type { AddOn, CliOptions, Options, Overlay, Variable } from './types.js'
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(
   cliOptions: CliOptions,
+  forcedAddOns?: Array<string>,
 ): Promise<Options | undefined> {
   // in some cases, if you use windows/powershell, the argument for addons
   // if sepparated by comma is not really passed as an array, but as a string
@@ -29,6 +30,9 @@ export async function normalizeOptions(
     const parseSeparatedArgs = cliOptions.addOns[0].split(' ')
     if (parseSeparatedArgs.length > 1) {
       cliOptions.addOns = parseSeparatedArgs
+    }
+    if (forcedAddOns) {
+      cliOptions.addOns = [...cliOptions.addOns, ...forcedAddOns]
     }
   }
   if (cliOptions.projectName) {
@@ -135,6 +139,13 @@ async function collectVariables(
 
 export async function promptForOptions(
   cliOptions: CliOptions,
+  {
+    forcedAddOns = [],
+    forcedMode,
+  }: {
+    forcedAddOns?: Array<string>
+    forcedMode?: 'typescript' | 'javascript' | 'file-router'
+  },
 ): Promise<Required<Options>> {
   const options = {} as Required<Options>
 
@@ -166,7 +177,7 @@ export async function promptForOptions(
   }
 
   // Router type selection
-  if (!cliOptions.template) {
+  if (!cliOptions.template && !forcedMode) {
     const routerType = await select({
       message: 'Select the router type:',
       options: [
@@ -186,6 +197,9 @@ export async function promptForOptions(
       process.exit(0)
     }
     options.mode = routerType as typeof CODE_ROUTER | typeof FILE_ROUTER
+  } else if (forcedMode) {
+    options.mode = forcedMode === 'file-router' ? FILE_ROUTER : CODE_ROUTER
+    options.typescript = options.mode === FILE_ROUTER
   } else {
     options.mode =
       cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
@@ -274,7 +288,7 @@ export async function promptForOptions(
     options.chosenAddOns = await finalizeAddOns(
       options.framework,
       options.mode,
-      cliOptions.addOns,
+      Array.from(new Set([...cliOptions.addOns, ...forcedAddOns])),
     )
     options.tailwind = true
   } else if (cliOptions.addOns) {
@@ -285,11 +299,13 @@ export async function promptForOptions(
     if (options.typescript && addOns.length > 0) {
       const value = await multiselect({
         message: 'What add-ons would you like for your project:',
-        options: addOns.map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
+        options: addOns
+          .filter((addOn) => !forcedAddOns.includes(addOn.id))
+          .map((addOn) => ({
+            value: addOn.id,
+            label: addOn.name,
+            hint: addOn.description,
+          })),
         required: false,
       })
 
@@ -306,11 +322,13 @@ export async function promptForOptions(
     if (options.typescript && examples.length > 0) {
       const value = await multiselect({
         message: 'Would you like any examples?',
-        options: examples.map((addOn) => ({
-          value: addOn.id,
-          label: addOn.name,
-          hint: addOn.description,
-        })),
+        options: examples
+          .filter((addOn) => !forcedAddOns.includes(addOn.id))
+          .map((addOn) => ({
+            value: addOn.id,
+            label: addOn.name,
+            hint: addOn.description,
+          })),
         required: false,
       })
 
@@ -321,14 +339,26 @@ export async function promptForOptions(
       selectedExamples = value
     }
 
-    if (selectedAddOns.length > 0 || selectedExamples.length > 0) {
+    if (
+      selectedAddOns.length > 0 ||
+      selectedExamples.length > 0 ||
+      forcedAddOns.length > 0
+    ) {
       options.chosenAddOns = await finalizeAddOns(
         options.framework,
         options.mode,
-        [...selectedAddOns, ...selectedExamples],
+        Array.from(
+          new Set([...selectedAddOns, ...selectedExamples, ...forcedAddOns]),
+        ),
       )
       options.tailwind = true
     }
+  } else if (forcedAddOns.length > 0) {
+    options.chosenAddOns = await finalizeAddOns(
+      options.framework,
+      options.mode,
+      forcedAddOns,
+    )
   }
 
   // Collect variables

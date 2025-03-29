@@ -114,6 +114,7 @@ server.tool(
         {
           silent: true,
           environment: createDefaultEnvironment(),
+          name: 'create-tsrouter-app',
         },
       )
       return {
@@ -209,6 +210,7 @@ server.tool(
         {
           silent: true,
           environment: createDefaultEnvironment(),
+          name: 'create-tsrouter-app',
         },
       )
       return {

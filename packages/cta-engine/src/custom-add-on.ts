@@ -8,7 +8,7 @@ import { createApp } from './create-app.js'
 import { readConfigFile } from './config-file.js'
 import { finalizeAddOns } from './add-ons.js'
 
-import type { Options } from './types.js'
+import type { Framework, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
 
 type AddOnMode = 'add-on' | 'overlay'
@@ -106,9 +106,11 @@ async function createOptions(
 ): Promise<Required<Options>> {
   return {
     ...json,
-    chosenAddOns: await finalizeAddOns(json.framework!, json.mode!, [
-      ...json.existingAddOns,
-    ]),
+    chosenAddOns: await finalizeAddOns(
+      json.framework as Framework,
+      json.mode as string,
+      [...json.existingAddOns],
+    ),
   } as Required<Options>
 }
 
@@ -118,6 +120,7 @@ async function runCreateApp(options: Required<Options>) {
     silent: true,
     environment,
     cwd: process.cwd(),
+    name: 'create-tsrouter-app',
   })
   return output
 }
