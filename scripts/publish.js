@@ -18,7 +18,7 @@ await publish({
     },
     {
       name: '@tanstack/cta-engine',
-      packageDir: './packages/engine',
+      packageDir: './packages/cta-engine',
     },
   ],
   branchConfigs: {
