@@ -2,6 +2,7 @@
   "name": "engine",
   "version": "0.11.0-alpha.2",
   "description": "Tanstack Application Builder Engine",
+  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
