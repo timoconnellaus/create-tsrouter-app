@@ -26,8 +26,7 @@
     "overrides": {
       "create-start-app": "workspace:*",
       "create-tsrouter-app": "workspace:*",
-      "engine": "workspace:*",
-      "templates": "workspace:*"
+      "@tanstack/cta-engine": "workspace:*"
     }
   },
   "workspaces": [

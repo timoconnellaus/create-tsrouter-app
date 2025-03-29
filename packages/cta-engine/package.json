@@ -1,8 +1,7 @@
 {
-  "name": "engine",
+  "name": "@tanstack/cta-engine",
   "version": "0.11.0-alpha.2",
   "description": "Tanstack Application Builder Engine",
-  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
@@ -43,7 +42,6 @@
     "express": "^4.21.2",
     "memfs": "^4.17.0",
     "prettier": "^3.5.0",
-    "templates": "workspace:*",
     "zod": "^3.24.2"
   },
   "devDependencies": {

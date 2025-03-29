@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { cli } from 'engine'
+import { cli } from '@tanstack/cta-engine'
 
 cli()

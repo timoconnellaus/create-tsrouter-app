@@ -4,8 +4,7 @@ import { render } from 'ejs'
 import { format } from 'prettier'
 import chalk from 'chalk'
 
-import { getModuleRoot } from 'templates'
-
+import { getTemplatesRoot } from './templates.js'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { sortObject } from './utils.js'
 import { writeConfigFile } from './config-file.js'
@@ -313,9 +312,9 @@ export async function createApp(
 ) {
   environment.startRun()
 
-  const templateDirBase = resolve(getModuleRoot(), options.framework, 'base')
+  const templateDirBase = resolve(getTemplatesRoot(), options.framework, 'base')
   const templateDirRouter = resolve(
-    getModuleRoot(),
+    getTemplatesRoot(),
     options.framework,
     options.mode,
   )
