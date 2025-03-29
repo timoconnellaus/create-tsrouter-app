@@ -29,10 +29,10 @@ jobs:
           fetch-depth: 0
       - name: Setup Tools
         uses: tanstack/config/.github/setup@main
-      - name: Test
-        run: pnpm test
       - name: Build
         run: pnpm build
+      - name: Test
+        run: pnpm test
       - name: Publish
         run: |
           git config --global user.name 'Tanner Linsley'
