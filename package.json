@@ -4,7 +4,8 @@
   "bin": "./dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "nx run-many -t build",
+    "cleanNodeModules": "pnpm -r exec rm -rf node_modules",
+    "build": "nx affected --target=build",
     "cipublish": "node scripts/publish.js",
     "test": "nx run-many -t test"
   },
@@ -23,7 +24,9 @@
   "packageManager": "pnpm@9.15.5",
   "pnpm": {
     "overrides": {
-      "create-tsrouter-app": "link:cli/create-tsrouter-app"
+      "create-tsrouter-app": "workspace:*",
+      "engine": "workspace:*",
+      "templates": "workspace:*"
     }
   },
   "workspaces": [
@@ -31,7 +34,6 @@
     "./packages/*"
   ],
   "dependencies": {
-    "@tanstack/config": "^0.16.2",
-    "create-tsrouter-app": "link:cli/create-tsrouter-app"
+    "@tanstack/config": "^0.16.2"
   }
 }
