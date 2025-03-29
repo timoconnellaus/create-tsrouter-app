@@ -1,0 +1,16 @@
+{
+  "name": "create-start-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "cli/create-start-app/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p cli/create-start-app/tsconfig.json"
+      },
+      "dependsOn": ["^build"]
+    }
+  },
+  "implicitDependencies": ["engine", "templates"]
+}
