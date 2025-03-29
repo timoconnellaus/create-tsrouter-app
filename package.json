@@ -20,6 +20,7 @@
     "nx": "20.6.4",
     "typescript": "^5.6.3"
   },
+  "packageManager": "pnpm@9.15.5",
   "pnpm": {
     "overrides": {
       "create-tsrouter-app": "link:cli/create-tsrouter-app"
