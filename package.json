@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "cleanNodeModules": "pnpm -r exec rm -rf node_modules",
-    "build": "nx affected --target=build",
+    "build": "nx run-many --target=build",
     "cipublish": "node scripts/publish.js",
     "test": "nx run-many -t test"
   },
