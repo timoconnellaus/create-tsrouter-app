@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  create-start-app: workspace:*
   create-tsrouter-app: workspace:*
   engine: workspace:*
   templates: workspace:*
@@ -29,6 +30,19 @@ importers:
       nx:
         specifier: 20.6.4
         version: 20.6.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
+
+  cli/create-start-app:
+    dependencies:
+      engine:
+        specifier: workspace:*
+        version: link:../../packages/engine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.14
       typescript:
         specifier: ^5.6.3
         version: 5.8.2
