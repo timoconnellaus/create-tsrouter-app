@@ -304,12 +304,13 @@ export async function createApp(
     silent = false,
     environment,
     cwd,
-    name = 'create-tsrouter-app',
+    appName = 'TanStack',
   }: {
     silent?: boolean
     environment: Environment
     cwd?: string
-    name: string
+    name?: string
+    appName?: string
   },
 ) {
   environment.startRun()
@@ -782,7 +783,7 @@ ${environment.getErrors().join('\n')}`
       startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`
     }
 
-    outro(`Your TanStack app is ready in '${basename(targetDir)}'.
+    outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}

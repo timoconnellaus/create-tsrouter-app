@@ -8,10 +8,7 @@ import { createApp } from './create-app.js'
 import { finalizeAddOns } from './add-ons.js'
 import { createDefaultEnvironment } from './environment.js'
 
-const server = new McpServer({
-  name: 'Demo',
-  version: '1.0.0',
-})
+import type { TemplateOptions } from './types.js'
 
 const tanStackReactAddOns = [
   {
@@ -57,79 +54,6 @@ const tanStackReactAddOns = [
   },
 ]
 
-server.tool('listTanStackReactAddOns', {}, () => {
-  return {
-    content: [{ type: 'text', text: JSON.stringify(tanStackReactAddOns) }],
-  }
-})
-
-server.tool(
-  'createTanStackReactApplication',
-  {
-    projectName: z
-      .string()
-      .describe(
-        'The package.json module name of the application (will also be the directory name)',
-      ),
-    cwd: z.string().describe('The directory to create the application in'),
-    addOns: z
-      .array(
-        z.enum([
-          'clerk',
-          'convex',
-          'form',
-          'netlify',
-          'sentry',
-          'shadcn',
-          'start',
-          'store',
-          'tanstack-query',
-          'tanchat',
-        ]),
-      )
-      .describe('The IDs of the add-ons to install'),
-  },
-  async ({ projectName, addOns, cwd }) => {
-    try {
-      process.chdir(cwd)
-      const chosenAddOns = await finalizeAddOns(
-        'react',
-        'file-router',
-        addOns as unknown as Array<string>,
-      )
-      await createApp(
-        {
-          projectName: projectName.replace(/^\//, './'),
-          framework: 'react',
-          typescript: true,
-          tailwind: true,
-          packageManager: 'pnpm',
-          toolchain: 'none',
-          mode: 'file-router',
-          addOns: true,
-          chosenAddOns,
-          git: true,
-          variableValues: {},
-        },
-        {
-          silent: true,
-          environment: createDefaultEnvironment(),
-          name: 'create-tsrouter-app',
-        },
-      )
-      return {
-        content: [{ type: 'text', text: 'Application created successfully' }],
-      }
-    } catch (error) {
-      return {
-        content: [
-          { type: 'text', text: `Error creating application: ${error}` },
-        ],
-      }
-    }
-  },
-)
-
 const tanStackSolidAddOns = [
   {
     id: 'solid-ui',
@@ -148,6 +72,11 @@ const tanStackSolidAddOns = [
     description: 'Enable the TanStack Store state management library',
   },
   {
+    id: 'start',
+    description:
+      'Set this if you want a TanStack Start application that supports server functions or APIs',
+  },
+  {
     id: 'tanstack-query',
     description: 'Enable TanStack Query for data fetching',
   },
@@ -157,80 +86,199 @@ const tanStackSolidAddOns = [
   },
 ]
 
-server.tool('listTanStackSolidAddOns', {}, () => {
-  return {
-    content: [{ type: 'text', text: JSON.stringify(tanStackSolidAddOns) }],
-  }
-})
+function createServer({
+  appName,
+  forcedAddOns = [],
+  name,
+}: {
+  appName?: string
+  forcedAddOns?: Array<string>
+  name?: string
+}) {
+  const server = new McpServer({
+    name: `${appName} Application Builder`,
+    version: '1.0.0',
+  })
 
-server.tool(
-  'createTanStackSolidApplication',
-  {
-    projectName: z
-      .string()
-      .describe(
-        'The package.json module name of the application (will also be the directory name)',
-      ),
-    cwd: z.string().describe('The directory to create the application in'),
-    addOns: z
-      .array(
-        z.enum([
-          'solid-ui',
-          'form',
-          'sentry',
-          'store',
-          'tanstack-query',
-          'tanchat',
-        ]),
-      )
-      .describe('The IDs of the add-ons to install'),
-  },
-  async ({ projectName, addOns, cwd }) => {
-    try {
-      process.chdir(cwd)
-      const chosenAddOns = await finalizeAddOns(
-        'solid',
-        'file-router',
-        addOns as unknown as Array<string>,
-      )
-      await createApp(
-        {
-          projectName: projectName.replace(/^\//, './'),
-          framework: 'solid',
-          typescript: true,
-          tailwind: true,
-          packageManager: 'pnpm',
-          toolchain: 'none',
-          mode: 'file-router',
-          addOns: true,
-          chosenAddOns,
-          git: true,
-          variableValues: {},
-        },
-        {
-          silent: true,
-          environment: createDefaultEnvironment(),
-          name: 'create-tsrouter-app',
-        },
-      )
-      return {
-        content: [{ type: 'text', text: 'Application created successfully' }],
-      }
-    } catch (error) {
-      return {
-        content: [
-          { type: 'text', text: `Error creating application: ${error}` },
-        ],
-      }
+  server.tool('listTanStackReactAddOns', {}, () => {
+    return {
+      content: [{ type: 'text', text: JSON.stringify(tanStackReactAddOns) }],
     }
-  },
-)
+  })
 
-export default async function runServer(sse: boolean) {
+  server.tool(
+    'createTanStackReactApplication',
+    {
+      projectName: z
+        .string()
+        .describe(
+          'The package.json module name of the application (will also be the directory name)',
+        ),
+      cwd: z.string().describe('The directory to create the application in'),
+      addOns: z
+        .array(
+          z.enum([
+            'clerk',
+            'convex',
+            'form',
+            'netlify',
+            'sentry',
+            'shadcn',
+            'start',
+            'store',
+            'tanstack-query',
+            'tanchat',
+          ]),
+        )
+        .describe('The IDs of the add-ons to install'),
+      targetDir: z
+        .string()
+        .describe(
+          'The directory to create the application in. Use the absolute path of the directory you want the application to be created in',
+        ),
+    },
+    async ({ projectName, addOns, cwd, targetDir }) => {
+      try {
+        process.chdir(cwd)
+        const chosenAddOns = await finalizeAddOns(
+          'react',
+          'file-router',
+          Array.from(
+            new Set([...(addOns as unknown as Array<string>), ...forcedAddOns]),
+          ),
+        )
+        await createApp(
+          {
+            projectName: projectName.replace(/^\//, './'),
+            framework: 'react',
+            typescript: true,
+            tailwind: true,
+            packageManager: 'pnpm',
+            toolchain: 'none',
+            mode: 'file-router',
+            addOns: true,
+            chosenAddOns,
+            git: true,
+            variableValues: {},
+          },
+          {
+            silent: true,
+            environment: createDefaultEnvironment(),
+            name,
+            cwd: targetDir,
+          },
+        )
+        return {
+          content: [{ type: 'text', text: 'Application created successfully' }],
+        }
+      } catch (error) {
+        return {
+          content: [
+            { type: 'text', text: `Error creating application: ${error}` },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool('listTanStackSolidAddOns', {}, () => {
+    return {
+      content: [{ type: 'text', text: JSON.stringify(tanStackSolidAddOns) }],
+    }
+  })
+
+  server.tool(
+    'createTanStackSolidApplication',
+    {
+      projectName: z
+        .string()
+        .describe(
+          'The package.json module name of the application (will also be the directory name)',
+        ),
+      cwd: z.string().describe('The directory to create the application in'),
+      addOns: z
+        .array(
+          z.enum([
+            'solid-ui',
+            'form',
+            'sentry',
+            'store',
+            'tanstack-query',
+            'tanchat',
+          ]),
+        )
+        .describe('The IDs of the add-ons to install'),
+      targetDir: z
+        .string()
+        .describe(
+          'The directory to create the application in. Use the absolute path of the directory you want the application to be created in',
+        ),
+    },
+    async ({ projectName, addOns, cwd, targetDir }) => {
+      try {
+        process.chdir(cwd)
+        const chosenAddOns = await finalizeAddOns(
+          'solid',
+          'file-router',
+          Array.from(
+            new Set([...(addOns as unknown as Array<string>), ...forcedAddOns]),
+          ),
+        )
+        await createApp(
+          {
+            projectName: projectName.replace(/^\//, './'),
+            framework: 'solid',
+            typescript: true,
+            tailwind: true,
+            packageManager: 'pnpm',
+            toolchain: 'none',
+            mode: 'file-router',
+            addOns: true,
+            chosenAddOns,
+            git: true,
+            variableValues: {},
+          },
+          {
+            silent: true,
+            environment: createDefaultEnvironment(),
+            name,
+            cwd: targetDir,
+          },
+        )
+        return {
+          content: [{ type: 'text', text: 'Application created successfully' }],
+        }
+      } catch (error) {
+        return {
+          content: [
+            { type: 'text', text: `Error creating application: ${error}` },
+          ],
+        }
+      }
+    },
+  )
+
+  return server
+}
+
+export default async function runServer(
+  sse: boolean,
+  {
+    forcedAddOns,
+    appName,
+    name,
+  }: {
+    forcedMode?: TemplateOptions
+    forcedAddOns?: Array<string>
+    appName?: string
+    name?: string
+  },
+) {
+  let transport: SSEServerTransport | null = null
+
+  const server = createServer({ appName, forcedAddOns, name })
   if (sse) {
     const app = express()
-
-    let transport: SSEServerTransport | null = null
 
     app.get('/sse', (req, res) => {
       transport = new SSEServerTransport('/messages', res)

@@ -20,18 +20,18 @@ import type { CliOptions, Framework } from './types.js'
 
 export function cli({
   name,
+  appName,
   forcedMode,
   forcedAddOns,
 }: {
   name: string
+  appName: string
   forcedMode?: 'typescript' | 'javascript' | 'file-router'
   forcedAddOns?: Array<string>
 }) {
   const program = new Command()
 
-  program
-    .name('create-tsrouter-app')
-    .description('CLI to create a new TanStack application')
+  program.name(name).description(`CLI to create a new ${appName} application`)
 
   // program
   //   .command('add')
@@ -139,9 +139,16 @@ export function cli({
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
-      await listAddOns(options)
+      await listAddOns(options, {
+        forcedMode,
+        forcedAddOns,
+      })
     } else if (options.mcp || options.mcpSse) {
-      await runServer(!!options.mcpSse)
+      await runServer(!!options.mcpSse, {
+        forcedMode,
+        forcedAddOns,
+        appName,
+      })
     } else {
       try {
         const cliOptions = {
@@ -155,9 +162,9 @@ export function cli({
 
         let finalOptions = await normalizeOptions(cliOptions, forcedAddOns)
         if (finalOptions) {
-          intro(`Creating a new TanStack app in ${projectName}...`)
+          intro(`Creating a new ${appName} app in ${projectName}...`)
         } else {
-          intro("Let's configure your TanStack application")
+          intro(`Let's configure your ${appName} application`)
           finalOptions = await promptForOptions(cliOptions, {
             forcedMode,
             forcedAddOns,
@@ -167,6 +174,7 @@ export function cli({
           environment: createDefaultEnvironment(),
           cwd: options.targetDir || undefined,
           name,
+          appName,
         })
       } catch (error) {
         log.error(

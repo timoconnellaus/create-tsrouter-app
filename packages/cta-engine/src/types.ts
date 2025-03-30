@@ -4,6 +4,8 @@ import type { ToolChain } from './toolchain.js'
 
 export type Framework = 'solid' | 'react'
 
+export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
+
 export interface Options {
   framework: Framework
   projectName: string
@@ -20,7 +22,7 @@ export interface Options {
 }
 
 export interface CliOptions {
-  template?: 'typescript' | 'javascript' | 'file-router'
+  template?: TemplateOptions
   framework?: Framework
   tailwind?: boolean
   packageManager?: PackageManager
