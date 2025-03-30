@@ -10,17 +10,17 @@ To maintain compatability with `create-react-app` you can build a new applicatio
 
 | Command                                                                          | Description                                       |
 | -------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `npx create-tsrouter-app@latest my-app`                                          | Create a new app                                  |
-| `npx create-tsrouter-app@latest my-app --template file-router`                   | Create a new file based app                       |
-| `npx create-tsrouter-app@latest my-app --template typescript`                    | Create a new TypeScript app using the Code Router |
-| `npx create-tsrouter-app@latest my-app --tailwind`                               | Add Tailwind CSS support                          |
-| `npx create-tsrouter-app@latest my-app --framework solid`                        | Create a Solid app                                |
-| `npx create-tsrouter-app@latest my-app --framework solid --template file-router` | Create a Solid app with file-router               |
+| `pnpx create-tsrouter-app@latest my-app`                                          | Create a new app                                  |
+| `pnpx create-tsrouter-app@latest my-app --template file-router`                   | Create a new file based app                       |
+| `pnpx create-tsrouter-app@latest my-app --template typescript`                    | Create a new TypeScript app using the Code Router |
+| `pnpx create-tsrouter-app@latest my-app --tailwind`                               | Add Tailwind CSS support                          |
+| `pnpx create-tsrouter-app@latest my-app --framework solid`                        | Create a Solid app                                |
+| `pnpx create-tsrouter-app@latest my-app --framework solid --template file-router` | Create a Solid app with file-router               |
 
 If you don't specify a project name, the CLI will walk you through an interactive setup process:
 
 ```bash
-npx create-tsrouter-app@latest
+pnpx create-tsrouter-app@latest
 ```
 
 This will start an interactive CLI that guides you through the setup process, allowing you to choose:
@@ -38,7 +38,7 @@ This will start an interactive CLI that guides you through the setup process, al
 You can also use command line flags to specify your preferences directly:
 
 ```bash
-npx create-tsrouter-app@latest my-app --template file-router --tailwind --package-manager pnpm
+pnpx create-tsrouter-app@latest my-app --template file-router --tailwind --package-manager pnpm
 ```
 
 Available options:
@@ -67,7 +67,7 @@ File Based Routing is the default option when using the interactive CLI. The loc
 To explicitly choose File Based Routing, use:
 
 ```bash
-npx create-tsrouter-app@latest my-app --template file-router
+pnpx create-tsrouter-app@latest my-app --template file-router
 ```
 
 ### Code Based Routing
@@ -75,7 +75,7 @@ npx create-tsrouter-app@latest my-app --template file-router
 If you prefer traditional code-based routing, you can select it in the interactive CLI or specify it by using either the `typescript` or `javascript` template:
 
 ```bash
-npx create-tsrouter-app@latest my-app --template typescript
+pnpx create-tsrouter-app@latest my-app --template typescript
 ```
 
 ## Additional Configuration
@@ -109,7 +109,7 @@ Setting this flag to `eslint+prettier` will configure it as your toolchain of ch
 You can enable add-on selection:
 
 ```bash
-npx create-tsrouter-app@latest --add-ons
+pnpx create-tsrouter-app@latest --add-ons
 ```
 
 This will prompt you to select the add-ons you want to enable during application creation.
@@ -117,19 +117,19 @@ This will prompt you to select the add-ons you want to enable during application
 You can enable specific add-ons directly by adding a comma separated list of add-on names to the `--add-ons` flag. For example:
 
 ```bash
-npx create-tsrouter-app@latest my-app --add-ons shadcn,tanstack-query
+pnpx create-tsrouter-app@latest my-app --add-ons shadcn,tanstack-query
 ```
 
 You can get a list of all available add-ons by running:
 
 ```bash
-npx create-tsrouter-app@latest --list-add-ons
+pnpx create-tsrouter-app@latest --list-add-ons
 ```
 
 This will display a list of all available add-ons for React that are compatible with the Code Router.
 
 ```bash
-npx create-tsrouter-app@latest --list-add-ons --framework solid --template file-router
+pnpx create-tsrouter-app@latest --list-add-ons --framework solid --template file-router
 ```
 
 Will get you a list of all available add-ons for Solid that are compatible with the File Router.
@@ -139,7 +139,7 @@ Will get you a list of all available add-ons for Solid that are compatible with 
 You can launch the `create-tsrouter-app` CLI with the `--mcp` flag to enable MCP support. Use this in your MCP enabled IDE to allow the Agent model to generate TanStack Router applications.
 
 ```bash
-npx create-tsrouter-app@latest --mcp
+pnpx create-tsrouter-app@latest --mcp
 ```
 
 Shown below is the configuration for MCP support in Cursor.

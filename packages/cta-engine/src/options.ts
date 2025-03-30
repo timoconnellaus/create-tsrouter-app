@@ -66,7 +66,9 @@ export async function normalizeOptions(
       forcedAddOns
     ) {
       addOns = true
-      let finalAddOns = [...(overlay?.dependsOn || [])]
+      let finalAddOns = Array.from(
+        new Set([...(overlay?.dependsOn || []), ...(forcedAddOns || [])]),
+      )
       if (cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
         finalAddOns = Array.from(
           new Set([
