@@ -1,6 +1,6 @@
 {
   "name": "create-start-app",
-  "version": "0.11.0",
+  "version": "0.10.0-alpha.14",
   "description": "Tanstack Start Builder",
   "bin": "./dist/index.js",
   "type": "module",
