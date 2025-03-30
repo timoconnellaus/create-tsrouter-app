@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises'
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import chalk from 'chalk'
 
 import { getTemplatesRoot } from './templates.js'
 import { DEFAULT_FRAMEWORK } from './constants.js'
+import { readFileHelper } from './file-helper.js'
 
 import type { AddOn, CliOptions, Framework, TemplateOptions } from './types.js'
 
@@ -19,7 +20,7 @@ function findFilesRecursively(path: string, files: Record<string, string>) {
     if (isDirectory(filePath)) {
       findFilesRecursively(filePath, files)
     } else {
-      files[filePath] = readFileSync(filePath, 'utf-8').toString()
+      files[filePath] = readFileHelper(filePath)
     }
   }
 }

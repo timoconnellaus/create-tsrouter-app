@@ -31,11 +31,6 @@ export async function normalizeOptions(
     if (parseSeparatedArgs.length > 1) {
       cliOptions.addOns = parseSeparatedArgs
     }
-    if (forcedAddOns) {
-      cliOptions.addOns = [...cliOptions.addOns, ...forcedAddOns]
-    }
-  } else if (forcedAddOns) {
-    cliOptions.addOns = [...forcedAddOns]
   }
 
   if (cliOptions.projectName) {
@@ -65,11 +60,21 @@ export async function normalizeOptions(
 
     let addOns = false
     let chosenAddOns: Array<AddOn> = []
-    if (Array.isArray(cliOptions.addOns) || overlay?.dependsOn) {
+    if (
+      Array.isArray(cliOptions.addOns) ||
+      overlay?.dependsOn ||
+      forcedAddOns
+    ) {
       addOns = true
       let finalAddOns = [...(overlay?.dependsOn || [])]
       if (cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
-        finalAddOns = [...finalAddOns, ...cliOptions.addOns]
+        finalAddOns = Array.from(
+          new Set([
+            ...(forcedAddOns || []),
+            ...finalAddOns,
+            ...cliOptions.addOns,
+          ]),
+        )
       }
       chosenAddOns = await finalizeAddOns(
         cliOptions.framework || DEFAULT_FRAMEWORK,

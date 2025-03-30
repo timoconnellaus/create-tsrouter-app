@@ -7,6 +7,7 @@ import { createMemoryEnvironment } from './environment.js'
 import { createApp } from './create-app.js'
 import { readConfigFile } from './config-file.js'
 import { finalizeAddOns } from './add-ons.js'
+import { readFileHelper } from './file-helper.js'
 
 import type { Framework, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
@@ -134,9 +135,7 @@ async function recursivelyGatherFiles(
     if (file.isDirectory()) {
       await recursivelyGatherFiles(resolve(path, file.name), files)
     } else {
-      files[resolve(path, file.name)] = (
-        await readFile(resolve(path, file.name))
-      ).toString()
+      files[resolve(path, file.name)] = readFileHelper(resolve(path, file.name))
     }
   }
 }

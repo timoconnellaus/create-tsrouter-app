@@ -54,10 +54,27 @@ export function cli({
   //     await initAddOn('overlay')
   //   })
 
+  program.argument('[project-name]', 'name of the project')
+
+  if (!forcedMode) {
+    program.option<'typescript' | 'javascript' | 'file-router'>(
+      '--template <type>',
+      'project template (typescript, javascript, file-router)',
+      (value) => {
+        if (
+          value !== 'typescript' &&
+          value !== 'javascript' &&
+          value !== 'file-router'
+        ) {
+          throw new InvalidArgumentError(
+            `Invalid template: ${value}. Only the following are allowed: typescript, javascript, file-router`,
+          )
+        }
+        return value
+      },
+    )
+  }
   program
-    .argument('[project-name]', 'name of the project')
-    .option('--no-git', 'do not create a git repository')
-    .option('--target-dir <path>', 'the directory to create the project in')
     .option<Framework>(
       '--framework <type>',
       'project framework (solid, react)',
@@ -73,6 +90,7 @@ export function cli({
       },
       DEFAULT_FRAMEWORK,
     )
+    // .option('--overlay [url]', 'add an overlay from a URL', false)
     .option<PackageManager>(
       `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join('|')}>`,
       `Explicitly tell the CLI to use this package manager`,
@@ -114,28 +132,10 @@ export function cli({
       },
     )
     .option('--list-add-ons', 'list all available add-ons', false)
-    // .option('--overlay [url]', 'add an overlay from a URL', false)
+    .option('--no-git', 'do not create a git repository')
+    .option('--target-dir <path>', 'the directory to create the project in')
     .option('--mcp', 'run the MCP server', false)
     .option('--mcp-sse', 'run the MCP server in SSE mode', false)
-
-  if (!forcedMode) {
-    program.option<'typescript' | 'javascript' | 'file-router'>(
-      '--template <type>',
-      'project template (typescript, javascript, file-router)',
-      (value) => {
-        if (
-          value !== 'typescript' &&
-          value !== 'javascript' &&
-          value !== 'file-router'
-        ) {
-          throw new InvalidArgumentError(
-            `Invalid template: ${value}. Only the following are allowed: typescript, javascript, file-router`,
-          )
-        }
-        return value
-      },
-    )
-  }
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {

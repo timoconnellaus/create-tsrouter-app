@@ -9,6 +9,7 @@ import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { sortObject } from './utils.js'
 import { writeConfigFile } from './config-file.js'
 import { packageManagerExecute } from './package-manager.js'
+import { getBinaryFile } from './file-helper.js'
 
 import type { AddOn, Environment, Options } from './types.js'
 
@@ -287,6 +288,15 @@ async function copyAddOnFile(
 
   const finalTargetPath = resolve(dirname(targetPath), targetFile)
 
+  const binaryContent = getBinaryFile(content)
+  if (binaryContent) {
+    await environment.writeFile(
+      finalTargetPath,
+      binaryContent as unknown as string,
+    )
+    return
+  }
+
   if (isTemplate) {
     await templateFile(content, finalTargetPath)
   } else {
@@ -499,7 +509,7 @@ export async function createApp(
   // Copy all the asset files from the addons
   const s = silent ? null : spinner()
   for (const type of ['add-on', 'example']) {
-    for (const phase of ['setup', 'add-on']) {
+    for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
         (addOn) => addOn.phase === phase && addOn.type === type,
       )) {
