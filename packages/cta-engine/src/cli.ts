@@ -9,10 +9,10 @@ import { SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import runServer from './mcp.js'
 import { listAddOns } from './add-ons.js'
 import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
-// import { initAddOn } from './custom-add-on.js'
+import { initAddOn } from './custom-add-on.js'
 
 import { createDefaultEnvironment } from './environment.js'
-// import { add } from './add.js'
+import { add } from './add.js'
 
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
@@ -33,26 +33,26 @@ export function cli({
 
   program.name(name).description(`CLI to create a new ${appName} application`)
 
-  // program
-  //   .command('add')
-  //   .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
-  //   .action(async (addOn: string) => {
-  //     await add(addOn.split(',').map((addon) => addon.trim()))
-  //   })
+  program
+    .command('add')
+    .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
+    .action(async (addOn: string) => {
+      await add(addOn.split(',').map((addon) => addon.trim()))
+    })
 
-  // program
-  //   .command('update-add-on')
-  //   .description('Create or update an add-on from the current project')
-  //   .action(async () => {
-  //     await initAddOn('add-on')
-  //   })
+  program
+    .command('update-add-on')
+    .description('Create or update an add-on from the current project')
+    .action(async () => {
+      await initAddOn('add-on')
+    })
 
-  // program
-  //   .command('update-overlay')
-  //   .description('Create or update a project overlay from the current project')
-  //   .action(async () => {
-  //     await initAddOn('overlay')
-  //   })
+  program
+    .command('update-overlay')
+    .description('Create or update a project overlay from the current project')
+    .action(async () => {
+      await initAddOn('overlay')
+    })
 
   program.argument('[project-name]', 'name of the project')
 
@@ -90,7 +90,7 @@ export function cli({
       },
       DEFAULT_FRAMEWORK,
     )
-    // .option('--overlay [url]', 'add an overlay from a URL', false)
+    .option('--overlay [url]', 'add an overlay from a URL', false)
     .option<PackageManager>(
       `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join('|')}>`,
       `Explicitly tell the CLI to use this package manager`,
