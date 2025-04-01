@@ -5,6 +5,8 @@ my-app
 .DS_Store
 **/node_modules
 **/dist
+.vinxi
+**/bin-dist
 
 .vscode
 

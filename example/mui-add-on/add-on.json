@@ -1,0 +1,33 @@
+{
+  "name": "mui-add-on-add-on",
+  "version": "0.0.1",
+  "description": "Add-on",
+  "author": "Jane Smith <jane.smith@example.com>",
+  "license": "MIT",
+  "link": "https://github.com/jane-smith/mui-add-on-add-on",
+  "command": {},
+  "shadcnComponents": [],
+  "templates": [
+    "file-router"
+  ],
+  "routes": [
+    {
+      "url": "/demo/mui",
+      "name": "mui"
+    }
+  ],
+  "warning": "",
+  "variables": {},
+  "phase": "add-on",
+  "type": "add-on",
+  "packageAdditions": {
+    "scripts": {},
+    "dependencies": {},
+    "devDependencies": {}
+  },
+  "files": {
+    "./src/routes/demo.mui.tsx.ejs": "import Button from \"@mui/material/Button\";\nimport Box from \"@mui/material/Box\";\nimport { createFileRoute } from \"@tanstack/react-router\";\n\n<% if (codeRouter) { %>\nimport type { RootRoute } from '@tanstack/react-router'\n<% } else { %>\nexport const Route = createFileRoute('/demo/mui')({\n  component: MUIDemo,\n})\n<% } %>;\n\nfunction MUIDemo() {\n  return (\n    <Box sx={{ px: 2, py: 4 }}>\n      <Button variant=\"contained\">Hello world</Button>\n    </Box>\n  );\n}\n\n<% if (codeRouter) { %>\nexport default (parentRoute: RootRoute) => createRoute({\n  path: '/demo/mui',\n  \n  component: MUIDemo,\n\n  getParentRoute: () => parentRoute,\n})\n<% } %>\n"
+  },
+  "framework": "react",
+  "addDependencies": []
+}
