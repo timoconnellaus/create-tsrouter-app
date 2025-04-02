@@ -1,8 +1,7 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { FileText, Folder } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
+import { createServerFn } from '@tanstack/react-start'
 
 import type { TreeDataItem } from '@/components/ui/tree-view'
 
@@ -14,40 +13,53 @@ import {
 
 import { TreeView } from '@/components/ui/tree-view'
 
+const getAddons = createServerFn({
+  method: 'GET',
+}).handler(() => {
+  return getAllAddOns('react', 'file-router')
+})
+
+const runCreateApp = createServerFn({
+  method: 'POST',
+}).handler(async () => {
+  const { output, environment } = createMemoryEnvironment()
+  await createApp(
+    {
+      addOns: false,
+      framework: 'react',
+      chosenAddOns: [],
+      git: true,
+      mode: 'code-router',
+      packageManager: 'npm',
+      projectName: 'foo',
+      tailwind: false,
+      toolchain: 'none',
+      typescript: false,
+      variableValues: {},
+    },
+    {
+      silent: true,
+      environment,
+      cwd: process.env.PROJECT_PATH,
+    },
+  )
+  return output
+})
+
 export const Route = createFileRoute('/')({
   component: App,
   loader: async () => {
-    const { output, environment } = createMemoryEnvironment()
-    await createApp(
-      {
-        addOns: false,
-        framework: 'react',
-        chosenAddOns: [],
-        git: true,
-        mode: 'code-router',
-        packageManager: 'npm',
-        projectName: 'foo',
-        tailwind: false,
-        toolchain: 'none',
-        typescript: false,
-        variableValues: {},
-      },
-      {
-        silent: true,
-        environment,
-        cwd: process.env.PROJECT_PATH,
-      },
-    )
     return {
-      addOns: await getAllAddOns('react', 'file-router'),
+      addOns: await getAddons(),
       projectPath: process.env.PROJECT_PATH!,
-      output,
+      output: await runCreateApp(),
     }
   },
 })
 
 function App() {
   const { projectPath, output } = Route.useLoaderData()
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
 
   const tree = useMemo(() => {
     const treeData: Array<TreeDataItem> = []
@@ -61,43 +73,43 @@ function App() {
           currentLevel = existingNode.children || []
         } else {
           const newNode: TreeDataItem = {
-            id: `${file}-${index}`,
+            id: index === parts.length - 1 ? file : `${file}-${index}`,
             name: part,
             children: index < parts.length - 1 ? [] : undefined,
             icon:
               index < parts.length - 1
                 ? () => <Folder className="w-4 h-4 mr-2" />
                 : () => <FileText className="w-4 h-4 mr-2" />,
-            onClick: () => {
-              console.log('clicked')
-              console.log('clicked', newNode)
-            },
+            onClick:
+              index === parts.length - 1
+                ? () => {
+                    setSelectedFile(file)
+                  }
+                : undefined,
           }
           currentLevel.push(newNode)
           currentLevel = newNode.children!
         }
       })
     })
-    console.log(JSON.stringify(treeData, null))
     return treeData
   }, [projectPath, output])
 
-  console.log('Hello world')
-
-  useEffect(() => {
-    console.log('output', output)
-    console.log('projectPath', projectPath)
-    console.log('tree', tree)
-  }, [output, projectPath, tree])
-
   return (
-    <div className="p-5">
-      <Button onClick={() => console.log('clicked')}>Click me</Button>
+    <div className="p-5 flex flex-row">
       <TreeView
         data={tree}
         defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
         defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}
+        className="max-w-1/4 w-1/4 pr-2"
       />
+      <div className="max-w-3/4 w-3/4 pl-2">
+        <pre>
+          {selectedFile
+            ? output.files[selectedFile] || 'Select a file to view its content'
+            : null}
+        </pre>
+      </div>
     </div>
   )
 }

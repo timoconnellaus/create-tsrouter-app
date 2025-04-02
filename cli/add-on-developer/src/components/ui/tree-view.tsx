@@ -277,7 +277,6 @@ const TreeNode = ({
             isDragOver && dragOverVariants(),
           )}
           onClick={() => {
-            console.log(1)
             handleSelectChange(item)
             item.onClick?.()
           }}
@@ -386,7 +385,6 @@ const TreeLeaf = React.forwardRef<
         )}
         onClick={() => {
           handleSelectChange(item)
-          console.log(2)
           item.onClick?.()
         }}
         draggable={!!item.draggable}
