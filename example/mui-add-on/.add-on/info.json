@@ -1,5 +1,5 @@
 {
-  "name": "mui-add-on-add-on",
+  "name": "mui-add-on",
   "version": "0.0.1",
   "description": "Add-on",
   "author": "Jane Smith <jane.smith@example.com>",
@@ -20,6 +20,7 @@
   "variables": {},
   "phase": "add-on",
   "type": "add-on",
+  "framework": "react",
   "packageAdditions": {
     "scripts": {},
     "dependencies": {

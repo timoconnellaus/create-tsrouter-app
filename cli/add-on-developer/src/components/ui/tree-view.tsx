@@ -27,6 +27,7 @@ interface TreeDataItem {
   onClick?: () => void
   draggable?: boolean
   droppable?: boolean
+  className?: string
 }
 
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -200,6 +201,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                   handleDragStart={handleDragStart}
                   handleDrop={handleDrop}
                   draggedItem={draggedItem}
+                  className={item.className}
                 />
               )}
             </li>

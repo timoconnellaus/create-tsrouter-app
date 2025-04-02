@@ -102,7 +102,7 @@ export default (parentRoute: RootRoute) => createRoute({
   return { url: path, code, name }
 }
 
-async function createOptions(
+export async function createAppOptionsFromPersisted(
   json: PersistedOptions,
 ): Promise<Required<Options>> {
   return {
@@ -204,6 +204,7 @@ To create an add-on, the project must be created with TypeScript.`)
         link: `https://github.com/jane-smith/${persistedOptions.projectName}-${mode}`,
         command: {},
         shadcnComponents: [],
+        framework: persistedOptions.framework,
         templates: [persistedOptions.mode],
         routes: [],
         warning: '',
@@ -220,7 +221,7 @@ To create an add-on, the project must be created with TypeScript.`)
   const compiledInfo = JSON.parse(JSON.stringify(info))
 
   const originalOutput = await runCreateApp(
-    await createOptions(persistedOptions),
+    await createAppOptionsFromPersisted(persistedOptions),
   )
 
   const originalPackageJson = JSON.parse(
@@ -302,6 +303,7 @@ To create an add-on, the project must be created with TypeScript.`)
   compiledInfo.routes = info.routes
   compiledInfo.framework = persistedOptions.framework
   compiledInfo.addDependencies = persistedOptions.existingAddOns
+  compiledInfo.packageAdditions = info.packageAdditions
 
   if (mode === 'overlay') {
     compiledInfo.mode = persistedOptions.mode
