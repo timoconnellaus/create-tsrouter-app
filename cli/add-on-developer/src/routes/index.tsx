@@ -1,100 +1,40 @@
 import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { FileText, Folder } from 'lucide-react'
-import { createServerFn } from '@tanstack/react-start'
-import CodeMirror from '@uiw/react-codemirror'
-
-import { javascript } from '@codemirror/lang-javascript'
-import { json } from '@codemirror/lang-json'
-import { css } from '@codemirror/lang-css'
-import { html } from '@codemirror/lang-html'
-
-import { okaidia } from '@uiw/codemirror-theme-okaidia'
-import { readFileSync } from 'node:fs'
-import { basename, resolve } from 'node:path'
-
-import {
-  getAllAddOns,
-  createApp,
-  createMemoryEnvironment,
-  createAppOptionsFromPersisted,
-} from '@tanstack/cta-engine'
 
 import { TreeView } from '@/components/ui/tree-view'
+import { Checkbox } from '@/components/ui/checkbox'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import type { TreeDataItem } from '@/components/ui/tree-view'
-import type { AddOn, PersistedOptions } from '@tanstack/cta-engine'
 
-const getAddons = createServerFn({
-  method: 'GET',
-}).handler(() => {
-  return getAllAddOns('react', 'file-router')
-})
+import {
+  getAddons,
+  getAddonInfo,
+  getOriginalOptions,
+  runCreateApp,
+} from '@/lib/server-fns'
+import FileViewer from '@/components/file-viewer'
 
-const getAddonInfo = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  const addOnInfo = readFileSync(
-    resolve(process.env.PROJECT_PATH, 'add-on.json'),
-  )
-  return JSON.parse(addOnInfo.toString())
-})
-
-const getOriginalOptions = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  const addOnInfo = readFileSync(resolve(process.env.PROJECT_PATH, '.cta.json'))
-  return JSON.parse(addOnInfo.toString()) as PersistedOptions
-})
-
-const runCreateApp = createServerFn({
-  method: 'POST',
-})
-  .validator((data: unknown) => {
-    return data as { withAddOn: boolean; options: PersistedOptions }
-  })
-  .handler(
-    async ({
-      data: { withAddOn, options: persistedOptions },
-    }: {
-      data: { withAddOn: boolean; options: PersistedOptions }
-    }) => {
-      const { output, environment } = createMemoryEnvironment()
-      const options = await createAppOptionsFromPersisted(persistedOptions)
-      options.chosenAddOns = withAddOn
-        ? [...options.chosenAddOns, (await getAddonInfo()) as AddOn]
-        : []
-      await createApp(
-        {
-          ...options,
-        },
-        {
-          silent: true,
-          environment,
-          cwd: process.env.PROJECT_PATH,
-        },
-      )
-
-      output.files = Object.keys(output.files).reduce<Record<string, string>>(
-        (acc, file) => {
-          if (basename(file) !== '.cta.json') {
-            acc[file] = output.files[file]
-          }
-          return acc
-        },
-        {},
-      )
-
-      return output
-    },
-  )
+import type { Mode } from '@tanstack/cta-engine'
 
 export const Route = createFileRoute('/')({
   component: App,
   loader: async () => {
     const originalOptions = await getOriginalOptions()
+    const [codeRouterAddons, fileRouterAddons] = await Promise.all([
+      getAddons({
+        data: { platform: 'react', mode: 'code-router' },
+      }),
+      getAddons({
+        data: { platform: 'react', mode: 'file-router' },
+      }),
+    ])
     return {
-      addOns: await getAddons(),
+      addOns: {
+        'code-router': codeRouterAddons,
+        'file-router': fileRouterAddons,
+      },
       projectPath: process.env.PROJECT_PATH!,
       output: await runCreateApp({
         data: { withAddOn: true, options: originalOptions },
@@ -111,12 +51,48 @@ export const Route = createFileRoute('/')({
 function App() {
   const {
     projectPath,
-    output,
+    output: originalOutput,
     addOnInfo,
-    outputWithoutAddon,
+    outputWithoutAddon: originalOutputWithoutAddon,
     originalOptions,
+    addOns,
   } = Route.useLoaderData()
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
+
+  const [options, setOptions] = useState(originalOptions)
+  const [output, setOutput] = useState(originalOutput)
+  const [outputWithoutAddon, setOutputWithoutAddon] = useState(
+    originalOutputWithoutAddon,
+  )
+  const [selectedAddOns, setSelectedAddOns] = useState<Array<string>>([])
+
+  async function updateOptions(
+    updatedOptions: Partial<typeof options>,
+    updatedAddOns: Array<string> = [],
+  ) {
+    const newMode = updatedOptions.mode || options.mode
+    const existingAddOns = [
+      ...(originalOptions.existingAddOns || []),
+      ...(updatedAddOns || []),
+    ].filter((id) => addOns[newMode as Mode].some((addOn) => addOn.id === id))
+
+    const newOptions = {
+      ...options,
+      ...updatedOptions,
+      existingAddOns,
+    }
+    setOptions(newOptions)
+    const [newOutput, newOutputWithoutAddon] = await Promise.all([
+      runCreateApp({
+        data: { withAddOn: true, options: newOptions },
+      }),
+      runCreateApp({
+        data: { withAddOn: false, options: newOptions },
+      }),
+    ])
+    setOutput(newOutput)
+    setOutputWithoutAddon(newOutputWithoutAddon)
+  }
 
   const tree = useMemo(() => {
     const treeData: Array<TreeDataItem> = []
@@ -166,47 +142,77 @@ function App() {
     return treeData
   }, [projectPath, output])
 
-  function getLanguage(file: string) {
-    if (file.endsWith('.js') || file.endsWith('.jsx')) {
-      return javascript({ jsx: true })
-    }
-    if (file.endsWith('.ts') || file.endsWith('.tsx')) {
-      return javascript({ typescript: true, jsx: true })
-    }
-    if (file.endsWith('.json')) {
-      return json()
-    }
-    if (file.endsWith('.css')) {
-      return css()
-    }
-    if (file.endsWith('.html')) {
-      return html()
-    }
-    return javascript()
-  }
-
   return (
-    <div className="p-5 flex flex-row">
-      <TreeView
-        data={tree}
-        defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
-        defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}
-        className="max-w-1/4 w-1/4 pr-2"
-      />
-      <div className="max-w-3/4 w-3/4 pl-2">
-        <pre>
-          {selectedFile && output.files[selectedFile] ? (
-            <CodeMirror
-              value={output.files[selectedFile]}
-              theme={okaidia}
-              height="100vh"
-              width="100%"
-              readOnly
-              extensions={[getLanguage(selectedFile)]}
-              className="text-lg"
+    <div className="p-5">
+      <div className="flex flex-row items-center mb-5">
+        <ToggleGroup
+          type="single"
+          value={options.mode}
+          onValueChange={(v: string) => {
+            if (v) {
+              updateOptions(
+                {
+                  mode: v as Mode,
+                },
+                selectedAddOns,
+              )
+            }
+          }}
+        >
+          <ToggleGroupItem
+            value="code-router"
+            disabled={!addOnInfo.templates.includes('code-router')}
+          >
+            Code Router
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="file-router"
+            disabled={!addOnInfo.templates.includes('file-router')}
+          >
+            File Router
+          </ToggleGroupItem>
+        </ToggleGroup>
+        <div className="flex flex-row ml-5 flex-wrap">
+          {addOns[options.mode as Mode].map((addOn) => (
+            <div key={addOn.name} className="mr-2 flex items-center">
+              <Checkbox
+                id={addOn.id}
+                checked={
+                  originalOptions.existingAddOns.includes(addOn.id) ||
+                  selectedAddOns.includes(addOn.id)
+                }
+                disabled={originalOptions.existingAddOns.includes(addOn.id)}
+                onClick={() => {
+                  let updatedAddOns = selectedAddOns.includes(addOn.id)
+                    ? selectedAddOns.filter((id) => id !== addOn.id)
+                    : [...selectedAddOns, addOn.id]
+                  setSelectedAddOns(updatedAddOns)
+                  updateOptions({}, updatedAddOns)
+                }}
+              />
+              <label htmlFor={addOn.id} className="ml-2">
+                {addOn.name}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-row">
+        <TreeView
+          data={tree}
+          defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
+          defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}
+          className="max-w-1/4 w-1/4 pr-2"
+        />
+        <div className="max-w-3/4 w-3/4 pl-2">
+          {selectedFile ? (
+            <FileViewer
+              filePath={selectedFile}
+              originalFile={outputWithoutAddon.files[selectedFile]}
+              modifiedFile={output.files[selectedFile]}
             />
           ) : null}
-        </pre>
+        </div>
       </div>
     </div>
   )

@@ -7,5 +7,5 @@ export {
   createDefaultEnvironment,
 } from './environment.js'
 
-export type { AddOn } from './types.js'
+export type { AddOn, Framework, Mode } from './types.js'
 export type { PersistedOptions } from './config-file.js'

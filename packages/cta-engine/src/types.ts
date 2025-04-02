@@ -6,6 +6,8 @@ export type Framework = 'solid' | 'react'
 
 export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
+export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
+
 export interface Options {
   framework: Framework
   projectName: string
@@ -13,7 +15,7 @@ export interface Options {
   tailwind: boolean
   packageManager: PackageManager
   toolchain: ToolChain
-  mode: typeof CODE_ROUTER | typeof FILE_ROUTER
+  mode: Mode
   addOns: boolean
   chosenAddOns: Array<AddOn>
   git: boolean
@@ -114,7 +116,7 @@ export type Overlay = AddOn & {
   author: string
   link: string
   license: string
-  mode: typeof CODE_ROUTER | typeof FILE_ROUTER
+  mode: Mode
   framework: Framework
   typescript: boolean
   tailwind: boolean

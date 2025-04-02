@@ -8,7 +8,8 @@
   "command": {},
   "shadcnComponents": [],
   "templates": [
-    "file-router"
+    "file-router",
+    "code-router"
   ],
   "routes": [
     {
