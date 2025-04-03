@@ -13,7 +13,7 @@ export default function FileViewer({
   modifiedFile,
   filePath,
 }: {
-  originalFile: string
+  originalFile?: string
   modifiedFile: string
   filePath: string
 }) {
@@ -37,7 +37,7 @@ export default function FileViewer({
   }
   const language = getLanguage(filePath)
 
-  if (!originalFile) {
+  if (!originalFile || originalFile === modifiedFile) {
     return (
       <CodeMirror
         value={modifiedFile}
@@ -51,14 +51,7 @@ export default function FileViewer({
     )
   }
   return (
-    <CodeMirrorMerge
-      orientation="b-a"
-      theme={okaidia}
-      height="100vh"
-      width="100%"
-      readOnly
-      className="text-lg"
-    >
+    <CodeMirrorMerge orientation="a-b" theme={okaidia} className="text-lg">
       <CodeMirrorMerge.Original value={originalFile} extensions={[language]} />
       <CodeMirrorMerge.Modified value={modifiedFile} extensions={[language]} />
     </CodeMirrorMerge>

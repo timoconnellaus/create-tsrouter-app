@@ -1,12 +1,20 @@
-import { useMemo, useState } from 'react'
+import { useState, Fragment } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { FileText, Folder } from 'lucide-react'
+import { Info } from 'lucide-react'
 
-import { TreeView } from '@/components/ui/tree-view'
-import { Checkbox } from '@/components/ui/checkbox'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
-import type { TreeDataItem } from '@/components/ui/tree-view'
+import AppliedAddOn from '@/components/applied-add-on'
+import FileTree from '@/components/file-tree'
+import FileViewer from '@/components/file-viewer'
 
 import {
   getAddons,
@@ -14,9 +22,7 @@ import {
   getOriginalOptions,
   runCreateApp,
 } from '@/lib/server-fns'
-import FileViewer from '@/components/file-viewer'
-
-import type { Mode } from '@tanstack/cta-engine'
+import type { AddOn } from '@tanstack/cta-engine'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -42,178 +48,175 @@ export const Route = createFileRoute('/')({
       outputWithoutAddon: await runCreateApp({
         data: { withAddOn: false, options: originalOptions },
       }),
-      addOnInfo: await getAddonInfo(),
+      addOnInfo: (await getAddonInfo()) as AddOn,
       originalOptions,
     }
   },
 })
 
+const CAPTIONS = {
+  dependencies: 'Dependencies',
+  devDependencies: 'Dev Dependencies',
+  scripts: 'Scripts',
+}
+
+function InfoViewer({ info }: { info: AddOn }) {
+  return (
+    <div className="text-lg">
+      <div className="grid grid-cols-[200px_1fr] gap-4 mb-4">
+        <div className="font-medium">Name</div>
+        <div className="font-bold">{info.name}</div>
+        <div className="font-medium">Description</div>
+        <div className="font-bold">{info.description}</div>
+        <div className="font-medium">Version</div>
+        <div className="font-bold">{info.version}</div>
+        <div className="font-medium">Author</div>
+        <div className="font-bold">{info.author}</div>
+        <div className="font-medium">License</div>
+        <div className="font-bold">{info.license}</div>
+        {(
+          [
+            'dependencies',
+            'devDependencies',
+            'scripts',
+          ] as (keyof AddOn['packageAdditions'])[]
+        )
+          .filter(
+            (key) =>
+              info.packageAdditions[key] &&
+              Object.entries(info.packageAdditions[key]).length > 0,
+          )
+          .map((key) => (
+            <Fragment key={key}>
+              <div className="font-medium">{CAPTIONS[key]}</div>
+              <Table>
+                {key !== 'scripts' && (
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1/2">Package</TableHead>
+                      <TableHead className="w-1/2">Version</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                )}
+                <TableBody>
+                  {Object.entries(info.packageAdditions[key]).map(
+                    ([pkg, version]) => (
+                      <TableRow key={`${key}-${pkg}`}>
+                        <TableCell className="w-1/2">{pkg}</TableCell>
+                        <TableCell className="w-1/2">{version}</TableCell>
+                      </TableRow>
+                    ),
+                  )}
+                </TableBody>
+              </Table>
+            </Fragment>
+          ))}
+        {info.routes && (
+          <>
+            <div className="font-medium">Routes</div>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/2">URL</TableHead>
+                    <TableHead className="w-1/2">Name</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {info.routes.map(({ url, name }) => (
+                    <TableRow key={`${url}-${name}`}>
+                      <TableCell className="w-1/2">{url}</TableCell>
+                      <TableCell className="w-1/2">{name}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        )}
+        {info.commmand && (
+          <>
+            <div className="font-medium">Setup Command</div>
+            <div className="font-bold font-mono">{`${info.command.command} ${info.command.args.join(' ')}`}</div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function AddOnViewer({ addOnInfo }: { addOnInfo: AddOn }) {
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [showInfo, setShowInfo] = useState(false)
+
+  return (
+    <div className="flex flex-row">
+      <FileTree
+        prefix="./"
+        tree={addOnInfo.files || {}}
+        originalTree={{}}
+        onFileSelected={(file) => {
+          setSelectedFile(file)
+          setShowInfo(false)
+        }}
+        extraTreeItems={[
+          {
+            id: 'info',
+            name: 'Add-On Info',
+            icon: () => <Info className="w-4 h-4 mr-2" />,
+            onClick: () => {
+              setSelectedFile(null)
+              setShowInfo(true)
+            },
+          },
+        ]}
+      />
+      <div className="max-w-3/4 w-3/4 pl-2">
+        {showInfo && <InfoViewer info={addOnInfo as AddOn} />}
+        {selectedFile ? (
+          <FileViewer
+            filePath={selectedFile}
+            modifiedFile={addOnInfo?.files?.[selectedFile] || ''}
+          />
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const {
     projectPath,
-    output: originalOutput,
+    output,
     addOnInfo,
-    outputWithoutAddon: originalOutputWithoutAddon,
+    outputWithoutAddon,
     originalOptions,
     addOns,
   } = Route.useLoaderData()
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
-
-  const [options, setOptions] = useState(originalOptions)
-  const [output, setOutput] = useState(originalOutput)
-  const [outputWithoutAddon, setOutputWithoutAddon] = useState(
-    originalOutputWithoutAddon,
-  )
-  const [selectedAddOns, setSelectedAddOns] = useState<Array<string>>([])
-
-  async function updateOptions(
-    updatedOptions: Partial<typeof options>,
-    updatedAddOns: Array<string> = [],
-  ) {
-    const newMode = updatedOptions.mode || options.mode
-    const existingAddOns = [
-      ...(originalOptions.existingAddOns || []),
-      ...(updatedAddOns || []),
-    ].filter((id) => addOns[newMode as Mode].some((addOn) => addOn.id === id))
-
-    const newOptions = {
-      ...options,
-      ...updatedOptions,
-      existingAddOns,
-    }
-    setOptions(newOptions)
-    const [newOutput, newOutputWithoutAddon] = await Promise.all([
-      runCreateApp({
-        data: { withAddOn: true, options: newOptions },
-      }),
-      runCreateApp({
-        data: { withAddOn: false, options: newOptions },
-      }),
-    ])
-    setOutput(newOutput)
-    setOutputWithoutAddon(newOutputWithoutAddon)
-  }
-
-  const tree = useMemo(() => {
-    const treeData: Array<TreeDataItem> = []
-
-    function changed(file: string) {
-      if (!outputWithoutAddon.files[file]) {
-        return true
-      }
-      return output.files[file] !== outputWithoutAddon.files[file]
-    }
-
-    Object.keys(output.files)
-      .sort()
-      .forEach((file) => {
-        const parts = file.replace(`${projectPath}/`, '').split('/')
-
-        let currentLevel = treeData
-        parts.forEach((part, index) => {
-          const existingNode = currentLevel.find((node) => node.name === part)
-          if (existingNode) {
-            currentLevel = existingNode.children || []
-          } else {
-            const newNode: TreeDataItem = {
-              id: index === parts.length - 1 ? file : `${file}-${index}`,
-              name: part,
-              children: index < parts.length - 1 ? [] : undefined,
-              icon:
-                index < parts.length - 1
-                  ? () => <Folder className="w-4 h-4 mr-2" />
-                  : () => <FileText className="w-4 h-4 mr-2" />,
-              onClick:
-                index === parts.length - 1
-                  ? () => {
-                      setSelectedFile(file)
-                    }
-                  : undefined,
-              className:
-                index === parts.length - 1 && changed(file)
-                  ? 'text-green-300'
-                  : '',
-            }
-            currentLevel.push(newNode)
-            currentLevel = newNode.children!
-          }
-        })
-      })
-    return treeData
-  }, [projectPath, output])
 
   return (
     <div className="p-5">
-      <div className="flex flex-row items-center mb-5">
-        <ToggleGroup
-          type="single"
-          value={options.mode}
-          onValueChange={(v: string) => {
-            if (v) {
-              updateOptions(
-                {
-                  mode: v as Mode,
-                },
-                selectedAddOns,
-              )
+      <Tabs defaultValue="add-on">
+        <TabsList className="grid grid-cols-2 w-[400px]">
+          <TabsTrigger value="add-on">Add-On</TabsTrigger>
+          <TabsTrigger value="applied">Applied</TabsTrigger>
+        </TabsList>
+        <TabsContent value="add-on">
+          <AddOnViewer addOnInfo={addOnInfo} />
+        </TabsContent>
+        <TabsContent value="applied">
+          <AppliedAddOn
+            projectPath={projectPath}
+            output={output}
+            addOnInfo={addOnInfo}
+            outputWithoutAddon={outputWithoutAddon}
+            originalOptions={
+              originalOptions as Required<typeof originalOptions>
             }
-          }}
-        >
-          <ToggleGroupItem
-            value="code-router"
-            disabled={!addOnInfo.templates.includes('code-router')}
-          >
-            Code Router
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="file-router"
-            disabled={!addOnInfo.templates.includes('file-router')}
-          >
-            File Router
-          </ToggleGroupItem>
-        </ToggleGroup>
-        <div className="flex flex-row ml-5 flex-wrap">
-          {addOns[options.mode as Mode].map((addOn) => (
-            <div key={addOn.name} className="mr-2 flex items-center">
-              <Checkbox
-                id={addOn.id}
-                checked={
-                  originalOptions.existingAddOns.includes(addOn.id) ||
-                  selectedAddOns.includes(addOn.id)
-                }
-                disabled={originalOptions.existingAddOns.includes(addOn.id)}
-                onClick={() => {
-                  let updatedAddOns = selectedAddOns.includes(addOn.id)
-                    ? selectedAddOns.filter((id) => id !== addOn.id)
-                    : [...selectedAddOns, addOn.id]
-                  setSelectedAddOns(updatedAddOns)
-                  updateOptions({}, updatedAddOns)
-                }}
-              />
-              <label htmlFor={addOn.id} className="ml-2">
-                {addOn.name}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="flex flex-row">
-        <TreeView
-          data={tree}
-          defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
-          defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}
-          className="max-w-1/4 w-1/4 pr-2"
-        />
-        <div className="max-w-3/4 w-3/4 pl-2">
-          {selectedFile ? (
-            <FileViewer
-              filePath={selectedFile}
-              originalFile={outputWithoutAddon.files[selectedFile]}
-              modifiedFile={output.files[selectedFile]}
-            />
-          ) : null}
-        </div>
-      </div>
+            addOns={addOns}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
