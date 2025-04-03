@@ -8,8 +8,8 @@ To help accelerate the migration away from `create-react-app` we created the `cr
 
 To maintain compatability with `create-react-app` you can build a new application by running:
 
-| Command                                                                          | Description                                       |
-| -------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Command                                                                           | Description                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `pnpx create-tsrouter-app@latest my-app`                                          | Create a new app                                  |
 | `pnpx create-tsrouter-app@latest my-app --template file-router`                   | Create a new file based app                       |
 | `pnpx create-tsrouter-app@latest my-app --template typescript`                    | Create a new TypeScript app using the Code Router |
@@ -142,9 +142,18 @@ You can launch the `create-tsrouter-app` CLI with the `--mcp` flag to enable MCP
 pnpx create-tsrouter-app@latest --mcp
 ```
 
-Shown below is the configuration for MCP support in Cursor.
+Here is the JSON configuration for MCP support in many MCP clients.
 
-![MCP Configuration](./images/mcp-configuration.png)
+```json
+{
+  "mcpServers": {
+    "create-tsrouter-app": {
+      "command": "pnpx",
+      "args": ["create-tsrouter-app@latest", "--mcp"]
+    }
+  }
+}
+```
 
 # Contributing
 

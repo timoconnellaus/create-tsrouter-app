@@ -8,10 +8,10 @@ To help accelerate the migration away from `create-react-app` we created the `cr
 
 To maintain compatability with `create-react-app` you can build a new application by running:
 
-| Command                                                                          | Description                                       |
-| -------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `pnpx create-start-app@latest my-app`                                            | Create a new app                                  |
-| `pnpx create-start-app@latest my-app --framework solid`                          | Create a Solid app                                |
+| Command                                                 | Description        |
+| ------------------------------------------------------- | ------------------ |
+| `pnpx create-start-app@latest my-app`                   | Create a new app   |
+| `pnpx create-start-app@latest my-app --framework solid` | Create a Solid app |
 
 If you don't specify a project name, the CLI will walk you through an interactive setup process:
 
@@ -101,9 +101,18 @@ You can launch the `create-start-app` CLI with the `--mcp` flag to enable MCP su
 pnpx create-start-app@latest --mcp
 ```
 
-Shown below is the configuration for MCP support in Cursor.
+Here is the JSON configuration for MCP support in many MCP clients.
 
-![MCP Configuration](./images/mcp-configuration.png)
+```json
+{
+  "mcpServers": {
+    "create-start-app": {
+      "command": "pnpx",
+      "args": ["create-start-app@latest", "--mcp"]
+    }
+  }
+}
+```
 
 # Contributing
 

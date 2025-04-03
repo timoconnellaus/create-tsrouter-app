@@ -133,7 +133,10 @@ export function cli({
     )
     .option('--list-add-ons', 'list all available add-ons', false)
     .option('--no-git', 'do not create a git repository')
-    .option('--target-dir <path>', 'the directory to create the project in')
+    .option(
+      '--target-dir <path>',
+      'the target directory for the application root',
+    )
     .option('--mcp', 'run the MCP server', false)
     .option('--mcp-sse', 'run the MCP server in SSE mode', false)
 
