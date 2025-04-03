@@ -17,6 +17,10 @@ await publish({
       packageDir: './cli/create-start-app',
     },
     {
+      name: 'create-tanstack',
+      packageDir: './cli/create-tanstack',
+    },
+    {
       name: '@tanstack/cta-engine',
       packageDir: './packages/cta-engine',
     },
