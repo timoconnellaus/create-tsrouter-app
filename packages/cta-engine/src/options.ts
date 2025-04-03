@@ -16,7 +16,7 @@ import { DEFAULT_TOOLCHAIN, SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
 import { finalizeAddOns, getAllAddOns, loadRemoteAddOn } from './add-ons.js'
 
-import type { AddOn, CliOptions, Options, Overlay, Variable } from './types.js'
+import type { AddOn, CliOptions, Options, Starter, Variable } from './types.js'
 
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(
@@ -47,27 +47,27 @@ export async function normalizeOptions(
     let mode: typeof FILE_ROUTER | typeof CODE_ROUTER =
       cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
 
-    const overlay = cliOptions.overlay
-      ? ((await loadRemoteAddOn(cliOptions.overlay)) as Overlay)
+    const starter = cliOptions.starter
+      ? ((await loadRemoteAddOn(cliOptions.starter)) as Starter)
       : undefined
 
-    if (overlay) {
-      tailwind = overlay.tailwind
-      typescript = overlay.typescript
-      cliOptions.framework = overlay.framework
-      mode = overlay.mode
+    if (starter) {
+      tailwind = starter.tailwind
+      typescript = starter.typescript
+      cliOptions.framework = starter.framework
+      mode = starter.mode
     }
 
     let addOns = false
     let chosenAddOns: Array<AddOn> = []
     if (
       Array.isArray(cliOptions.addOns) ||
-      overlay?.dependsOn ||
+      starter?.dependsOn ||
       forcedAddOns
     ) {
       addOns = true
       let finalAddOns = Array.from(
-        new Set([...(overlay?.dependsOn || []), ...(forcedAddOns || [])]),
+        new Set([...(starter?.dependsOn || []), ...(forcedAddOns || [])]),
       )
       if (cliOptions.addOns && Array.isArray(cliOptions.addOns)) {
         finalAddOns = Array.from(
@@ -102,7 +102,7 @@ export async function normalizeOptions(
       addOns,
       chosenAddOns,
       variableValues: {},
-      overlay,
+      starter,
     }
   }
 }

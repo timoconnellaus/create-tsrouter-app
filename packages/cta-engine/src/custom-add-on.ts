@@ -12,15 +12,15 @@ import { readFileHelper } from './file-helper.js'
 import type { Framework, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
 
-type AddOnMode = 'add-on' | 'overlay'
+type AddOnMode = 'add-on' | 'starter'
 
 const INFO_FILE: Record<AddOnMode, string> = {
   'add-on': '.add-on/info.json',
-  overlay: 'overlay-info.json',
+  starter: 'starter-info.json',
 }
 const COMPILED_FILE: Record<AddOnMode, string> = {
   'add-on': 'add-on.json',
-  overlay: 'overlay.json',
+  starter: 'starter.json',
 }
 
 const ADD_ON_DIR = '.add-on'
@@ -198,7 +198,7 @@ To create an add-on, the project must be created with TypeScript.`)
     : {
         name: `${persistedOptions.projectName}-${mode}`,
         version: '0.0.1',
-        description: mode === 'add-on' ? 'Add-on' : 'Project overlay',
+        description: mode === 'add-on' ? 'Add-on' : 'Project starter',
         author: 'Jane Smith <jane.smith@example.com>',
         license: 'MIT',
         link: `https://github.com/jane-smith/${persistedOptions.projectName}-${mode}`,
@@ -265,7 +265,7 @@ To create an add-on, the project must be created with TypeScript.`)
   // Find altered files
   const changedFiles: Record<string, string> = {}
   await compareFiles('.', IGNORE_FILES, originalOutput.files, changedFiles)
-  if (mode === 'overlay') {
+  if (mode === 'starter') {
     compiledInfo.files = changedFiles
   } else {
     const assetsDir = resolve(ADD_ON_DIR, ASSETS_DIR)
@@ -305,7 +305,7 @@ To create an add-on, the project must be created with TypeScript.`)
   compiledInfo.addDependencies = persistedOptions.existingAddOns
   compiledInfo.packageAdditions = info.packageAdditions
 
-  if (mode === 'overlay') {
+  if (mode === 'starter') {
     compiledInfo.mode = persistedOptions.mode
     compiledInfo.typescript = persistedOptions.typescript
     compiledInfo.tailwind = persistedOptions.tailwind

@@ -529,9 +529,9 @@ export async function createApp(
         }
       }
     }
-    if (options.overlay) {
-      if (options.overlay.shadcnComponents) {
-        for (const component of options.overlay.shadcnComponents) {
+    if (options.starter) {
+      if (options.starter.shadcnComponents) {
+        for (const component of options.starter.shadcnComponents) {
           shadcnComponents.add(component)
         }
       }
@@ -714,11 +714,11 @@ export async function createApp(
   // Create the README.md
   await templateFile(templateDirBase, 'README.md.ejs')
 
-  // Adding overlay
-  if (options.overlay) {
-    s?.start(`Setting up overlay ${options.overlay.name}...`)
-    await runAddOn(options.overlay)
-    s?.stop(`Overlay ${options.overlay.name} setup complete`)
+  // Adding starter
+  if (options.starter) {
+    s?.start(`Setting up starter ${options.starter.name}...`)
+    await runAddOn(options.starter)
+    s?.stop(`Starter ${options.starter.name} setup complete`)
   }
 
   // Install dependencies

@@ -20,7 +20,7 @@ export interface Options {
   chosenAddOns: Array<AddOn>
   git: boolean
   variableValues: Record<string, string | number | boolean>
-  overlay?: AddOn | undefined
+  starter?: AddOn | undefined
 }
 
 export interface CliOptions {
@@ -35,7 +35,7 @@ export interface CliOptions {
   listAddOns?: boolean
   mcp?: boolean
   mcpSse?: boolean
-  overlay?: string
+  starter?: string
   targetDir?: string
 }
 
@@ -83,7 +83,7 @@ export type AddOn = {
   id: string
   name: string
   description: string
-  type: 'add-on' | 'example' | 'overlay'
+  type: 'add-on' | 'example' | 'starter'
   link: string
   templates: Array<string>
   routes: Array<{
@@ -110,8 +110,8 @@ export type AddOn = {
   deletedFiles?: Array<string>
 }
 
-export type Overlay = AddOn & {
-  type: 'overlay'
+export type Starter = AddOn & {
+  type: 'starter'
   version: string
   author: string
   link: string

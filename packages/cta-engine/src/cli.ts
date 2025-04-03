@@ -48,10 +48,10 @@ export function cli({
     })
 
   program
-    .command('update-overlay')
-    .description('Create or update a project overlay from the current project')
+    .command('update-starter')
+    .description('Create or update a project starter from the current project')
     .action(async () => {
-      await initAddOn('overlay')
+      await initAddOn('starter')
     })
 
   program.argument('[project-name]', 'name of the project')
@@ -90,7 +90,11 @@ export function cli({
       },
       DEFAULT_FRAMEWORK,
     )
-    .option('--overlay [url]', 'add an overlay from a URL', false)
+    .option(
+      '--starter [url]',
+      'initialize this project from a starter URL',
+      false,
+    )
     .option<PackageManager>(
       `--package-manager <${SUPPORTED_PACKAGE_MANAGERS.join('|')}>`,
       `Explicitly tell the CLI to use this package manager`,
