@@ -21,6 +21,7 @@
     "react",
     "tanstack",
     "router",
+    "tanstack start",
     "create-react-app"
   ],
   "author": "Jack Herrington <jherr@pobox.com>",

@@ -258,6 +258,19 @@ importers:
         specifier: ^5.6.3
         version: 5.8.2
 
+  cli/create-tanstack:
+    dependencies:
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../../packages/cta-engine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.14
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
+
   cli/create-tsrouter-app:
     dependencies:
       '@tanstack/cta-engine':

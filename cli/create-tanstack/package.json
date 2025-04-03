@@ -1,5 +1,5 @@
 {
-  "name": "create-tsrouter-app",
+  "name": "create-tanstack",
   "version": "0.10.0-alpha.14",
   "description": "Tanstack Application Builder",
   "bin": "./dist/index.js",
