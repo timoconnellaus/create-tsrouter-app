@@ -1,0 +1,17 @@
+{
+  "framework": "react",
+  "typescript": true,
+  "projectName": "ecommerce-starter",
+  "mode": "file-router",
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "toolchain": "none",
+  "variableValues": {},
+  "git": true,
+  "version": 1,
+  "existingAddOns": [
+    "tanchat",
+    "start",
+    "store"
+  ]
+}

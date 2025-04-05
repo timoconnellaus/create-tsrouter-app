@@ -1,0 +1,29 @@
+{
+  "name": "blog-example-starter",
+  "version": "0.0.1",
+  "description": "Project starter",
+  "author": "Jane Smith <jane.smith@example.com>",
+  "license": "MIT",
+  "link": "https://github.com/jane-smith/blog-example-starter",
+  "command": {},
+  "shadcnComponents": [],
+  "framework": "react",
+  "templates": [
+    "file-router"
+  ],
+  "routes": [],
+  "warning": "",
+  "variables": {},
+  "phase": "add-on",
+  "type": "starter",
+  "packageAdditions": {
+    "scripts": {},
+    "dependencies": {
+      "marked": "^15.0.7"
+    },
+    "devDependencies": {
+      "@content-collections/core": "^0.8.2",
+      "@content-collections/vinxi": "^0.1.0"
+    }
+  }
+}

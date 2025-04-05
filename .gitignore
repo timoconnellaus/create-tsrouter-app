@@ -12,3 +12,5 @@ my-app
 
 .nx/cache
 .nx/workspace-data
+
+.content-collections
