@@ -16,7 +16,7 @@ import { createDefaultEnvironment } from './environment.js'
 
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
-import type { CliOptions, Framework } from './types.js'
+import type { CliOptions, Framework, Mode, TemplateOptions } from './types.js'
 
 export function cli({
   name,
@@ -26,7 +26,7 @@ export function cli({
 }: {
   name: string
   appName: string
-  forcedMode?: 'typescript' | 'javascript' | 'file-router'
+  forcedMode?: Mode
   forcedAddOns?: Array<string>
 }) {
   const program = new Command()
@@ -143,12 +143,12 @@ export function cli({
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
       await listAddOns(options, {
-        forcedMode,
+        forcedMode: forcedMode as TemplateOptions,
         forcedAddOns,
       })
     } else if (options.mcp || options.mcpSse) {
       await runServer(!!options.mcpSse, {
-        forcedMode,
+        forcedMode: forcedMode as TemplateOptions,
         forcedAddOns,
         appName,
       })
@@ -160,16 +160,20 @@ export function cli({
         } as CliOptions
 
         if (forcedMode) {
-          cliOptions.template = forcedMode
+          cliOptions.template = forcedMode as TemplateOptions
         }
 
-        let finalOptions = await normalizeOptions(cliOptions, forcedAddOns)
+        let finalOptions = await normalizeOptions(
+          cliOptions,
+          forcedMode,
+          forcedAddOns,
+        )
         if (finalOptions) {
           intro(`Creating a new ${appName} app in ${projectName}...`)
         } else {
           intro(`Let's configure your ${appName} application`)
           finalOptions = await promptForOptions(cliOptions, {
-            forcedMode,
+            forcedMode: forcedMode as TemplateOptions,
             forcedAddOns,
           })
         }

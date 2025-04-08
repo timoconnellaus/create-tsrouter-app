@@ -16,11 +16,20 @@ import { DEFAULT_TOOLCHAIN, SUPPORTED_TOOLCHAINS } from './toolchain.js'
 import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
 import { finalizeAddOns, getAllAddOns, loadRemoteAddOn } from './add-ons.js'
 
-import type { AddOn, CliOptions, Options, Overlay, Variable } from './types.js'
+import type {
+  AddOn,
+  CliOptions,
+  Mode,
+  Options,
+  Overlay,
+  TemplateOptions,
+  Variable,
+} from './types.js'
 
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(
   cliOptions: CliOptions,
+  forcedMode?: Mode,
   forcedAddOns?: Array<string>,
 ): Promise<Options | undefined> {
   // in some cases, if you use windows/powershell, the argument for addons
@@ -80,7 +89,9 @@ export async function normalizeOptions(
       }
       chosenAddOns = await finalizeAddOns(
         cliOptions.framework || DEFAULT_FRAMEWORK,
-        cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER,
+        forcedMode || cliOptions.template === 'file-router'
+          ? FILE_ROUTER
+          : CODE_ROUTER,
         finalAddOns,
       )
       tailwind = true
@@ -154,7 +165,7 @@ export async function promptForOptions(
     forcedMode,
   }: {
     forcedAddOns?: Array<string>
-    forcedMode?: 'typescript' | 'javascript' | 'file-router'
+    forcedMode?: TemplateOptions
   },
 ): Promise<Required<Options>> {
   const options = {} as Required<Options>
