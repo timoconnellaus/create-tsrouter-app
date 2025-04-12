@@ -1,14 +1,11 @@
 {
-  "name": "@tanstack/add-on-developer",
+  "name": "@tanstack/cta-ui",
   "private": true,
   "type": "module",
-  "bin": {
-    "add-on-developer": "./dist/add-on-developer.js"
-  },
-  "main": "./bin-dist/bin/add-on-developer.js",
+  "main": "./lib-dist/index.js",
+  "types": "./lib-dist/index.d.ts",
   "scripts": {
-    "build:bin": "tsc -p tsconfig.bin.json",
-    "dev": "vinxi dev"
+    "build": "tsc -p tsconfig.lib.json"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",

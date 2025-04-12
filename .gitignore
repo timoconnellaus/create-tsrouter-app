@@ -6,8 +6,7 @@ my-app
 **/node_modules
 **/dist
 .vinxi
-**/bin-dist
-
+**/lib-dist
 .vscode
 
 .nx/cache

@@ -16,6 +16,8 @@ import {
 
 import { runMCPServer } from '@tanstack/cta-mcp'
 
+import { launchUI } from '@tanstack/cta-ui'
+
 import { normalizeOptions, promptForOptions } from './options.js'
 
 import { createUIEnvironment } from './ui-environment.js'
@@ -79,11 +81,19 @@ export function cli({
       )
     })
 
-  program
-    .command('update-add-on')
+  const addOnCommand = program.command('add-on')
+
+  addOnCommand
+    .command('update')
     .description('Create or update an add-on from the current project')
     .action(async () => {
       await initAddOn('add-on', environment)
+    })
+  addOnCommand
+    .command('ui')
+    .description('Show the add-on developer UI')
+    .action(async () => {
+      launchUI()
     })
 
   program
