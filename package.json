@@ -25,8 +25,11 @@
   "pnpm": {
     "overrides": {
       "create-start-app": "workspace:*",
+      "create-tanstack": "workspace:*",
       "create-tsrouter-app": "workspace:*",
-      "@tanstack/cta-engine": "workspace:*"
+      "@tanstack/cta-cli": "workspace:*",
+      "@tanstack/cta-engine": "workspace:*",
+      "@tanstack/cta-mcp": "workspace:*"
     }
   },
   "workspaces": [

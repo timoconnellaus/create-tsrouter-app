@@ -24,6 +24,14 @@ await publish({
       name: '@tanstack/cta-engine',
       packageDir: './packages/cta-engine',
     },
+    {
+      name: '@tanstack/cta-mcp',
+      packageDir: './packages/cta-mcp',
+    },
+    {
+      name: '@tanstack/cta-cli',
+      packageDir: './packages/cta-cli',
+    },
   ],
   branchConfigs: {
     main: {

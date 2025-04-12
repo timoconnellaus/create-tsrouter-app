@@ -1,22 +1,51 @@
 import { Command, InvalidArgumentError } from 'commander'
 import { intro, log } from '@clack/prompts'
+import chalk from 'chalk'
 
-import { createApp } from './create-app.js'
+import {
+  DEFAULT_FRAMEWORK,
+  SUPPORTED_FRAMEWORKS,
+  SUPPORTED_PACKAGE_MANAGERS,
+  SUPPORTED_TOOLCHAINS,
+  addToApp,
+  createApp,
+  createDefaultEnvironment,
+  getAllAddOns,
+  initAddOn,
+} from '@tanstack/cta-engine'
+
+import { runMCPServer } from '@tanstack/cta-mcp'
+
 import { normalizeOptions, promptForOptions } from './options.js'
-import { SUPPORTED_PACKAGE_MANAGERS } from './package-manager.js'
-import { SUPPORTED_TOOLCHAINS } from './toolchain.js'
 
-import runServer from './mcp.js'
-import { listAddOns } from './add-ons.js'
-import { DEFAULT_FRAMEWORK, SUPPORTED_FRAMEWORKS } from './constants.js'
-import { initAddOn } from './custom-add-on.js'
+import type {
+  Framework,
+  Mode,
+  PackageManager,
+  TemplateOptions,
+  ToolChain,
+} from '@tanstack/cta-engine'
 
-import { createDefaultEnvironment } from './environment.js'
-import { add } from './add.js'
+import type { CliOptions } from './types.js'
 
-import type { PackageManager } from './package-manager.js'
-import type { ToolChain } from './toolchain.js'
-import type { CliOptions, Framework, Mode, TemplateOptions } from './types.js'
+async function listAddOns(
+  options: CliOptions,
+  {
+    forcedMode,
+    forcedAddOns = [],
+  }: {
+    forcedMode?: TemplateOptions
+    forcedAddOns?: Array<string>
+  },
+) {
+  const addOns = await getAllAddOns(
+    options.framework || DEFAULT_FRAMEWORK,
+    forcedMode || options.template || 'typescript',
+  )
+  for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
+    console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
+  }
+}
 
 export function cli({
   name,
@@ -37,7 +66,7 @@ export function cli({
     .command('add')
     .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
     .action(async (addOn: string) => {
-      await add(addOn.split(',').map((addon) => addon.trim()))
+      await addToApp(addOn.split(',').map((addon) => addon.trim()))
     })
 
   program
@@ -151,7 +180,7 @@ export function cli({
         forcedAddOns,
       })
     } else if (options.mcp || options.mcpSse) {
-      await runServer(!!options.mcpSse, {
+      await runMCPServer(!!options.mcpSse, {
         forcedMode: forcedMode as TemplateOptions,
         forcedAddOns,
         appName,

@@ -62,7 +62,7 @@ async function runCreateApp(options: Required<Options>) {
   return output
 }
 
-export async function add(
+export async function addToApp(
   addOns: Array<string>,
   {
     silent = false,

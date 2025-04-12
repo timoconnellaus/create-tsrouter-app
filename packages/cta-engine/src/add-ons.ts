@@ -1,13 +1,11 @@
 import { readFile } from 'node:fs/promises'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
-import chalk from 'chalk'
 
 import { getTemplatesRoot } from './templates.js'
-import { DEFAULT_FRAMEWORK } from './constants.js'
 import { readFileHelper } from './file-helper.js'
 
-import type { AddOn, CliOptions, Framework, TemplateOptions } from './types.js'
+import type { AddOn, Framework } from './types.js'
 
 function isDirectory(path: string): boolean {
   return statSync(path).isDirectory()
@@ -121,25 +119,6 @@ export async function finalizeAddOns(
     (id) => addOns.find((a) => a.id === id)!,
   )
   return finalAddOns
-}
-
-export async function listAddOns(
-  options: CliOptions,
-  {
-    forcedMode,
-    forcedAddOns = [],
-  }: {
-    forcedMode?: TemplateOptions
-    forcedAddOns?: Array<string>
-  },
-) {
-  const addOns = await getAllAddOns(
-    options.framework || DEFAULT_FRAMEWORK,
-    forcedMode || options.template || 'typescript',
-  )
-  for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
-    console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
-  }
 }
 
 function loadAddOn(addOn: AddOn): AddOn {

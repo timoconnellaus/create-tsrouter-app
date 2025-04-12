@@ -8,27 +8,29 @@ import {
 } from '@clack/prompts'
 
 import {
+  CODE_ROUTER,
+  DEFAULT_FRAMEWORK,
   DEFAULT_PACKAGE_MANAGER,
+  DEFAULT_TOOLCHAIN,
+  FILE_ROUTER,
   SUPPORTED_PACKAGE_MANAGERS,
+  SUPPORTED_TOOLCHAINS,
+  finalizeAddOns,
+  getAllAddOns,
   getPackageManager,
-} from './package-manager.js'
-import { DEFAULT_TOOLCHAIN, SUPPORTED_TOOLCHAINS } from './toolchain.js'
-import { CODE_ROUTER, DEFAULT_FRAMEWORK, FILE_ROUTER } from './constants.js'
-import { finalizeAddOns, getAllAddOns, loadRemoteAddOn } from './add-ons.js'
+  loadRemoteAddOn,
+} from '@tanstack/cta-engine'
 
-<<<<<<< HEAD
-import type { AddOn, CliOptions, Options, Starter, Variable } from './types.js'
-=======
 import type {
   AddOn,
-  CliOptions,
   Mode,
   Options,
-  Overlay,
+  Starter,
   TemplateOptions,
   Variable,
-} from './types.js'
->>>>>>> main
+} from '@tanstack/cta-engine'
+
+import type { CliOptions } from './types.js'
 
 // If all CLI options are provided, use them directly
 export async function normalizeOptions(

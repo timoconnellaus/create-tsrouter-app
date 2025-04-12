@@ -4,11 +4,13 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import express from 'express'
 import { z } from 'zod'
 
-import { createApp } from './create-app.js'
-import { finalizeAddOns } from './add-ons.js'
-import { createDefaultEnvironment } from './environment.js'
+import {
+  createApp,
+  createDefaultEnvironment,
+  finalizeAddOns,
+} from '@tanstack/cta-engine'
 
-import type { TemplateOptions } from './types.js'
+import type { TemplateOptions } from '@tanstack/cta-engine'
 
 const tanStackReactAddOns = [
   {
@@ -261,7 +263,7 @@ function createServer({
   return server
 }
 
-export default async function runServer(
+export async function runMCPServer(
   sse: boolean,
   {
     forcedAddOns,
