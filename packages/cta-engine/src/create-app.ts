@@ -1,8 +1,6 @@
 import { basename, dirname, resolve } from 'node:path'
-import { log, outro, spinner } from '@clack/prompts'
 import { render } from 'ejs'
 import { format } from 'prettier'
-import chalk from 'chalk'
 
 import { getTemplatesRoot } from './templates.js'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
@@ -119,8 +117,7 @@ function createTemplateFile(
     try {
       content = render(content, templateValues)
     } catch (error) {
-      console.error(chalk.red(`EJS error in file ${file}`))
-      console.error(error)
+      environment.error(`EJS error in file ${file}`, error?.toString())
       process.exit(1)
     }
     const target = targetFileName ?? file.replace('.ejs', '')
@@ -338,7 +335,7 @@ export async function createApp(
 
     if (environment.exists(targetDir)) {
       if (!silent) {
-        log.error(`Directory "${options.projectName}" already exists`)
+        environment.error(`Directory "${options.projectName}" already exists`)
       }
       return
     }
@@ -507,7 +504,7 @@ export async function createApp(
   )
 
   // Copy all the asset files from the addons
-  const s = silent ? null : spinner()
+  const s = silent ? null : environment.spinner()
   for (const type of ['add-on', 'example']) {
     for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
@@ -732,7 +729,10 @@ export async function createApp(
 
   if (warnings.length > 0) {
     if (!silent) {
-      log.warn(chalk.red(warnings.join('\n')))
+      environment.warn(
+        'The following will be overwritten:',
+        warnings.join('\n'),
+      )
     }
   }
 
@@ -782,7 +782,7 @@ export async function createApp(
   if (environment.getErrors().length) {
     errorStatement = `
 
-${chalk.red('Errors were encountered during this process:')}
+Errors were encountered during this process:
 
 ${environment.getErrors().join('\n')}`
   }
@@ -793,7 +793,7 @@ ${environment.getErrors().join('\n')}`
       startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`
     }
 
-    outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
+    environment.outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}

@@ -57,6 +57,17 @@ export function createDefaultEnvironment(): Environment {
       const stat = statSync(path)
       return stat.isDirectory()
     },
+
+    intro: () => {},
+    outro: () => {},
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    confirm: () => Promise.resolve(true),
+    spinner: () => ({
+      start: () => {},
+      stop: () => {},
+    }),
   }
 }
 

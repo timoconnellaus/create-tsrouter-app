@@ -23,11 +23,13 @@ export interface Options {
   starter?: AddOn | undefined
 }
 
-export type Environment = {
+type ProjectEnvironment = {
   startRun: () => void
   finishRun: () => void
   getErrors: () => Array<string>
+}
 
+type FileEnvironment = {
   appendFile: (path: string, contents: string) => Promise<void>
   copyFile: (from: string, to: string) => Promise<void>
   writeFile: (path: string, contents: string) => Promise<void>
@@ -39,6 +41,23 @@ export type Environment = {
   readdir: (path: string) => Array<string>
   isDirectory: (path: string) => boolean
 }
+
+type UIEnvironment = {
+  intro: (message: string) => void
+  outro: (message: string) => void
+
+  info: (title?: string, message?: string) => void
+  error: (title?: string, message?: string) => void
+  warn: (title?: string, message?: string) => void
+
+  spinner: () => {
+    start: (message: string) => void
+    stop: (message: string) => void
+  }
+  confirm: (message: string) => Promise<boolean>
+}
+
+export type Environment = ProjectEnvironment & FileEnvironment & UIEnvironment
 
 type BooleanVariable = {
   name: string

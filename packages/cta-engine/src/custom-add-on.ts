@@ -1,7 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
-import chalk from 'chalk'
 
 import { createMemoryEnvironment } from './environment.js'
 import { createApp } from './create-app.js'
@@ -9,7 +8,7 @@ import { readConfigFile } from './config-file.js'
 import { finalizeAddOns } from './add-ons.js'
 import { readFileHelper } from './file-helper.js'
 
-import type { Framework, Options } from './types.js'
+import type { Environment, Framework, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
 
 type AddOnMode = 'add-on' | 'starter'
@@ -163,32 +162,36 @@ async function compareFiles(
   }
 }
 
-export async function initAddOn(mode: AddOnMode) {
+export async function initAddOn(mode: AddOnMode, environment: Environment) {
   const persistedOptions = await readConfigFile(process.cwd())
   if (!persistedOptions) {
-    console.error(`${chalk.red('There is no .cta.json file in your project.')}
-
-This is probably because this was created with an older version of create-tsrouter-app.`)
+    environment.error(
+      'There is no .cta.json file in your project.',
+      `This is probably because this was created with an older version of create-tsrouter-app.`,
+    )
     return
   }
 
   if (mode === 'add-on') {
     if (persistedOptions.mode !== 'file-router') {
-      console.error(`${chalk.red('This project is not using file-router mode.')}
-
-To create an add-on, the project must be created with the file-router mode.`)
+      environment.error(
+        'This project is not using file-router mode.',
+        'To create an add-on, the project must be created with the file-router mode.',
+      )
       return
     }
     if (!persistedOptions.tailwind) {
-      console.error(`${chalk.red('This project is not using Tailwind CSS.')}
-
-To create an add-on, the project must be created with Tailwind CSS.`)
+      environment.error(
+        'This project is not using Tailwind CSS.',
+        'To create an add-on, the project must be created with Tailwind CSS.',
+      )
       return
     }
     if (!persistedOptions.typescript) {
-      console.error(`${chalk.red('This project is not using TypeScript.')}
-
-To create an add-on, the project must be created with TypeScript.`)
+      environment.error(
+        'This project is not using TypeScript.',
+        'To create an add-on, the project must be created with TypeScript.',
+      )
       return
     }
   }

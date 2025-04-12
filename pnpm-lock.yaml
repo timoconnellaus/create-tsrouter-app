@@ -250,12 +250,6 @@ importers:
 
   packages/cta-engine:
     dependencies:
-      '@clack/prompts':
-        specifier: ^0.10.0
-        version: 0.10.0
-      chalk:
-        specifier: ^5.4.1
-        version: 5.4.1
       ejs:
         specifier: ^3.1.10
         version: 3.1.10

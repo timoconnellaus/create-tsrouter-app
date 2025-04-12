@@ -21,6 +21,7 @@ export { SUPPORTED_TOOLCHAINS, DEFAULT_TOOLCHAIN } from './toolchain.js'
 
 export type {
   AddOn,
+  Environment,
   Framework,
   Mode,
   Options,

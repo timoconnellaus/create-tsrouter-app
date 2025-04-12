@@ -1,17 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
-import chalk from 'chalk'
 import { execa, execaSync } from 'execa'
-import {
-  cancel,
-  confirm,
-  intro,
-  isCancel,
-  log,
-  outro,
-  spinner,
-} from '@clack/prompts'
 
 import { CONFIG_FILE } from './constants.js'
 import {
@@ -25,7 +15,7 @@ import { readConfigFile, writeConfigFile } from './config-file.js'
 
 import type { PersistedOptions } from './config-file.js'
 
-import type { Framework, Options } from './types.js'
+import type { Environment, Framework, Options } from './types.js'
 
 function isDirectory(path: string) {
   return statSync(path).isDirectory()
@@ -69,22 +59,25 @@ export async function addToApp(
   }: {
     silent?: boolean
   } = {},
+  environment: Environment,
 ) {
   const persistedOptions = await readConfigFile(process.cwd())
   if (!persistedOptions) {
-    console.error(`${chalk.red('There is no .cta.json file in your project.')}
-
-This is probably because this was created with an older version of create-tsrouter-app.`)
+    environment.error(
+      'There is no .cta.json file in your project.',
+      'This is probably because this was created with an older version of create-tsrouter-app.',
+    )
     return
   }
 
   if (!silent) {
-    intro(`Adding ${addOns.join(', ')} to the project...`)
+    environment.intro(`Adding ${addOns.join(', ')} to the project...`)
   }
 
   if (await hasPendingGitChanges()) {
-    log.error(
-      `${chalk.red('You have pending git changes.')} Please commit or stash them before adding add-ons.`,
+    environment.error(
+      'You have pending git changes.',
+      'Please commit or stash them before adding add-ons.',
     )
     return
   }
@@ -116,14 +109,12 @@ This is probably because this was created with an older version of create-tsrout
   }
 
   if (overwrittenFiles.length > 0 && !silent) {
-    log.warn(
-      `${chalk.yellow('The following will be overwritten:')}\n${overwrittenFiles.join('\n')}`,
+    environment.warn(
+      'The following will be overwritten:',
+      overwrittenFiles.join('\n'),
     )
-    const shouldContinue = await confirm({
-      message: 'Do you want to continue?',
-    })
-    if (isCancel(shouldContinue)) {
-      cancel('Operation cancelled.')
+    const shouldContinue = await environment.confirm('Do you want to continue?')
+    if (!shouldContinue) {
       process.exit(0)
     }
   }
@@ -171,7 +162,7 @@ This is probably because this was created with an older version of create-tsrout
   const realEnvironment = createDefaultEnvironment()
   writeConfigFile(realEnvironment, process.cwd(), newOptions)
 
-  const s = silent ? null : spinner()
+  const s = silent ? null : environment.spinner()
   s?.start(`Installing dependencies via ${newOptions.packageManager}...`)
   await realEnvironment.execute(
     newOptions.packageManager,
@@ -181,6 +172,6 @@ This is probably because this was created with an older version of create-tsrout
   s?.stop(`Installed dependencies`)
 
   if (!silent) {
-    outro('Add-ons added successfully!')
+    environment.outro('Add-ons added successfully!')
   }
 }

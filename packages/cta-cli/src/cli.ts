@@ -18,6 +18,8 @@ import { runMCPServer } from '@tanstack/cta-mcp'
 
 import { normalizeOptions, promptForOptions } from './options.js'
 
+import { createUIEnvironment } from './ui-environment.js'
+
 import type {
   Framework,
   Mode,
@@ -58,6 +60,8 @@ export function cli({
   forcedMode?: Mode
   forcedAddOns?: Array<string>
 }) {
+  const environment = createUIEnvironment()
+
   const program = new Command()
 
   program.name(name).description(`CLI to create a new ${appName} application`)
@@ -66,21 +70,27 @@ export function cli({
     .command('add')
     .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
     .action(async (addOn: string) => {
-      await addToApp(addOn.split(',').map((addon) => addon.trim()))
+      await addToApp(
+        addOn.split(',').map((addon) => addon.trim()),
+        {
+          silent: false,
+        },
+        environment,
+      )
     })
 
   program
     .command('update-add-on')
     .description('Create or update an add-on from the current project')
     .action(async () => {
-      await initAddOn('add-on')
+      await initAddOn('add-on', environment)
     })
 
   program
     .command('update-starter')
     .description('Create or update a project starter from the current project')
     .action(async () => {
-      await initAddOn('starter')
+      await initAddOn('starter', environment)
     })
 
   program.argument('[project-name]', 'name of the project')
