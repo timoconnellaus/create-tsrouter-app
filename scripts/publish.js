@@ -21,6 +21,14 @@ await publish({
       packageDir: './cli/create-tanstack',
     },
     {
+      name: '@tanstack/cta-cli',
+      packageDir: './packages/cta-cli',
+    },
+    {
+      name: '@tanstack/cta-core',
+      packageDir: './packages/cta-core',
+    },
+    {
       name: '@tanstack/cta-engine',
       packageDir: './packages/cta-engine',
     },
@@ -29,8 +37,16 @@ await publish({
       packageDir: './packages/cta-mcp',
     },
     {
-      name: '@tanstack/cta-cli',
-      packageDir: './packages/cta-cli',
+      name: '@tanstack/cta-ui',
+      packageDir: './packages/cta-ui',
+    },
+    {
+      name: '@tanstack/cta-templates-react-cra',
+      packageDir: './templates/react-cra',
+    },
+    {
+      name: '@tanstack/cta-templates-solid',
+      packageDir: './templates/solid',
     },
   ],
   branchConfigs: {

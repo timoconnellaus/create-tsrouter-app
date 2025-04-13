@@ -9,7 +9,6 @@ import {
 
 import {
   CODE_ROUTER,
-  DEFAULT_FRAMEWORK,
   DEFAULT_PACKAGE_MANAGER,
   DEFAULT_TOOLCHAIN,
   FILE_ROUTER,
@@ -17,9 +16,10 @@ import {
   SUPPORTED_TOOLCHAINS,
   finalizeAddOns,
   getAllAddOns,
+  getFrameworkById,
   getPackageManager,
   loadRemoteAddOn,
-} from '@tanstack/cta-engine'
+} from '@tanstack/cta-core'
 
 import type {
   AddOn,
@@ -28,7 +28,7 @@ import type {
   Starter,
   TemplateOptions,
   Variable,
-} from '@tanstack/cta-engine'
+} from '@tanstack/cta-core'
 
 import type { CliOptions } from './types.js'
 
@@ -93,8 +93,9 @@ export async function normalizeOptions(
           ]),
         )
       }
+      const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
       chosenAddOns = await finalizeAddOns(
-        cliOptions.framework || DEFAULT_FRAMEWORK,
+        framework,
         forcedMode || cliOptions.template === 'file-router'
           ? FILE_ROUTER
           : CODE_ROUTER,
@@ -105,7 +106,8 @@ export async function normalizeOptions(
     }
 
     return {
-      framework: cliOptions.framework || 'react',
+      // TODO: This is a bit to fix the default framework
+      framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
       projectName: cliOptions.projectName,
       typescript,
       tailwind,
@@ -176,8 +178,10 @@ export async function promptForOptions(
 ): Promise<Required<Options>> {
   const options = {} as Required<Options>
 
-  options.framework = cliOptions.framework || DEFAULT_FRAMEWORK
-  if (options.framework === 'solid') {
+  const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+  options.framework = framework
+  // TODO: This is a bit of a hack to ensure that the framework is solid
+  if (options.framework.id === 'solid') {
     options.typescript = true
     options.tailwind = true
   }
@@ -253,7 +257,7 @@ export async function promptForOptions(
   }
 
   // Tailwind selection
-  if (!cliOptions.tailwind && options.framework === 'react') {
+  if (!cliOptions.tailwind && options.framework.id === 'react-cra') {
     const tailwind = await confirm({
       message: 'Would you like to use Tailwind CSS?',
       initialValue: true,
@@ -264,7 +268,8 @@ export async function promptForOptions(
     }
     options.tailwind = tailwind
   } else {
-    options.tailwind = options.framework === 'solid' || !!cliOptions.tailwind
+    // TODO: This is a bit of a hack to ensure that the framework is solid
+    options.tailwind = options.framework.id === 'solid' || !!cliOptions.tailwind
   }
 
   // Package manager selection

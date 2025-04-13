@@ -3,19 +3,19 @@ import { existsSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { execa, execaSync } from 'execa'
 
-import { CONFIG_FILE } from './constants.js'
 import {
+  CONFIG_FILE,
   createDefaultEnvironment,
   createMemoryEnvironment,
-} from './environment.js'
+  finalizeAddOns,
+  getFrameworkById,
+  readConfigFile,
+  sortObject,
+  writeConfigFile,
+} from '@tanstack/cta-core'
 import { createApp } from './create-app.js'
-import { finalizeAddOns } from './add-ons.js'
-import { sortObject } from './utils.js'
-import { readConfigFile, writeConfigFile } from './config-file.js'
 
-import type { PersistedOptions } from './config-file.js'
-
-import type { Environment, Framework, Options } from './types.js'
+import type { Environment, Options, PersistedOptions } from '@tanstack/cta-core'
 
 function isDirectory(path: string) {
   return statSync(path).isDirectory()
@@ -30,14 +30,17 @@ async function createOptions(
   json: PersistedOptions,
   addOns: Array<string>,
 ): Promise<Required<Options>> {
+  const framework = getFrameworkById(json.framework)
+
   return {
     ...json,
+    framework,
     tailwind: true,
-    chosenAddOns: await finalizeAddOns(
-      json.framework as Framework,
-      json.mode as string,
-      [...json.existingAddOns, ...addOns],
-    ),
+    addOns: true,
+    chosenAddOns: await finalizeAddOns(framework!, json.mode as string, [
+      ...json.existingAddOns,
+      ...addOns,
+    ]),
   } as Required<Options>
 }
 

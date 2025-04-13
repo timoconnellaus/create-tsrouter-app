@@ -1,11 +1,10 @@
 import { readFile } from 'node:fs/promises'
 import { existsSync, readdirSync, statSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 
-import { getTemplatesRoot } from './templates.js'
-import { readFileHelper } from './file-helper.js'
+import { getBinaryFile, readFileHelper } from './file-helper.js'
 
-import type { AddOn, Framework } from './types.js'
+import type { AddOn, Environment, FrameworkDefinition } from './types.js'
 
 function isDirectory(path: string): boolean {
   return statSync(path).isDirectory()
@@ -24,13 +23,13 @@ function findFilesRecursively(path: string, files: Record<string, string>) {
 }
 
 export async function getAllAddOns(
-  framework: Framework,
+  framework: FrameworkDefinition,
   template: string,
 ): Promise<Array<AddOn>> {
   const addOns: Array<AddOn> = []
 
   for (const type of ['add-on', 'example']) {
-    const addOnsBase = resolve(getTemplatesRoot(), framework, type)
+    const addOnsBase = framework.addOnsDirectory
 
     if (!existsSync(addOnsBase)) {
       continue
@@ -86,7 +85,7 @@ export async function getAllAddOns(
 
 // Turn the list of chosen add-on IDs into a final list of add-ons by resolving dependencies
 export async function finalizeAddOns(
-  framework: Framework,
+  framework: FrameworkDefinition,
   template: string,
   chosenAddOnIDs: Array<string>,
 ): Promise<Array<AddOn>> {
@@ -130,4 +129,45 @@ export async function loadRemoteAddOn(url: string): Promise<AddOn> {
   const fileContent = await response.json()
   fileContent.id = url
   return fileContent
+}
+
+export async function copyAddOnFile(
+  environment: Environment,
+  content: string,
+  target: string,
+  targetPath: string,
+  templateFile: (content: string, targetFileName: string) => Promise<void>,
+) {
+  let targetFile = basename(target).replace(/^_dot_/, '.')
+  let isTemplate = false
+  if (targetFile.endsWith('.ejs')) {
+    targetFile = targetFile.replace('.ejs', '')
+    isTemplate = true
+  }
+  let isAppend = false
+  if (targetFile.endsWith('.append')) {
+    targetFile = targetFile.replace('.append', '')
+    isAppend = true
+  }
+
+  const finalTargetPath = resolve(dirname(targetPath), targetFile)
+
+  const binaryContent = getBinaryFile(content)
+  if (binaryContent) {
+    await environment.writeFile(
+      finalTargetPath,
+      binaryContent as unknown as string,
+    )
+    return
+  }
+
+  if (isTemplate) {
+    await templateFile(content, finalTargetPath)
+  } else {
+    if (isAppend) {
+      await environment.appendFile(finalTargetPath, content)
+    } else {
+      await environment.writeFile(finalTargetPath, content)
+    }
+  }
 }

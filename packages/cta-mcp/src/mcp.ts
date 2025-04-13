@@ -5,12 +5,14 @@ import express from 'express'
 import { z } from 'zod'
 
 import {
-  createApp,
   createDefaultEnvironment,
   finalizeAddOns,
-} from '@tanstack/cta-engine'
+  getFrameworkById,
+} from '@tanstack/cta-core'
 
-import type { TemplateOptions } from '@tanstack/cta-engine'
+import { createApp } from '@tanstack/cta-engine'
+
+import type { TemplateOptions } from '@tanstack/cta-core'
 
 const tanStackReactAddOns = [
   {
@@ -140,10 +142,11 @@ function createServer({
         ),
     },
     async ({ projectName, addOns, cwd, targetDir }) => {
+      const framework = getFrameworkById('react')!
       try {
         process.chdir(cwd)
         const chosenAddOns = await finalizeAddOns(
-          'react',
+          framework,
           'file-router',
           Array.from(
             new Set([...(addOns as unknown as Array<string>), ...forcedAddOns]),
@@ -152,7 +155,7 @@ function createServer({
         await createApp(
           {
             projectName: projectName.replace(/^\//, './'),
-            framework: 'react',
+            framework,
             typescript: true,
             tailwind: true,
             packageManager: 'pnpm',
@@ -217,10 +220,11 @@ function createServer({
         ),
     },
     async ({ projectName, addOns, cwd, targetDir }) => {
+      const framework = getFrameworkById('solid')!
       try {
         process.chdir(cwd)
         const chosenAddOns = await finalizeAddOns(
-          'solid',
+          framework,
           'file-router',
           Array.from(
             new Set([...(addOns as unknown as Array<string>), ...forcedAddOns]),
@@ -229,7 +233,7 @@ function createServer({
         await createApp(
           {
             projectName: projectName.replace(/^\//, './'),
-            framework: 'solid',
+            framework,
             typescript: true,
             tailwind: true,
             packageManager: 'pnpm',

@@ -7,7 +7,7 @@ import { runCreateApp } from '@/lib/server-fns'
 import FileViewer from './file-viewer'
 import FileTree from './file-tree'
 
-import type { Mode } from '@tanstack/cta-engine'
+import type { Mode } from '@tanstack/cta-core'
 
 export default function AppliedAddOn({
   projectPath,

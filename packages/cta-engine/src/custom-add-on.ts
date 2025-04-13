@@ -2,14 +2,16 @@ import { readFile, readdir } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
-import { createMemoryEnvironment } from './environment.js'
+import {
+  createMemoryEnvironment,
+  finalizeAddOns,
+  getFrameworkById,
+  readConfigFile,
+  readFileHelper,
+} from '@tanstack/cta-core'
 import { createApp } from './create-app.js'
-import { readConfigFile } from './config-file.js'
-import { finalizeAddOns } from './add-ons.js'
-import { readFileHelper } from './file-helper.js'
 
-import type { Environment, Framework, Options } from './types.js'
-import type { PersistedOptions } from './config-file.js'
+import type { Environment, Options, PersistedOptions } from '@tanstack/cta-core'
 
 type AddOnMode = 'add-on' | 'starter'
 
@@ -104,13 +106,14 @@ export default (parentRoute: RootRoute) => createRoute({
 export async function createAppOptionsFromPersisted(
   json: PersistedOptions,
 ): Promise<Required<Options>> {
+  const framework = getFrameworkById(json.framework)
   return {
     ...json,
-    chosenAddOns: await finalizeAddOns(
-      json.framework as Framework,
-      json.mode as string,
-      [...json.existingAddOns],
-    ),
+    framework,
+    addOns: true,
+    chosenAddOns: await finalizeAddOns(framework!, json.mode as string, [
+      ...json.existingAddOns,
+    ]),
   } as Required<Options>
 }
 

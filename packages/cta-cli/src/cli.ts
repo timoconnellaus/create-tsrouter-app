@@ -3,16 +3,15 @@ import { intro, log } from '@clack/prompts'
 import chalk from 'chalk'
 
 import {
-  DEFAULT_FRAMEWORK,
-  SUPPORTED_FRAMEWORKS,
   SUPPORTED_PACKAGE_MANAGERS,
   SUPPORTED_TOOLCHAINS,
-  addToApp,
-  createApp,
   createDefaultEnvironment,
   getAllAddOns,
-  initAddOn,
-} from '@tanstack/cta-engine'
+  getFrameworkById,
+  getFrameworkByName,
+  getFrameworks,
+} from '@tanstack/cta-core'
+import { addToApp, createApp, initAddOn } from '@tanstack/cta-engine'
 
 import { runMCPServer } from '@tanstack/cta-mcp'
 
@@ -23,12 +22,11 @@ import { normalizeOptions, promptForOptions } from './options.js'
 import { createUIEnvironment } from './ui-environment.js'
 
 import type {
-  Framework,
   Mode,
   PackageManager,
   TemplateOptions,
   ToolChain,
-} from '@tanstack/cta-engine'
+} from '@tanstack/cta-core'
 
 import type { CliOptions } from './types.js'
 
@@ -43,7 +41,7 @@ async function listAddOns(
   },
 ) {
   const addOns = await getAllAddOns(
-    options.framework || DEFAULT_FRAMEWORK,
+    getFrameworkById(options.framework || 'react-cra')!,
     forcedMode || options.template || 'typescript',
   )
   for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
@@ -65,6 +63,8 @@ export function cli({
   const environment = createUIEnvironment()
 
   const program = new Command()
+
+  const availableFrameworks = getFrameworks().map((f) => f.name)
 
   program.name(name).description(`CLI to create a new ${appName} application`)
 
@@ -124,20 +124,18 @@ export function cli({
     )
   }
   program
-    .option<Framework>(
+    .option<string>(
       '--framework <type>',
-      'project framework (solid, react)',
+      `project framework (${availableFrameworks.join(', ')})`,
       (value) => {
-        if (!SUPPORTED_FRAMEWORKS.includes(value as Framework)) {
+        if (!availableFrameworks.includes(value)) {
           throw new InvalidArgumentError(
-            `Invalid framework: ${value}. Only the following are allowed: ${SUPPORTED_FRAMEWORKS.join(
-              ', ',
-            )}`,
+            `Invalid framework: ${value}. Only the following are allowed: ${availableFrameworks.join(', ')}`,
           )
         }
-        return value as Framework
+        return value
       },
-      DEFAULT_FRAMEWORK,
+      'react',
     )
     .option(
       '--starter [url]',
@@ -212,6 +210,10 @@ export function cli({
           ...options,
         } as CliOptions
 
+        cliOptions.framework = getFrameworkByName(
+          options.framework || 'react',
+        )!.id
+
         if (forcedMode) {
           cliOptions.template = forcedMode as TemplateOptions
         }
@@ -231,7 +233,7 @@ export function cli({
           })
         }
         await createApp(finalOptions, {
-          environment: createDefaultEnvironment(),
+          environment: createUIEnvironment(),
           cwd: options.targetDir || undefined,
           name,
           appName,

@@ -2,14 +2,23 @@ import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
 
-export type Framework = 'solid' | 'react'
-
 export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
+export type FrameworkDefinition = {
+  id: string
+  name: string
+  description: string
+  version: string
+
+  baseDirectory: string
+  addOnsDirectory: string
+  examplesDirectory: string
+}
+
 export interface Options {
-  framework: Framework
+  framework: FrameworkDefinition
   projectName: string
   typescript: boolean
   tailwind: boolean
@@ -120,7 +129,7 @@ export type Starter = AddOn & {
   link: string
   license: string
   mode: Mode
-  framework: Framework
+  framework: string
   typescript: boolean
   tailwind: boolean
 }

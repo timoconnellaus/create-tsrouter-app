@@ -4,23 +4,19 @@ import { basename, resolve } from 'node:path'
 
 import {
   getAllAddOns,
-  createApp,
   createMemoryEnvironment,
   createAppOptionsFromPersisted,
-} from '@tanstack/cta-engine'
+} from '@tanstack/cta-core'
 
-import type {
-  AddOn,
-  PersistedOptions,
-  Framework,
-  Mode,
-} from '@tanstack/cta-engine'
+import { createApp } from '@tanstack/cta-engine'
+
+import type { AddOn, Mode, PersistedOptions } from '@tanstack/cta-core'
 
 export const getAddons = createServerFn({
   method: 'GET',
 })
   .validator((data: unknown) => {
-    return data as { platform: Framework; mode: Mode }
+    return data as { platform: string; mode: Mode }
   })
   .handler(({ data: { platform, mode } }) => {
     return getAllAddOns(platform, mode)

@@ -1,13 +1,12 @@
 import type {
-  Framework,
   PackageManager,
   TemplateOptions,
   ToolChain,
-} from '@tanstack/cta-engine'
+} from '@tanstack/cta-core'
 
 export interface CliOptions {
   template?: TemplateOptions
-  framework?: Framework
+  framework?: string
   tailwind?: boolean
   packageManager?: PackageManager
   toolchain?: ToolChain

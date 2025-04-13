@@ -1,15 +1,17 @@
-import { basename, dirname, resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import { render } from 'ejs'
 import { format } from 'prettier'
 
-import { getTemplatesRoot } from './templates.js'
-import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
-import { sortObject } from './utils.js'
-import { writeConfigFile } from './config-file.js'
-import { packageManagerExecute } from './package-manager.js'
-import { getBinaryFile } from './file-helper.js'
+import {
+  CODE_ROUTER,
+  FILE_ROUTER,
+  copyAddOnFile,
+  packageManagerExecute,
+  sortObject,
+  writeConfigFile,
+} from '@tanstack/cta-core'
 
-import type { AddOn, Environment, Options } from './types.js'
+import type { AddOn, Environment, Options } from '@tanstack/cta-core'
 
 function createCopyFiles(environment: Environment, targetDir: string) {
   return async function copyFiles(
@@ -264,47 +266,6 @@ async function createPackageJSON(
   )
 }
 
-async function copyAddOnFile(
-  environment: Environment,
-  content: string,
-  target: string,
-  targetPath: string,
-  templateFile: (content: string, targetFileName: string) => Promise<void>,
-) {
-  let targetFile = basename(target).replace(/^_dot_/, '.')
-  let isTemplate = false
-  if (targetFile.endsWith('.ejs')) {
-    targetFile = targetFile.replace('.ejs', '')
-    isTemplate = true
-  }
-  let isAppend = false
-  if (targetFile.endsWith('.append')) {
-    targetFile = targetFile.replace('.append', '')
-    isAppend = true
-  }
-
-  const finalTargetPath = resolve(dirname(targetPath), targetFile)
-
-  const binaryContent = getBinaryFile(content)
-  if (binaryContent) {
-    await environment.writeFile(
-      finalTargetPath,
-      binaryContent as unknown as string,
-    )
-    return
-  }
-
-  if (isTemplate) {
-    await templateFile(content, finalTargetPath)
-  } else {
-    if (isAppend) {
-      await environment.appendFile(finalTargetPath, content)
-    } else {
-      await environment.writeFile(finalTargetPath, content)
-    }
-  }
-}
-
 export async function createApp(
   options: Options,
   {
@@ -322,10 +283,9 @@ export async function createApp(
 ) {
   environment.startRun()
 
-  const templateDirBase = resolve(getTemplatesRoot(), options.framework, 'base')
+  const templateDirBase = resolve(options.framework.baseDirectory, 'base')
   const templateDirRouter = resolve(
-    getTemplatesRoot(),
-    options.framework,
+    options.framework.baseDirectory,
     options.mode,
   )
 
@@ -462,7 +422,8 @@ export async function createApp(
   }
 
   // Setup reportWebVitals
-  if (!isAddOnEnabled('start') && options.framework === 'react') {
+  // TODO: This is a bit of a hack to check if the framework is react
+  if (!isAddOnEnabled('start') && options.framework.id === 'react-cra') {
     if (options.typescript) {
       await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
     } else {
@@ -677,7 +638,8 @@ export async function createApp(
       './src/App.tsx.ejs',
       options.typescript ? undefined : './src/App.jsx',
     )
-    if (options.framework === 'react') {
+    // TODO: This is a bit of a hack to check if the framework is react
+    if (options.framework.id === 'react-cra') {
       await templateFile(
         templateDirBase,
         './src/App.test.tsx.ejs',

@@ -3,12 +3,13 @@ import { resolve } from 'node:path'
 
 import { CONFIG_FILE } from './constants.js'
 
-import type { Environment, Options } from './types'
+import type { Environment, Options } from './types.js'
 
-export type PersistedOptions = Exclude<
+export type PersistedOptions = Omit<
   Partial<Options>,
-  'addOns' | 'chosenAddOns'
+  'addOns' | 'chosenAddOns' | 'framework'
 > & {
+  framework: string
   version: number
   existingAddOns: Array<string>
 }
@@ -18,13 +19,13 @@ export async function writeConfigFile(
   targetDir: string,
   options: Options,
 ) {
+  const { addOns, chosenAddOns, framework, ...rest } = options
   const persistedOptions: PersistedOptions = {
-    ...options,
+    ...rest,
     version: 1,
+    framework: options.framework.id,
     existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
   }
-  delete persistedOptions.addOns
-  delete persistedOptions.chosenAddOns
 
   await environment.writeFile(
     resolve(targetDir, CONFIG_FILE),
