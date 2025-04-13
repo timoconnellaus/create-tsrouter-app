@@ -2,11 +2,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { readFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
-import {
-  getAllAddOns,
-  createMemoryEnvironment,
-  createAppOptionsFromPersisted,
-} from '@tanstack/cta-core'
+import { getAllAddOns, createMemoryEnvironment } from '@tanstack/cta-core'
+import { createAppOptionsFromPersisted } from '@tanstack/cta-custom-add-on'
 
 import { createApp } from '@tanstack/cta-engine'
 

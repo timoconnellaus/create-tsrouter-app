@@ -9,7 +9,8 @@ import {
   readConfigFile,
   readFileHelper,
 } from '@tanstack/cta-core'
-import { createApp } from './create-app.js'
+
+import { createApp } from '@tanstack/cta-engine'
 
 import type { Environment, Options, PersistedOptions } from '@tanstack/cta-core'
 

@@ -10,6 +10,7 @@ overrides:
   create-tsrouter-app: workspace:*
   '@tanstack/cta-cli': workspace:*
   '@tanstack/cta-core': workspace:*
+  '@tanstack/cta-custom-add-on': workspace:*
   '@tanstack/cta-engine': workspace:*
   '@tanstack/cta-mcp': workspace:*
   '@tanstack/cta-ui': workspace:*
@@ -105,6 +106,9 @@ importers:
       '@tanstack/cta-core':
         specifier: workspace:*
         version: link:../cta-core
+      '@tanstack/cta-custom-add-on':
+        specifier: workspace:*
+        version: link:../cta-custom-add-on
       '@tanstack/cta-engine':
         specifier: workspace:*
         version: link:../cta-engine
@@ -158,6 +162,28 @@ importers:
       '@types/ejs':
         specifier: ^3.1.5
         version: 3.1.5
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.17
+      eslint:
+        specifier: ^9.20.0
+        version: 9.23.0(jiti@2.4.2)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
+
+  packages/cta-custom-add-on:
+    dependencies:
+      '@tanstack/cta-core':
+        specifier: workspace:*
+        version: link:../cta-core
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../cta-engine
+    devDependencies:
+      '@tanstack/config':
+        specifier: ^0.16.2
+        version: 0.16.3(@types/node@22.13.17)(esbuild@0.25.2)(eslint@9.23.0(jiti@2.4.2))(rollup@4.38.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
       '@types/node':
         specifier: ^22.13.4
         version: 22.13.17

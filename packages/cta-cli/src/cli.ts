@@ -5,13 +5,13 @@ import chalk from 'chalk'
 import {
   SUPPORTED_PACKAGE_MANAGERS,
   SUPPORTED_TOOLCHAINS,
-  createDefaultEnvironment,
   getAllAddOns,
   getFrameworkById,
   getFrameworkByName,
   getFrameworks,
 } from '@tanstack/cta-core'
-import { addToApp, createApp, initAddOn } from '@tanstack/cta-engine'
+import { addToApp, createApp } from '@tanstack/cta-engine'
+import { initAddOn } from '@tanstack/cta-custom-add-on'
 
 import { runMCPServer } from '@tanstack/cta-mcp'
 
