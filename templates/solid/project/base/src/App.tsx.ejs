@@ -1,15 +1,4 @@
-<% if (fileRouter) { %>
-import { createFileRoute } from "@tanstack/solid-router";
-import logo from "../logo.svg";
-<% } else { %>
-import logo from "./logo.svg";
-<% } %>
-
-
-<% if (fileRouter) { %>
-export const Route = createFileRoute("/")({
-  component: App,
-});<% } %>
+<% if (fileRouter) { ignoreFile() } %>import logo from "./logo.svg";
 
 function App() {
   return (
@@ -20,7 +9,7 @@ function App() {
         alt="logo"
       />
       <p>
-        Edit <code><% if (fileRouter) { %>src/routes/index.tsx<% } else {%>src/App.<%= jsx %><% } %></code> and save to reload.
+        Edit <code>src/App.<%= jsx %></code> and save to reload.
       </p>
       <a
         class="text-[#61dafb] hover:underline"
@@ -42,6 +31,4 @@ function App() {
   );
 }
 
-<% if (!fileRouter) { %>
 export default App;
-<% } %>

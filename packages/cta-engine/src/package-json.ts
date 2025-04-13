@@ -42,7 +42,6 @@ export async function createPackageJSON(
   projectName: string,
   options: Options,
   templateDir: string,
-  routerDir: string,
   targetDir: string,
   addOns: Array<{
     dependencies?: Record<string, string>
@@ -69,18 +68,10 @@ export async function createPackageJSON(
     options.toolchain === 'eslint+prettier'
       ? packages.eslintprettier
       : undefined,
+    options.mode === FILE_ROUTER ? packages['file-router'] : undefined,
   ]
   for (const addition of additions.filter(Boolean)) {
     packageJSON = mergePackageJSON(packageJSON, addition!)
-  }
-
-  if (options.mode === FILE_ROUTER) {
-    packageJSON = await appendPackageJSON(
-      environment,
-      packageJSON,
-      routerDir,
-      'package.fr.json',
-    )
   }
 
   for (const addOn of addOns) {

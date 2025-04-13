@@ -32,5 +32,10 @@
       "@tanstack/eslint-config": "^0.1.0",
       "prettier": "^3.5.3"
     }
+  },
+  "file-router": {
+    "dependencies": {
+      "@tanstack/router-plugin": "^1.114.3"
+    }
   }
 }

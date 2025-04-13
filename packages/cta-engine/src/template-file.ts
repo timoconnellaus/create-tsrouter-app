@@ -107,6 +107,7 @@ export function createTemplateFile(
       if (error instanceof IgnoreFileError) {
         ignoreFile = true
       } else {
+        console.error(file, error)
         environment.error(`EJS error in file ${file}`, error?.toString())
         process.exit(1)
       }

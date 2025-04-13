@@ -1,7 +1,6 @@
 import { basename, resolve } from 'node:path'
 
 import {
-  FILE_ROUTER,
   copyAddOnFile,
   jsSafeName,
   packageManagerExecute,
@@ -33,10 +32,6 @@ export async function createApp(
 
   const projectBaseDir = resolve(options.framework.baseDirectory)
   const templateDirBase = resolve(options.framework.baseDirectory, 'base')
-  const templateDirRouter = resolve(
-    options.framework.baseDirectory,
-    options.mode,
-  )
 
   let targetDir: string = cwd || ''
   if (!targetDir.length) {
@@ -166,7 +161,6 @@ export async function createApp(
     options.projectName,
     options,
     projectBaseDir,
-    templateDirRouter,
     targetDir,
     options.chosenAddOns.map((addOn) => addOn.packageAdditions),
   )
@@ -299,76 +293,35 @@ export async function createApp(
     }
   }
 
-  // Create the main entry point
-  if (!isAddOnEnabled('start')) {
-    if (options.typescript) {
-      await templateFile(
-        templateDirRouter,
-        './src/main.tsx.ejs',
-        './src/main.tsx',
-        {
-          routes,
-          integrations,
-        },
-      )
-    } else {
-      await templateFile(
-        templateDirRouter,
-        './src/main.tsx.ejs',
-        './src/main.jsx',
-        {
-          routes,
-          integrations,
-        },
-      )
-    }
-  }
+  await templateFile(templateDirBase, './src/main.tsx.ejs', './src/main.tsx', {
+    routes,
+    integrations,
+  })
 
-  // Setup the app component. There are four variations, typescript/javascript and tailwind/non-tailwind.
-  if (options.mode === FILE_ROUTER) {
-    await templateFile(
-      templateDirRouter,
-      './src/routes/__root.tsx.ejs',
-      './src/routes/__root.tsx',
-      {
-        integrations,
-      },
-    )
-    await templateFile(
-      templateDirBase,
-      './src/App.tsx.ejs',
-      './src/routes/index.tsx',
-    )
-  } else {
-    await templateFile(
-      templateDirBase,
-      './src/App.tsx.ejs',
-      options.typescript ? undefined : './src/App.jsx',
-    )
-    // TODO: This is a bit of a hack to check if the framework is react
-    if (options.framework.id === 'react-cra') {
-      await templateFile(
-        templateDirBase,
-        './src/App.test.tsx.ejs',
-        options.typescript ? undefined : './src/App.test.jsx',
-      )
-    }
-  }
+  await templateFile(
+    templateDirBase,
+    './src/routes/__root.tsx.ejs',
+    './src/routes/__root.tsx',
+    {
+      integrations,
+    },
+  )
 
-  if (
-    routes.length > 0 ||
-    options.chosenAddOns.length > 0 ||
-    integrations.length > 0
-  ) {
-    await templateFile(
-      templateDirBase,
-      './src/components/Header.tsx.ejs',
-      './src/components/Header.tsx',
-      {
-        integrations,
-      },
-    )
+  if (options.framework.id === 'react-cra') {
+    await templateFile(templateDirBase, './src/App.test.tsx.ejs')
   }
+  await templateFile(templateDirBase, './src/App.tsx.ejs')
+  await templateFile(templateDirBase, './src/routes/index.tsx.ejs')
+
+  await templateFile(
+    templateDirBase,
+    './src/components/Header.tsx.ejs',
+    './src/components/Header.tsx',
+    {
+      integrations,
+      routes,
+    },
+  )
 
   const warnings: Array<string> = []
   for (const addOn of options.chosenAddOns) {
@@ -398,10 +351,7 @@ export async function createApp(
 
   if (warnings.length > 0) {
     if (!silent) {
-      environment.warn(
-        'The following will be overwritten:',
-        warnings.join('\n'),
-      )
+      environment.warn('Warnings', warnings.join('\n'))
     }
   }
 

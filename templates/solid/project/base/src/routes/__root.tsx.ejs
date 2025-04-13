@@ -1,4 +1,4 @@
-import { Outlet, createRootRouteWithContext } from '@tanstack/solid-router'
+<% if (!fileRouter) { ignoreFile() } %>import { Outlet, createRootRouteWithContext } from '@tanstack/solid-router'
 import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'<% for(const integration of integrations.filter(i => i.type === 'layout' || i.type === 'provider')) { %>
 import <%= integration.name %> from "../<%= integration.path %>";
 <% } %>

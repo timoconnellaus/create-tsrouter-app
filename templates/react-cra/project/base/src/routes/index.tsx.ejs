@@ -1,6 +1,12 @@
-<% if (fileRouter) { ignoreFile() } %>import logo from "./logo.svg";<% if (!tailwind) { %>
-import "./App.css";
+<% if (codeRouter) { ignoreFile() } %>
+import { createFileRoute } from "@tanstack/react-router";
+import logo from "../logo.svg";<% if (!tailwind) { %>
+import "../App.css";
 <% } %>
+
+export const Route = createFileRoute("/")({
+  component: App,
+});
 
 function App() {
   return (<% if (tailwind) { %>
@@ -12,7 +18,7 @@ function App() {
           alt="logo"
         />
         <p>
-          Edit <code>src/App.<%= jsx %></code> and save to reload.
+          Edit <code>src/routes/index.tsx</code> and save to reload.
         </p>
         <a
           className="text-[#61dafb] hover:underline"
@@ -37,7 +43,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.<%= jsx %></code> and save to reload.
+          Edit <code>src/routes/index.tsx</code> and save to reload.
         </p>
         <a
           className="App-link"
@@ -59,5 +65,3 @@ function App() {
     </div>
 <% } %>  );
 }
-
-export default App;
