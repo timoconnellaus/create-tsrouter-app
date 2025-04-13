@@ -3,6 +3,8 @@ import { describe, expect, test } from 'vitest'
 import { createApp } from '@tanstack/cta-engine'
 import { finalizeAddOns, getFrameworkById } from '@tanstack/cta-core'
 
+import type { AddOn, Options } from '@tanstack/cta-core'
+
 import { register as registerReactCra } from '@tanstack/cta-templates-react-cra'
 import { register as registerSolid } from '@tanstack/cta-templates-solid'
 
@@ -11,31 +13,71 @@ import { cleanupOutput, createTestEnvironment } from './test-utilities.js'
 registerReactCra()
 registerSolid()
 
+async function createReactOptions(projectName: string, addOns?: Array<string>) {
+  const framework = getFrameworkById('react-cra')!
+
+  let chosenAddOns: Array<AddOn> = []
+  let mode = 'code-router'
+  if (addOns) {
+    mode = 'file-router'
+    chosenAddOns = await finalizeAddOns(framework, mode, addOns)
+  }
+
+  return {
+    framework,
+    addOns: !!chosenAddOns.length,
+    chosenAddOns,
+    git: true,
+    mode,
+    packageManager: 'npm',
+    projectName,
+    tailwind: false,
+    toolchain: 'none',
+    typescript: false,
+    variableValues: {},
+  } as Options
+}
+
+async function createSolidOptions(projectName: string, addOns?: Array<string>) {
+  const framework = getFrameworkById('solid')!
+
+  let chosenAddOns: Array<AddOn> = []
+  let mode = 'code-router'
+  if (addOns) {
+    mode = 'file-router'
+    chosenAddOns = await finalizeAddOns(framework, mode, addOns)
+  }
+
+  return {
+    framework,
+    addOns: !!chosenAddOns.length,
+    chosenAddOns,
+    git: true,
+    mode,
+    packageManager: 'npm',
+    projectName,
+    tailwind: false,
+    toolchain: 'none',
+    typescript: false,
+    variableValues: {},
+  } as Options
+}
+
 describe('React Templates', () => {
   test('code router in javascript on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('react-cra')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
-        mode: 'code-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
-        typescript: false,
-        variableValues: {},
+        ...(await createReactOptions(projectName)),
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/cr-js-npm.json',
     )
@@ -43,28 +85,19 @@ describe('React Templates', () => {
 
   test('code router in typescript on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('react-cra')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
-        mode: 'code-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
+        ...(await createReactOptions(projectName)),
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/cr-ts-npm.json',
     )
@@ -72,28 +105,20 @@ describe('React Templates', () => {
 
   test('file router on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('react-cra')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
+        ...(await createReactOptions(projectName)),
         mode: 'file-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/fr-ts-npm.json',
     )
@@ -101,28 +126,21 @@ describe('React Templates', () => {
 
   test('file router with tailwind on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('react-cra')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
+        ...(await createReactOptions(projectName)),
         mode: 'file-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: true,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
+        tailwind: true,
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/fr-ts-tw-npm.json',
     )
@@ -130,29 +148,20 @@ describe('React Templates', () => {
 
   test('file router with add-on start on npm', async () => {
     const projectName = 'TEST'
-    const framework = getFrameworkById('react-cra')!
-    const template = 'file-router'
-    const { environment, output } = createTestEnvironment(projectName)
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: true,
-        framework,
-        chosenAddOns: await finalizeAddOns(framework, template, ['start']),
-        git: true,
-        mode: template,
-        packageManager: 'npm',
-        projectName,
+        ...(await createReactOptions(projectName, ['start'])),
         tailwind: true,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/cr-ts-start-npm.json',
     )
@@ -162,28 +171,18 @@ describe('React Templates', () => {
 describe('Solid Templates', () => {
   test('code router in javascript on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('solid')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
-        mode: 'code-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
-        typescript: false,
-        variableValues: {},
+        ...(await createSolidOptions(projectName)),
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/solid-cr-js-npm.json',
     )
@@ -191,28 +190,19 @@ describe('Solid Templates', () => {
 
   test('code router in typescript on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('solid')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
-        mode: 'code-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
+        ...(await createSolidOptions(projectName)),
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/solid-cr-ts-npm.json',
     )
@@ -220,28 +210,20 @@ describe('Solid Templates', () => {
 
   test('file router on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('solid')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
+        ...(await createSolidOptions(projectName)),
         mode: 'file-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: false,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/solid-fr-ts-npm.json',
     )
@@ -249,28 +231,21 @@ describe('Solid Templates', () => {
 
   test('file router with tailwind on npm', async () => {
     const projectName = 'TEST'
-    const { environment, output } = createTestEnvironment(projectName)
-    const framework = getFrameworkById('solid')!
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: false,
-        framework,
-        chosenAddOns: [],
-        git: true,
+        ...(await createSolidOptions(projectName)),
         mode: 'file-router',
-        packageManager: 'npm',
-        projectName,
-        tailwind: true,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
+        tailwind: true,
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/solid-fr-ts-tw-npm.json',
     )
@@ -278,29 +253,20 @@ describe('Solid Templates', () => {
 
   test('file router with add-on start on npm', async () => {
     const projectName = 'TEST'
-    const framework = getFrameworkById('solid')!
-    const template = 'file-router'
-    const { environment, output } = createTestEnvironment(projectName)
+    const { environment, output, trimProjectRelativePath } =
+      createTestEnvironment(projectName)
     await createApp(
       {
-        addOns: true,
-        framework,
-        chosenAddOns: await finalizeAddOns(framework, template, ['start']),
-        git: true,
-        mode: template,
-        packageManager: 'npm',
-        projectName,
+        ...(await createSolidOptions(projectName, ['start'])),
         tailwind: true,
-        toolchain: 'none',
         typescript: true,
-        variableValues: {},
       },
       {
         silent: true,
         environment,
       },
     )
-    cleanupOutput(output)
+    cleanupOutput(output, trimProjectRelativePath)
     await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
       './snapshots/cra/solid-cr-ts-start-npm.json',
     )

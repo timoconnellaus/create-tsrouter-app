@@ -1,83 +1,50 @@
-import { readFile } from 'node:fs/promises'
 import { dirname, join, basename, extname } from 'node:path'
 
-import { createDefaultEnvironment } from '@tanstack/cta-core'
+import { createMemoryEnvironment, Environment } from '@tanstack/cta-core'
 
 const IGNORE_EXTENSIONS = ['.png', '.ico', '.svg']
 
 export function createTestEnvironment(projectName: string) {
-  const environment = createDefaultEnvironment()
+  const { environment, output } = createMemoryEnvironment()
 
-  const output: {
-    files: Record<string, string>
-    commands: Array<{
-      command: string
-      args: Array<string>
-    }>
-  } = {
-    files: {},
-    commands: [],
-  }
-
-  const isTemplatePath = (path: string) => dirname(path).includes('templates')
   const trimProjectRelativePath = (path: string) =>
     join(
       dirname(path).replace(new RegExp(`^.*/${projectName}`), ''),
       basename(path),
     )
 
-  environment.appendFile = async (path: string, contents: string) => {
-    const relPath = trimProjectRelativePath(path)
-    output.files[relPath] = (output.files[relPath] || '') + contents
-  }
-  environment.copyFile = async (from: string, to: string) => {
-    if (!IGNORE_EXTENSIONS.includes(extname(from))) {
-      const contents = (await readFile(from)).toString()
-      const relPath = trimProjectRelativePath(to)
-      output.files[relPath] = contents
-    }
-  }
-  environment.execute = async (command: string, args: Array<string>) => {
-    output.commands.push({
-      command,
-      args,
-    })
-  }
-  environment.deleteFile = async (path: string) => {
-    const relPath = trimProjectRelativePath(path)
-    delete output.files[relPath]
-  }
-  environment.readFile = async (path: string, encoding?: BufferEncoding) => {
-    if (isTemplatePath(path)) {
-      return (await readFile(path, encoding)).toString()
-    }
-    const relPath = trimProjectRelativePath(path)
-    return output.files[relPath] || ''
-  }
-  environment.writeFile = async (path: string, contents: string) => {
-    if (!IGNORE_EXTENSIONS.includes(extname(path))) {
-      const relPath = trimProjectRelativePath(path)
-      output.files[relPath] = contents
-    }
-  }
   return {
     environment,
     output,
+    trimProjectRelativePath,
   }
 }
 
-export function cleanupOutput(output: {
-  files: Record<string, string>
-  commands: Array<{
-    command: string
-    args: Array<string>
-  }>
-}) {
-  const sortedFiles = Object.keys(output.files)
+export function cleanupOutput(
+  output: {
+    files: Record<string, string>
+    commands: Array<{
+      command: string
+      args: Array<string>
+    }>
+  },
+  trimProjectRelativePath: (path: string) => string,
+) {
+  const filteredFiles = Object.keys(output.files)
+    .filter((key) => !IGNORE_EXTENSIONS.includes(extname(key)))
+    .reduce(
+      (acc, key) => {
+        acc[trimProjectRelativePath(key)] = output.files[key]
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+
+  const sortedFiles = Object.keys(filteredFiles)
     .sort()
     .reduce(
       (acc, key) => {
-        acc[key] = output.files[key]
+        acc[key] = filteredFiles[key]
         return acc
       },
       {} as Record<string, string>,
