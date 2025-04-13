@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { dirname, join, basename, extname } from 'node:path'
 
-import { createDefaultEnvironment } from '../src/environment.js'
+import { createDefaultEnvironment } from '@tanstack/cta-core'
 
 const IGNORE_EXTENSIONS = ['.png', '.ico', '.svg']
 

@@ -20,10 +20,9 @@
     "url": "https://github.com/sponsors/tannerlinsley"
   },
   "keywords": [
-    "react",
     "tanstack",
     "router",
-    "create-react-app"
+    "create-tsrouter-app"
   ],
   "author": "Jack Herrington <jherr@pobox.com>",
   "license": "MIT",

@@ -1,0 +1,15 @@
+{
+  "name": "tanstack-app-creators-tests",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "vitest": "^3.0.8",
+    "@tanstack/cta-core": "workspace:*",
+    "@tanstack/cta-engine": "workspace:*",
+    "@tanstack/cta-templates-react-cra": "workspace:*",
+    "@tanstack/cta-templates-solid": "workspace:*"
+  }
+}

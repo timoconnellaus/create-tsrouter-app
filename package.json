@@ -40,7 +40,8 @@
   "workspaces": [
     "./cli/*",
     "./packages/*",
-    "./templates/*"
+    "./templates/*",
+    "./tests/*"
   ],
   "dependencies": {
     "@tanstack/config": "^0.16.2"
