@@ -6,6 +6,13 @@ import { CODE_ROUTER, FILE_ROUTER } from '@tanstack/cta-core'
 
 import type { Environment, Options } from '@tanstack/cta-core'
 
+function convertDotFilesAndPaths(path: string) {
+  return path
+    .split('/')
+    .map((segment) => segment.replace(/^_dot_/, '.'))
+    .join('/')
+}
+
 export function createTemplateFile(
   environment: Environment,
   projectName: string,
@@ -56,6 +63,13 @@ export function createTemplateFile(
       return command
     }
 
+    class IgnoreFileError extends Error {
+      constructor() {
+        super('ignoreFile')
+        this.name = 'IgnoreFileError'
+      }
+    }
+
     const templateValues = {
       packageManager: options.packageManager,
       projectName: projectName,
@@ -79,15 +93,32 @@ export function createTemplateFile(
 
       getPackageManagerAddScript,
       getPackageManagerRunScript,
+
+      ignoreFile: () => {
+        throw new IgnoreFileError()
+      },
     }
+
+    let ignoreFile = false
 
     try {
       content = render(content, templateValues)
     } catch (error) {
-      environment.error(`EJS error in file ${file}`, error?.toString())
-      process.exit(1)
+      if (error instanceof IgnoreFileError) {
+        ignoreFile = true
+      } else {
+        environment.error(`EJS error in file ${file}`, error?.toString())
+        process.exit(1)
+      }
     }
-    const target = targetFileName ?? file.replace('.ejs', '')
+
+    if (ignoreFile) {
+      return
+    }
+
+    let target = convertDotFilesAndPaths(
+      targetFileName ?? file.replace('.ejs', ''),
+    )
 
     if (target.endsWith('.ts') || target.endsWith('.tsx')) {
       content = await format(content, {
@@ -96,6 +127,10 @@ export function createTemplateFile(
         trailingComma: 'all',
         parser: 'typescript',
       })
+    }
+
+    if (!options.typescript) {
+      target = target.replace(/\.tsx?$/, '.jsx').replace(/\.ts$/, '.js')
     }
 
     await environment.writeFile(resolve(targetDir, target), content)

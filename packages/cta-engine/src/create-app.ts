@@ -31,6 +31,7 @@ export async function createApp(
 ) {
   environment.startRun()
 
+  const projectBaseDir = resolve(options.framework.baseDirectory)
   const templateDirBase = resolve(options.framework.baseDirectory, 'base')
   const templateDirRouter = resolve(
     options.framework.baseDirectory,
@@ -107,20 +108,7 @@ export async function createApp(
   }
 
   // Setup the .vscode directory
-  switch (options.toolchain) {
-    case 'biome':
-      await environment.copyFile(
-        resolve(templateDirBase, '_dot_vscode/settings.biome.json'),
-        resolve(targetDir, '.vscode/settings.json'),
-      )
-      break
-    case 'none':
-    default:
-      await environment.copyFile(
-        resolve(templateDirBase, '_dot_vscode/settings.json'),
-        resolve(targetDir, '.vscode/settings.json'),
-      )
-  }
+  await templateFile(templateDirBase, '_dot_vscode/settings.json.ejs')
 
   // Fill the public directory
   copyFiles(templateDirBase, [
@@ -132,9 +120,9 @@ export async function createApp(
   ])
 
   // Check for a .cursorrules file
-  if (environment.exists(resolve(templateDirBase, '.cursorrules'))) {
+  if (environment.exists(resolve(templateDirBase, '_dot_cursorrules'))) {
     await environment.copyFile(
-      resolve(templateDirBase, '.cursorrules'),
+      resolve(templateDirBase, '_dot_cursorrules'),
       resolve(targetDir, '.cursorrules'),
     )
   }
@@ -144,47 +132,24 @@ export async function createApp(
     await copyFiles(templateDirBase, ['./src/App.css'])
   }
 
-  // Don't create a vite.config.js file if we are building a Start app
-  if (!isAddOnEnabled('start')) {
-    await templateFile(templateDirBase, './vite.config.js.ejs')
-  }
-
+  await templateFile(templateDirBase, './vite.config.js.ejs')
   await templateFile(templateDirBase, './src/styles.css.ejs')
 
   copyFiles(templateDirBase, ['./src/logo.svg'])
 
-  if (options.toolchain === 'biome') {
-    copyFiles(templateDirBase, ['./toolchain/biome.json'], true)
-  }
-
-  if (options.toolchain === 'eslint+prettier') {
-    copyFiles(
-      templateDirBase,
-      [
-        './toolchain/eslint.config.js',
-        './toolchain/prettier.config.js',
-        './toolchain/.prettierignore',
-      ],
-      true,
-    )
-  }
+  await templateFile(templateDirBase, 'biome.json.ejs')
+  await templateFile(templateDirBase, '_dot_prettierignore.ejs')
+  await templateFile(templateDirBase, 'eslint.config.js.ejs')
+  await templateFile(templateDirBase, 'prettier.config.js.ejs')
 
   // Setup reportWebVitals
   // TODO: This is a bit of a hack to check if the framework is react
-  if (!isAddOnEnabled('start') && options.framework.id === 'react-cra') {
-    if (options.typescript) {
-      await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
-    } else {
-      await templateFile(
-        templateDirBase,
-        './src/reportWebVitals.ts.ejs',
-        './src/reportWebVitals.js',
-      )
-    }
+  if (
+    environment.exists(resolve(templateDirBase, './src/reportWebVitals.ts.ejs'))
+  ) {
+    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
   }
-  if (!isAddOnEnabled('start')) {
-    await templateFile(templateDirBase, './index.html.ejs')
-  }
+  await templateFile(templateDirBase, './index.html.ejs')
 
   // Add .gitignore
   await environment.copyFile(
@@ -193,20 +158,14 @@ export async function createApp(
   )
 
   // Setup tsconfig
-  if (options.typescript) {
-    await templateFile(
-      templateDirBase,
-      './tsconfig.json.ejs',
-      './tsconfig.json',
-    )
-  }
+  await templateFile(templateDirBase, './tsconfig.json.ejs')
 
   // Setup the package.json file, optionally with typescript, tailwind and formatter/linter
   await createPackageJSON(
     environment,
     options.projectName,
     options,
-    templateDirBase,
+    projectBaseDir,
     templateDirRouter,
     targetDir,
     options.chosenAddOns.map((addOn) => addOn.packageAdditions),

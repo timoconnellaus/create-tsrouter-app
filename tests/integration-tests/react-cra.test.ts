@@ -98,6 +98,28 @@ test('file router on npm', async () => {
   )
 })
 
+test('file router on npm with biome', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createReactOptions(projectName)),
+      mode: 'file-router',
+      typescript: true,
+      toolchain: 'biome',
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/react-cra/fr-ts-biome-npm.json',
+  )
+})
+
 test('file router with tailwind on npm', async () => {
   const projectName = 'TEST'
   const { environment, output, trimProjectRelativePath } =

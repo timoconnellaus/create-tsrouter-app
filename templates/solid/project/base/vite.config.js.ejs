@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+<% if (addOnEnabled['start']) { ignoreFile() } %>import { defineConfig } from 'vite'
 <%if (fileRouter) { %>import { TanStackRouterVite } from '@tanstack/router-plugin/vite'<% } %>
 import solidPlugin from 'vite-plugin-solid'
 import tailwindcss from '@tailwindcss/vite'<% if (addOnEnabled['solid-ui']) { %>

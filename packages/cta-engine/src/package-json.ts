@@ -51,25 +51,27 @@ export async function createPackageJSON(
   }>,
 ) {
   let packageJSON = JSON.parse(
-    await environment.readFile(resolve(templateDir, 'package.json'), 'utf8'),
+    await environment.readFile(
+      resolve(templateDir, 'base', 'package.json'),
+      'utf8',
+    ),
   )
   packageJSON.name = projectName
 
-  const additions = [
-    options.typescript ? 'package.ts.json' : undefined,
-    options.tailwind ? 'package.tw.json' : undefined,
-    options.toolchain === 'biome' ? 'package.biome.json' : undefined,
+  const packages = JSON.parse(
+    await environment.readFile(resolve(templateDir, 'packages.json'), 'utf8'),
+  )
+
+  const additions: Array<Record<string, any> | undefined> = [
+    options.typescript ? packages.typescript : undefined,
+    options.tailwind ? packages.tailwindcss : undefined,
+    options.toolchain === 'biome' ? packages.biome : undefined,
     options.toolchain === 'eslint+prettier'
-      ? 'package.eslintprettier.json'
+      ? packages.eslintprettier
       : undefined,
   ]
   for (const addition of additions.filter(Boolean)) {
-    packageJSON = await appendPackageJSON(
-      environment,
-      packageJSON,
-      templateDir,
-      addition!,
-    )
+    packageJSON = mergePackageJSON(packageJSON, addition!)
   }
 
   if (options.mode === FILE_ROUTER) {

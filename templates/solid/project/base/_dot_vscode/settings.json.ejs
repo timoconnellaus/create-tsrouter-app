@@ -7,7 +7,7 @@
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
-  },
+  }<% if (toolchain === 'biome') { %>,
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
@@ -34,5 +34,5 @@
   },
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
-  }
+  }<% } %>
 }
