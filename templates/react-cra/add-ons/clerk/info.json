@@ -7,7 +7,21 @@
   "routes": [
     {
       "url": "/demo/clerk",
-      "name": "Clerk"
+      "name": "Clerk",
+      "path": "src/routes/demo.clerk.tsx",
+      "jsName": "ClerkDemo"
+    }
+  ],
+  "integrations": [
+    {
+      "type": "header-user",
+      "jsName": "ClerkHeader",
+      "path": "src/integrations/clerk/header-user.tsx"
+    },
+    {
+      "type": "provider",
+      "jsName": "ClerkProvider",
+      "path": "src/integrations/clerk/provider.tsx"
     }
   ]
 }

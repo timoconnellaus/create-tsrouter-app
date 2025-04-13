@@ -7,7 +7,16 @@
   "routes": [
     {
       "url": "/demo/convex",
-      "name": "Convex"
+      "name": "Convex",
+      "path": "src/routes/demo.convex.tsx",
+      "jsName": "ConvexDemo"
+    }
+  ],
+  "integrations": [
+    {
+      "type": "provider",
+      "path": "src/integrations/convex/provider.tsx",
+      "jsName": "ConvexProvider"
     }
   ]
 }

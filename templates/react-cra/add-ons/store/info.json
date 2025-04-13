@@ -7,7 +7,9 @@
   "routes": [
     {
       "url": "/demo/store",
-      "name": "Store"
+      "name": "Store",
+      "path": "src/routes/demo.store.tsx",
+      "jsName": "StoreDemo"
     }
   ]
 }

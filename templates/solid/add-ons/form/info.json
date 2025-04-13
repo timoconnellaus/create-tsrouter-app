@@ -7,7 +7,9 @@
   "routes": [
     {
       "url": "/demo/form",
-      "name": "Form"
+      "name": "Form",
+      "path": "src/routes/demo.form.tsx",
+      "jsName": "FormDemo"
     }
   ]
 }

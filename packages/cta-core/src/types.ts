@@ -101,6 +101,8 @@ export type AddOn = {
   routes: Array<{
     url: string
     name: string
+    path: string
+    jsName: string
   }>
   packageAdditions: {
     dependencies?: Record<string, string>
@@ -116,6 +118,11 @@ export type AddOn = {
   shadcnComponents?: Array<string>
   warning?: string
   dependsOn?: Array<string>
+  integrations?: Array<{
+    type: 'provider' | 'root-provider' | 'layout' | 'header-user'
+    path: string
+    jsName: string
+  }>
   variables?: Array<Variable>
 
   files?: Record<string, string>

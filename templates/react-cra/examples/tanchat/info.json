@@ -7,11 +7,26 @@
   "routes": [
     {
       "url": "/example/chat",
-      "name": "Chat"
+      "name": "Chat",
+      "path": "src/routes/example.chat.tsx",
+      "jsName": "ChatDemo"
     },
     {
       "url": "/example/guitars",
-      "name": "Guitar Demo"
+      "name": "Guitar Demo",
+      "path": "src/routes/example.guitars.tsx",
+      "jsName": "GuitarDemo"
+    },
+    {
+      "path": "src/routes/example.guitars/$guitarId.tsx",
+      "jsName": "GuitarById"
+    }
+  ],
+  "integrations": [
+    {
+      "type": "header-user",
+      "path": "src/integrations/tanchat/header-user.tsx",
+      "jsName": "TanStackChatHeaderUser"
     }
   ],
   "dependsOn": ["start", "store"],

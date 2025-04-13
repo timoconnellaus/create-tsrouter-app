@@ -38,107 +38,105 @@ async function createSolidOptions(projectName: string, addOns?: Array<string>) {
   } as Options
 }
 
-describe('Solid Templates', () => {
-  test('code router in javascript on npm', async () => {
-    const projectName = 'TEST'
-    const { environment, output, trimProjectRelativePath } =
-      createTestEnvironment(projectName)
-    await createApp(
-      {
-        ...(await createSolidOptions(projectName)),
-      },
-      {
-        silent: true,
-        environment,
-      },
-    )
-    cleanupOutput(output, trimProjectRelativePath)
-    await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
-      './snapshots/solid/solid-cr-js-npm.json',
-    )
-  })
+test('code router in javascript on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createSolidOptions(projectName)),
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/solid/solid-cr-js-npm.json',
+  )
+})
 
-  test('code router in typescript on npm', async () => {
-    const projectName = 'TEST'
-    const { environment, output, trimProjectRelativePath } =
-      createTestEnvironment(projectName)
-    await createApp(
-      {
-        ...(await createSolidOptions(projectName)),
-        typescript: true,
-      },
-      {
-        silent: true,
-        environment,
-      },
-    )
-    cleanupOutput(output, trimProjectRelativePath)
-    await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
-      './snapshots/solid/solid-cr-ts-npm.json',
-    )
-  })
+test('code router in typescript on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createSolidOptions(projectName)),
+      typescript: true,
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/solid/solid-cr-ts-npm.json',
+  )
+})
 
-  test('file router on npm', async () => {
-    const projectName = 'TEST'
-    const { environment, output, trimProjectRelativePath } =
-      createTestEnvironment(projectName)
-    await createApp(
-      {
-        ...(await createSolidOptions(projectName)),
-        mode: 'file-router',
-        typescript: true,
-      },
-      {
-        silent: true,
-        environment,
-      },
-    )
-    cleanupOutput(output, trimProjectRelativePath)
-    await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
-      './snapshots/solid/solid-fr-ts-npm.json',
-    )
-  })
+test('file router on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createSolidOptions(projectName)),
+      mode: 'file-router',
+      typescript: true,
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/solid/solid-fr-ts-npm.json',
+  )
+})
 
-  test('file router with tailwind on npm', async () => {
-    const projectName = 'TEST'
-    const { environment, output, trimProjectRelativePath } =
-      createTestEnvironment(projectName)
-    await createApp(
-      {
-        ...(await createSolidOptions(projectName)),
-        mode: 'file-router',
-        typescript: true,
-        tailwind: true,
-      },
-      {
-        silent: true,
-        environment,
-      },
-    )
-    cleanupOutput(output, trimProjectRelativePath)
-    await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
-      './snapshots/solid/solid-fr-ts-tw-npm.json',
-    )
-  })
+test('file router with tailwind on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createSolidOptions(projectName)),
+      mode: 'file-router',
+      typescript: true,
+      tailwind: true,
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/solid/solid-fr-ts-tw-npm.json',
+  )
+})
 
-  test('file router with add-on start on npm', async () => {
-    const projectName = 'TEST'
-    const { environment, output, trimProjectRelativePath } =
-      createTestEnvironment(projectName)
-    await createApp(
-      {
-        ...(await createSolidOptions(projectName, ['start'])),
-        tailwind: true,
-        typescript: true,
-      },
-      {
-        silent: true,
-        environment,
-      },
-    )
-    cleanupOutput(output, trimProjectRelativePath)
-    await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
-      './snapshots/solid/solid-cr-ts-start-npm.json',
-    )
-  })
+test('file router with add-on start on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createSolidOptions(projectName, ['start'])),
+      tailwind: true,
+      typescript: true,
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/solid/solid-cr-ts-start-npm.json',
+  )
 })

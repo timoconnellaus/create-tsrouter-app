@@ -7,7 +7,9 @@
   "routes": [
     {
       "url": "/demo/table",
-      "name": "TanStack Table"
+      "name": "TanStack Table",
+      "path": "src/routes/demo.table.tsx",
+      "jsName": "TableDemo"
     }
   ]
 }

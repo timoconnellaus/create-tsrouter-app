@@ -7,7 +7,9 @@
   "routes": [
     {
       "url": "/demo/sentry/bad-event-handler",
-      "name": "Sentry"
+      "name": "Sentry",
+      "path": "src/routes/demo.sentry.bad-event-handler.tsx",
+      "jsName": "SentryBadEventHandlerDemo"
     }
   ]
 }

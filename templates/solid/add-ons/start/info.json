@@ -8,7 +8,9 @@
   "routes": [
     {
       "url": "/demo/start/server-funcs",
-      "name": "Start - Server Functions"
+      "name": "Start - Server Functions",
+      "path": "src/routes/demo.start.server-funcs.tsx",
+      "jsName": "StartServerFuncsDemo"
     }
   ]
 }
