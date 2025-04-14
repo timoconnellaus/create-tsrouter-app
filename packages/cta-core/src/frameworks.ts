@@ -1,8 +1,11 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { findFilesRecursively, isDirectory } from './utils.js'
-import { readFileHelper } from './file-helper.js'
+import {
+  findFilesRecursively,
+  isDirectory,
+  readFileHelper,
+} from './file-helpers.js'
 
 import type { AddOn, Framework, FrameworkDefinition } from './types.js'
 

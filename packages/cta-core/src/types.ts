@@ -108,11 +108,7 @@ type FileEnvironment = {
   writeFile: (path: string, contents: string) => Promise<void>
   execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
   deleteFile: (path: string) => Promise<void>
-
-  readFile: (path: string, encoding?: BufferEncoding) => Promise<string>
   exists: (path: string) => boolean
-  readdir: (path: string) => Array<string>
-  isDirectory: (path: string) => boolean
 }
 
 type UIEnvironment = {

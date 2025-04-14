@@ -20,12 +20,7 @@ import { normalizeOptions, promptForOptions } from './options.js'
 
 import { createUIEnvironment } from './ui-environment.js'
 
-import type {
-  Mode,
-  PackageManager,
-  TemplateOptions,
-  ToolChain,
-} from '@tanstack/cta-core'
+import type { Mode, PackageManager, TemplateOptions } from '@tanstack/cta-core'
 
 import type { CliOptions } from './types.js'
 
@@ -164,18 +159,18 @@ export function cli({
         return value as PackageManager
       },
     )
-    .option<ToolChain>(
+    .option<string>(
       `--toolchain <${Array.from(toolchains).join('|')}>`,
       `Explicitly tell the CLI to use this toolchain`,
       (value) => {
-        if (!toolchains.has(value as ToolChain)) {
+        if (!toolchains.has(value)) {
           throw new InvalidArgumentError(
             `Invalid toolchain: ${value}. The following are allowed: ${Array.from(
               toolchains,
             ).join(', ')}`,
           )
         }
-        return value as ToolChain
+        return value
       },
     )
     .option('--tailwind', 'add Tailwind CSS', false)

@@ -3,6 +3,7 @@ import { basename, resolve } from 'node:path'
 import {
   getBinaryFile,
   packageManagerExecute,
+  packageManagerInstall,
   writeConfigFile,
 } from '@tanstack/cta-core'
 
@@ -46,7 +47,6 @@ export async function createApp(
 
   const templateFileFromContent = createTemplateFile(
     environment,
-    options.projectName,
     options,
     targetDir,
   )
@@ -54,14 +54,17 @@ export async function createApp(
   async function writeFileBundle(bundle: FileBundleHandler) {
     const files = await bundle.getFiles()
     for (const file of files) {
-      const binaryFile = getBinaryFile(file)
+      const contents = await bundle.getFileContents(file)
+      const binaryFile = getBinaryFile(contents)
       if (binaryFile) {
         await environment.writeFile(resolve(targetDir, file), binaryFile)
       } else {
-        await templateFileFromContent(file, await bundle.getFileContents(file))
+        await templateFileFromContent(file, contents)
       }
     }
   }
+
+  // Write the project files
 
   await writeFileBundle(options.framework)
 
@@ -79,7 +82,6 @@ export async function createApp(
     await writeFileBundle(options.starter)
   }
 
-  // Setup the package.json file
   await environment.writeFile(
     resolve(targetDir, './package.json'),
     JSON.stringify(createPackageJSON(options), null, 2),
@@ -94,23 +96,18 @@ export async function createApp(
     options.chosenAddOns.find((a) => a.id === id)
 
   // Copy all the asset files from the addons
-  for (const type of ['add-on', 'example']) {
-    for (const phase of ['setup', 'add-on', 'example']) {
-      for (const addOn of options.chosenAddOns.filter(
-        (addOn) =>
-          addOn.phase === phase &&
-          addOn.type === type &&
-          addOn.command &&
-          addOn.command.command,
-      )) {
-        s?.start(`Setting up ${addOn.name}...`)
-        await environment.execute(
-          addOn.command!.command,
-          addOn.command!.args || [],
-          resolve(targetDir),
-        )
-        s?.stop(`${addOn.name} setup complete`)
-      }
+  for (const phase of ['setup', 'add-on', 'example']) {
+    for (const addOn of options.chosenAddOns.filter(
+      (addOn) =>
+        addOn.phase === phase && addOn.command && addOn.command.command,
+    )) {
+      s?.start(`Setting up ${addOn.name}...`)
+      await environment.execute(
+        addOn.command!.command,
+        addOn.command!.args || [],
+        resolve(targetDir),
+      )
+      s?.stop(`${addOn.name} setup complete`)
     }
   }
 
@@ -138,10 +135,10 @@ export async function createApp(
 
   // Install dependencies
   s?.start(`Installing dependencies via ${options.packageManager}...`)
-  await environment.execute(
-    options.packageManager,
-    ['install'],
+  await packageManagerInstall(
+    environment,
     resolve(targetDir),
+    options.packageManager,
   )
   s?.stop(`Installed dependencies`)
 
@@ -169,10 +166,16 @@ export async function createApp(
       )
       await packageManagerExecute(
         environment,
+        resolve(targetDir),
         options.packageManager,
         'shadcn@latest',
-        ['add', '--force', '--silent', '--yes', ...shadcnComponents],
-        resolve(targetDir),
+        [
+          'add',
+          '--force',
+          '--silent',
+          '--yes',
+          ...Array.from(shadcnComponents),
+        ],
       )
       s?.stop(`Installed additional shadcn components`)
     }

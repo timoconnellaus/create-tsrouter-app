@@ -8,6 +8,9 @@ export {
   DEFAULT_PACKAGE_MANAGER,
   SUPPORTED_PACKAGE_MANAGERS,
   getPackageManager,
+  getPackageManagerInstallCommand,
+  getPackageManagerExecuteCommand,
+  packageManagerInstall,
   packageManagerExecute,
 } from './package-manager.js'
 export {
@@ -16,9 +19,9 @@ export {
   getFrameworkByName,
   getFrameworks,
 } from './frameworks.js'
-export { jsSafeName, relativePath, sortObject } from './utils.js'
+export { formatCommand, jsSafeName, sortObject } from './utils.js'
 export { writeConfigFile, readConfigFile } from './config-file.js'
-export { readFileHelper, getBinaryFile } from './file-helper.js'
+export { readFileHelper, getBinaryFile, relativePath } from './file-helpers.js'
 
 export type {
   AddOn,
@@ -33,4 +36,3 @@ export type {
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'
 export type { PackageManager } from './package-manager.js'
-export type { ToolChain } from './toolchain.js'

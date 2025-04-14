@@ -6,7 +6,7 @@ import {
   unlink,
   writeFile,
 } from 'node:fs/promises'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
@@ -49,14 +49,7 @@ export function createDefaultEnvironment(): Environment {
       await unlink(path)
     },
 
-    readFile: (path: string, encoding?: BufferEncoding) =>
-      readFile(path, { encoding: encoding || 'utf8' }),
     exists: (path: string) => existsSync(path),
-    readdir: (path) => readdirSync(path),
-    isDirectory: (path) => {
-      const stat = statSync(path)
-      return stat.isDirectory()
-    },
 
     intro: () => {},
     outro: () => {},
@@ -112,12 +105,6 @@ export function createMemoryEnvironment() {
     })
     return Promise.resolve()
   }
-  environment.readFile = async (path: string, encoding?: BufferEncoding) => {
-    if (isTemplatePath(path)) {
-      return (await readFile(path, encoding)).toString()
-    }
-    return fs.readFileSync(path, 'utf8').toString()
-  }
   environment.writeFile = async (path: string, contents: string) => {
     fs.mkdirSync(dirname(path), { recursive: true })
     await fs.writeFileSync(path, contents)
@@ -130,19 +117,6 @@ export function createMemoryEnvironment() {
       return existsSync(path)
     }
     return fs.existsSync(path)
-  }
-  environment.readdir = (path: string) => {
-    if (isTemplatePath(path)) {
-      return readdirSync(path)
-    }
-    return fs.readdirSync(path).map((file) => file.toString())
-  }
-  environment.isDirectory = (path) => {
-    if (isTemplatePath(path)) {
-      const stat = statSync(path)
-      return stat.isDirectory()
-    }
-    return fs.statSync(path).isDirectory()
   }
   environment.finishRun = () => {
     output.files = vol.toJSON() as Record<string, string>

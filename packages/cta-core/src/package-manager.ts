@@ -24,23 +24,76 @@ export function getPackageManager(): PackageManager | undefined {
   return packageManager
 }
 
-export function packageManagerExecute(
-  environment: Environment,
+export function getPackageManagerExecuteCommand(
   packagerManager: PackageManager,
   pkg: string,
-  args: Array<string>,
-  cwd: string,
+  args: Array<string> = [],
 ) {
   switch (packagerManager) {
     case 'yarn':
-      return environment.execute('yarn', ['dlx', pkg, ...args], cwd)
+      return { command: 'yarn', args: ['dlx', pkg, ...args] }
     case 'pnpm':
-      return environment.execute('pnpx', [pkg, ...args], cwd)
+      return { command: 'pnpx', args: [pkg, ...args] }
     case 'bun':
-      return environment.execute('bunx', ['--bun', pkg, ...args], cwd)
+      return { command: 'bunx', args: ['--bun', pkg, ...args] }
     case 'deno':
-      return environment.execute('deno', ['run', `npm:${pkg}`, ...args], cwd)
+      return { command: 'deno', args: ['run', `npm:${pkg}`, ...args] }
     default:
-      return environment.execute('npx', [pkg, ...args], cwd)
+      return { command: 'npx', args: [pkg, ...args] }
   }
+}
+
+export function getPackageManagerInstallCommand(
+  packagerManager: PackageManager,
+  pkg?: string,
+  isDev: boolean = false,
+) {
+  if (pkg) {
+    switch (packagerManager) {
+      case 'yarn':
+      case 'pnpm':
+        return {
+          command: packagerManager,
+          args: ['add', pkg, isDev ? '--dev' : ''],
+        }
+      default:
+        return {
+          command: packagerManager,
+          args: ['install', pkg, isDev ? '-D' : ''],
+        }
+    }
+  } else {
+    return {
+      command: packagerManager,
+      args: ['install'],
+    }
+  }
+}
+
+export function packageManagerInstall(
+  environment: Environment,
+  cwd: string,
+  packagerManager: PackageManager,
+  pkg?: string,
+) {
+  const { command, args: commandArgs } = getPackageManagerInstallCommand(
+    packagerManager,
+    pkg,
+  )
+  return environment.execute(command, commandArgs, cwd)
+}
+
+export function packageManagerExecute(
+  environment: Environment,
+  cwd: string,
+  packagerManager: PackageManager,
+  pkg: string,
+  args: Array<string>,
+) {
+  const { command, args: commandArgs } = getPackageManagerExecuteCommand(
+    packagerManager,
+    pkg,
+    args,
+  )
+  return environment.execute(command, commandArgs, cwd)
 }

@@ -2,7 +2,14 @@ import { resolve } from 'node:path'
 import { render } from 'ejs'
 import { format } from 'prettier'
 
-import { CODE_ROUTER, FILE_ROUTER, relativePath } from '@tanstack/cta-core'
+import {
+  CODE_ROUTER,
+  FILE_ROUTER,
+  formatCommand,
+  getPackageManagerExecuteCommand,
+  getPackageManagerInstallCommand,
+  relativePath,
+} from '@tanstack/cta-core'
 
 import type { AddOn, Environment, Options } from '@tanstack/cta-core'
 
@@ -15,7 +22,6 @@ function convertDotFilesAndPaths(path: string) {
 
 export function createTemplateFile(
   environment: Environment,
-  projectName: string,
   options: Options,
   targetDir: string,
 ) {
@@ -23,38 +29,19 @@ export function createTemplateFile(
     packageName: string,
     isDev: boolean = false,
   ) {
-    let command
-    switch (options.packageManager) {
-      case 'yarn':
-      case 'pnpm':
-        command = isDev
-          ? `${options.packageManager} add ${packageName} --dev`
-          : `${options.packageManager} add ${packageName}`
-        break
-      default:
-        command = isDev
-          ? `${options.packageManager} install ${packageName} -D`
-          : `${options.packageManager} install ${packageName}`
-        break
-    }
-    return command
+    const { command, args } = getPackageManagerInstallCommand(
+      options.packageManager,
+      packageName,
+      isDev,
+    )
+    return formatCommand(command, args)
   }
-
   function getPackageManagerRunScript(scriptName: string) {
-    let command
-    switch (options.packageManager) {
-      case 'yarn':
-      case 'pnpm':
-        command = `${options.packageManager} ${scriptName}`
-        break
-      case 'deno':
-        command = `${options.packageManager} task ${scriptName}`
-        break
-      default:
-        command = `${options.packageManager} run ${scriptName}`
-        break
-    }
-    return command
+    const { command, args } = getPackageManagerExecuteCommand(
+      options.packageManager,
+      scriptName,
+    )
+    return formatCommand(command, args)
   }
 
   class IgnoreFileError extends Error {
@@ -83,7 +70,7 @@ export function createTemplateFile(
   return async function templateFile(file: string, content: string) {
     const templateValues = {
       packageManager: options.packageManager,
-      projectName: projectName,
+      projectName: options.projectName,
       typescript: options.typescript,
       tailwind: options.tailwind,
       js: options.typescript ? 'ts' : 'js',

@@ -32,14 +32,14 @@
     "ejs": "^3.1.10",
     "execa": "^9.5.2",
     "memfs": "^4.17.0",
-    "prettier": "^3.5.0",
-    "vitest": "^3.1.1"
+    "prettier": "^3.5.0"
   },
   "devDependencies": {
     "@tanstack/config": "^0.16.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.13.4",
     "eslint": "^9.20.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^3.1.1"
   }
 }

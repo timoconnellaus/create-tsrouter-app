@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { relativePath } from '../src/utils'
+import { relativePath } from '../src/file-helpers.js'
 
 describe('relativePath', () => {
   it('relative path with the same directory', () => {
@@ -25,5 +25,13 @@ describe('relativePath', () => {
     expect(relativePath('src/bar/baz/utils.ts', 'src/foo/bar/index.ts')).toBe(
       '../../foo/bar/index.ts',
     )
+  })
+  it('relative path with a different directory', () => {
+    expect(
+      relativePath(
+        './src/routes/__root.tsx.ejs',
+        'src/integrations/tanstack-query/layout.tsx',
+      ),
+    ).toBe('../integrations/tanstack-query/layout.tsx')
   })
 })
