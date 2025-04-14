@@ -24,11 +24,12 @@ export {
 } from './frameworks.js'
 export { jsSafeName, relativePath, sortObject } from './utils.js'
 export { writeConfigFile, readConfigFile } from './config-file.js'
-export { readFileHelper } from './file-helper.js'
+export { readFileHelper, getBinaryFile } from './file-helper.js'
 
 export type {
   AddOn,
   Environment,
+  FileBundleHandler,
   FrameworkDefinition,
   Mode,
   Options,

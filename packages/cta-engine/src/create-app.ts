@@ -2,15 +2,20 @@ import { basename, resolve } from 'node:path'
 
 import {
   copyAddOnFile,
+  getBinaryFile,
   packageManagerExecute,
   writeConfigFile,
 } from '@tanstack/cta-core'
 
-import { createCopyFiles } from './copy-files.js'
 import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
 
-import type { AddOn, Environment, Options } from '@tanstack/cta-core'
+import type {
+  AddOn,
+  Environment,
+  FileBundleHandler,
+  Options,
+} from '@tanstack/cta-core'
 
 export async function createApp(
   options: Options,
@@ -44,7 +49,6 @@ export async function createApp(
     }
   }
 
-  const copyFiles = createCopyFiles(environment, targetDir)
   const templateFileFromContent = createTemplateFile(
     environment,
     options.projectName,
@@ -70,71 +74,19 @@ export async function createApp(
     )
   }
 
-  // Setup the base files
-  await templateFile(templateDirBase, '_dot_vscode/settings.json.ejs')
-
-  copyFiles(templateDirBase, [
-    './public/robots.txt',
-    './public/favicon.ico',
-    './public/manifest.json',
-    './public/logo192.png',
-    './public/logo512.png',
-  ])
-
-  if (environment.exists(resolve(templateDirBase, '_dot_cursorrules'))) {
-    await environment.copyFile(
-      resolve(templateDirBase, '_dot_cursorrules'),
-      resolve(targetDir, '.cursorrules'),
-    )
+  async function writeFileBundle(bundle: FileBundleHandler) {
+    const files = await bundle.getFiles()
+    for (const file of files) {
+      const binaryFile = getBinaryFile(file)
+      if (binaryFile) {
+        await environment.writeFile(resolve(targetDir, file), binaryFile)
+      } else {
+        await templateFile(templateDirBase, file)
+      }
+    }
   }
 
-  await templateFile(templateDirBase, './src/App.css.ejs')
-
-  await templateFile(templateDirBase, './vite.config.js.ejs')
-  await templateFile(templateDirBase, './src/styles.css.ejs')
-
-  copyFiles(templateDirBase, ['./src/logo.svg'])
-
-  await templateFile(templateDirBase, 'biome.json.ejs')
-  await templateFile(templateDirBase, '_dot_prettierignore.ejs')
-  await templateFile(templateDirBase, 'eslint.config.js.ejs')
-  await templateFile(templateDirBase, 'prettier.config.js.ejs')
-
-  if (
-    environment.exists(resolve(templateDirBase, './src/reportWebVitals.ts.ejs'))
-  ) {
-    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
-  }
-  await templateFile(templateDirBase, './index.html.ejs')
-
-  await environment.copyFile(
-    resolve(templateDirBase, '_dot_gitignore'),
-    resolve(targetDir, '.gitignore'),
-  )
-
-  await templateFile(templateDirBase, './tsconfig.json.ejs')
-
-  await templateFile(templateDirBase, './src/main.tsx.ejs', './src/main.tsx')
-
-  await templateFile(
-    templateDirBase,
-    './src/routes/__root.tsx.ejs',
-    './src/routes/__root.tsx',
-  )
-
-  if (options.framework.id === 'react-cra') {
-    await templateFile(templateDirBase, './src/App.test.tsx.ejs')
-  }
-  await templateFile(templateDirBase, './src/App.tsx.ejs')
-  await templateFile(templateDirBase, './src/routes/index.tsx.ejs')
-
-  await templateFile(
-    templateDirBase,
-    './src/components/Header.tsx.ejs',
-    './src/components/Header.tsx',
-  )
-
-  await templateFile(templateDirBase, 'README.md.ejs')
+  await writeFileBundle(options.framework)
 
   // Setup the package.json file, optionally with typescript, tailwind and formatter/linter
   await createPackageJSON(
@@ -145,6 +97,8 @@ export async function createApp(
     targetDir,
     options.chosenAddOns.map((addOn) => addOn.packageAdditions),
   )
+
+  await writeConfigFile(environment, targetDir, options)
 
   const s = silent ? null : environment.spinner()
 
@@ -163,11 +117,6 @@ export async function createApp(
           (content, targetFileName) =>
             templateFileFromContent(targetFileName, content),
         )
-      }
-    }
-    if (addOn.deletedFiles) {
-      for (const file of addOn.deletedFiles) {
-        await environment.deleteFile(resolve(targetDir, file))
       }
     }
 
@@ -292,8 +241,6 @@ export async function createApp(
     await environment.execute('git', ['init'], resolve(targetDir))
     s?.stop(`Initialized git repository`)
   }
-
-  await writeConfigFile(environment, targetDir, options)
 
   environment.finishRun()
 

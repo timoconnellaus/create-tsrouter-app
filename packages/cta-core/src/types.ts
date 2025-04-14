@@ -6,6 +6,11 @@ export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
+export type FileBundleHandler = {
+  getFiles: () => Promise<Array<string>>
+  getFileContents: (path: string) => Promise<string>
+}
+
 export type FrameworkDefinition = {
   id: string
   name: string
@@ -17,8 +22,10 @@ export type FrameworkDefinition = {
   examplesDirectory: string
 }
 
+export type Framework = FrameworkDefinition & FileBundleHandler
+
 export interface Options {
-  framework: FrameworkDefinition
+  framework: Framework
   projectName: string
   typescript: boolean
   tailwind: boolean

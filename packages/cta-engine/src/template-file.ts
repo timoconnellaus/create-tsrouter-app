@@ -4,7 +4,7 @@ import { format } from 'prettier'
 
 import { CODE_ROUTER, FILE_ROUTER, relativePath } from '@tanstack/cta-core'
 
-import type { Environment, Options } from '@tanstack/cta-core'
+import type { AddOn, Environment, Options } from '@tanstack/cta-core'
 
 function convertDotFilesAndPaths(path: string) {
   return path
@@ -141,6 +141,12 @@ export function createTemplateFile(
       targetFileName ?? file.replace('.ejs', ''),
     )
 
+    let append = false
+    if (target.endsWith('.append')) {
+      append = true
+      target = target.replace('.append', '')
+    }
+
     if (target.endsWith('.ts') || target.endsWith('.tsx')) {
       content = await format(content, {
         semi: false,
@@ -154,6 +160,10 @@ export function createTemplateFile(
       target = target.replace(/\.tsx?$/, '.jsx').replace(/\.ts$/, '.js')
     }
 
-    await environment.writeFile(resolve(targetDir, target), content)
+    if (append) {
+      await environment.appendFile(resolve(targetDir, target), content)
+    } else {
+      await environment.writeFile(resolve(targetDir, target), content)
+    }
   }
 }

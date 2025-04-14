@@ -1,26 +1,11 @@
 import { readFile } from 'node:fs/promises'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
-import { getBinaryFile, readFileHelper } from './file-helper.js'
+import { getBinaryFile } from './file-helper.js'
+import { findFilesRecursively, isDirectory } from './utils.js'
 
 import type { AddOn, Environment, FrameworkDefinition } from './types.js'
-
-function isDirectory(path: string): boolean {
-  return statSync(path).isDirectory()
-}
-
-function findFilesRecursively(path: string, files: Record<string, string>) {
-  const dirFiles = readdirSync(path)
-  for (const file of dirFiles) {
-    const filePath = resolve(path, file)
-    if (isDirectory(filePath)) {
-      findFilesRecursively(filePath, files)
-    } else {
-      files[filePath] = readFileHelper(filePath)
-    }
-  }
-}
 
 export async function getAllAddOns(
   framework: FrameworkDefinition,

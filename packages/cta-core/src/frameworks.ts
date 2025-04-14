@@ -1,9 +1,31 @@
-import type { FrameworkDefinition } from './types.js'
+import { resolve } from 'node:path'
 
-const frameworks: Array<FrameworkDefinition> = []
+import { findFilesRecursively } from './utils.js'
+import { readFileHelper } from './file-helper.js'
+
+import type { Framework, FrameworkDefinition } from './types.js'
+
+const frameworks: Array<Framework> = []
 
 export function registerFramework(framework: FrameworkDefinition) {
-  frameworks.push(framework)
+  const baseAssetsDirectory = resolve(framework.baseDirectory, 'base')
+  const frameworkWithBundler: Framework = {
+    ...framework,
+    getFiles: () => {
+      const files: Record<string, string> = {}
+      findFilesRecursively(baseAssetsDirectory, files)
+      return Promise.resolve(
+        Object.keys(files).map((path) =>
+          path.replace(baseAssetsDirectory, '.'),
+        ),
+      )
+    },
+    getFileContents: (path: string) => {
+      return Promise.resolve(readFileHelper(resolve(baseAssetsDirectory, path)))
+    },
+  }
+
+  frameworks.push(frameworkWithBundler)
 }
 
 export function getFrameworkById(id: string) {

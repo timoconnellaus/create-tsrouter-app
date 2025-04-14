@@ -1,5 +1,8 @@
-import { basename } from 'node:path'
-;``
+import { readdirSync, statSync } from 'node:fs'
+import { basename, resolve } from 'node:path'
+
+import { readFileHelper } from './file-helper.js'
+
 export function sortObject(
   obj: Record<string, string>,
 ): Record<string, string> {
@@ -46,5 +49,24 @@ export function relativePath(from: string, to: string) {
       '/',
     )
     return `${relativePath}/${basename(to)}`
+  }
+}
+
+export function isDirectory(path: string): boolean {
+  return statSync(path).isDirectory()
+}
+
+export function findFilesRecursively(
+  path: string,
+  files: Record<string, string>,
+) {
+  const dirFiles = readdirSync(path)
+  for (const file of dirFiles) {
+    const filePath = resolve(path, file)
+    if (isDirectory(filePath)) {
+      findFilesRecursively(filePath, files)
+    } else {
+      files[filePath] = readFileHelper(filePath)
+    }
   }
 }
