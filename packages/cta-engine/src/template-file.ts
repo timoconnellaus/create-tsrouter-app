@@ -19,73 +19,68 @@ export function createTemplateFile(
   options: Options,
   targetDir: string,
 ) {
-  return async function templateFile(
-    file: string,
-    content: string,
-    targetFileName?: string,
-    extraTemplateValues?: Record<string, any>,
+  function getPackageManagerAddScript(
+    packageName: string,
+    isDev: boolean = false,
   ) {
-    function getPackageManagerAddScript(
-      packageName: string,
-      isDev: boolean = false,
-    ) {
-      let command
-      switch (options.packageManager) {
-        case 'yarn':
-        case 'pnpm':
-          command = isDev
-            ? `${options.packageManager} add ${packageName} --dev`
-            : `${options.packageManager} add ${packageName}`
-          break
-        default:
-          command = isDev
-            ? `${options.packageManager} install ${packageName} -D`
-            : `${options.packageManager} install ${packageName}`
-          break
-      }
-      return command
+    let command
+    switch (options.packageManager) {
+      case 'yarn':
+      case 'pnpm':
+        command = isDev
+          ? `${options.packageManager} add ${packageName} --dev`
+          : `${options.packageManager} add ${packageName}`
+        break
+      default:
+        command = isDev
+          ? `${options.packageManager} install ${packageName} -D`
+          : `${options.packageManager} install ${packageName}`
+        break
     }
+    return command
+  }
 
-    function getPackageManagerRunScript(scriptName: string) {
-      let command
-      switch (options.packageManager) {
-        case 'yarn':
-        case 'pnpm':
-          command = `${options.packageManager} ${scriptName}`
-          break
-        case 'deno':
-          command = `${options.packageManager} task ${scriptName}`
-          break
-        default:
-          command = `${options.packageManager} run ${scriptName}`
-          break
-      }
-      return command
+  function getPackageManagerRunScript(scriptName: string) {
+    let command
+    switch (options.packageManager) {
+      case 'yarn':
+      case 'pnpm':
+        command = `${options.packageManager} ${scriptName}`
+        break
+      case 'deno':
+        command = `${options.packageManager} task ${scriptName}`
+        break
+      default:
+        command = `${options.packageManager} run ${scriptName}`
+        break
     }
+    return command
+  }
 
-    class IgnoreFileError extends Error {
-      constructor() {
-        super('ignoreFile')
-        this.name = 'IgnoreFileError'
-      }
+  class IgnoreFileError extends Error {
+    constructor() {
+      super('ignoreFile')
+      this.name = 'IgnoreFileError'
     }
+  }
 
-    const integrations: Array<Required<AddOn>['integrations'][number]> = []
-    for (const addOn of options.chosenAddOns) {
-      if (addOn.integrations) {
-        for (const integration of addOn.integrations) {
-          integrations.push(integration)
-        }
+  const integrations: Array<Required<AddOn>['integrations'][number]> = []
+  for (const addOn of options.chosenAddOns) {
+    if (addOn.integrations) {
+      for (const integration of addOn.integrations) {
+        integrations.push(integration)
       }
     }
+  }
 
-    const routes: Array<Required<AddOn>['routes'][number]> = []
-    for (const addOn of options.chosenAddOns) {
-      if (addOn.routes) {
-        routes.push(...addOn.routes)
-      }
+  const routes: Array<Required<AddOn>['routes'][number]> = []
+  for (const addOn of options.chosenAddOns) {
+    if (addOn.routes) {
+      routes.push(...addOn.routes)
     }
+  }
 
+  return async function templateFile(file: string, content: string) {
     const templateValues = {
       packageManager: options.packageManager,
       projectName: projectName,
@@ -106,8 +101,6 @@ export function createTemplateFile(
       addOns: options.chosenAddOns,
       integrations,
       routes,
-
-      ...extraTemplateValues,
 
       getPackageManagerAddScript,
       getPackageManagerRunScript,
@@ -137,9 +130,7 @@ export function createTemplateFile(
       return
     }
 
-    let target = convertDotFilesAndPaths(
-      targetFileName ?? file.replace('.ejs', ''),
-    )
+    let target = convertDotFilesAndPaths(file.replace('.ejs', ''))
 
     let append = false
     if (target.endsWith('.append')) {

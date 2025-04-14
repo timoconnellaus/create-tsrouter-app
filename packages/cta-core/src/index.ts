@@ -1,9 +1,4 @@
-export {
-  copyAddOnFile,
-  finalizeAddOns,
-  getAllAddOns,
-  loadRemoteAddOn,
-} from './add-ons.js'
+export { finalizeAddOns, getAllAddOns, loadRemoteAddOn } from './add-ons.js'
 export {
   createMemoryEnvironment,
   createDefaultEnvironment,

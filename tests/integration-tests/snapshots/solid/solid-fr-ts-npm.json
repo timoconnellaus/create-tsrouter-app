@@ -19,15 +19,15 @@
   },
   "commands": [
     {
-      "command": "npm",
-      "args": [
-        "install"
-      ]
-    },
-    {
       "command": "git",
       "args": [
         "init"
+      ]
+    },
+    {
+      "command": "npm",
+      "args": [
+        "install"
       ]
     }
   ]

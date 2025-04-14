@@ -1,7 +1,6 @@
 import { basename, resolve } from 'node:path'
 
 import {
-  copyAddOnFile,
   getBinaryFile,
   packageManagerExecute,
   writeConfigFile,
@@ -11,7 +10,6 @@ import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
 
 import type {
-  AddOn,
   Environment,
   FileBundleHandler,
   Options,
@@ -34,9 +32,6 @@ export async function createApp(
 ) {
   environment.startRun()
 
-  const projectBaseDir = resolve(options.framework.baseDirectory)
-  const templateDirBase = resolve(options.framework.baseDirectory, 'base')
-
   let targetDir: string = cwd || ''
   if (!targetDir.length) {
     targetDir = resolve(process.cwd(), options.projectName)
@@ -56,24 +51,6 @@ export async function createApp(
     targetDir,
   )
 
-  async function templateFile(
-    templateBase: string,
-    file: string,
-    targetFileName?: string,
-    extraTemplateValues?: Record<string, any>,
-  ) {
-    const content = await environment.readFile(
-      resolve(templateBase, file),
-      'utf-8',
-    )
-    return templateFileFromContent(
-      file,
-      content.toString(),
-      targetFileName,
-      extraTemplateValues,
-    )
-  }
-
   async function writeFileBundle(bundle: FileBundleHandler) {
     const files = await bundle.getFiles()
     for (const file of files) {
@@ -81,21 +58,31 @@ export async function createApp(
       if (binaryFile) {
         await environment.writeFile(resolve(targetDir, file), binaryFile)
       } else {
-        await templateFile(templateDirBase, file)
+        await templateFileFromContent(file, await bundle.getFileContents(file))
       }
     }
   }
 
   await writeFileBundle(options.framework)
 
-  // Setup the package.json file, optionally with typescript, tailwind and formatter/linter
-  await createPackageJSON(
-    environment,
-    options.projectName,
-    options,
-    projectBaseDir,
-    targetDir,
-    options.chosenAddOns.map((addOn) => addOn.packageAdditions),
+  for (const type of ['add-on', 'example']) {
+    for (const phase of ['setup', 'add-on', 'example']) {
+      for (const addOn of options.chosenAddOns.filter(
+        (addOn) => addOn.phase === phase && addOn.type === type,
+      )) {
+        await writeFileBundle(addOn)
+      }
+    }
+  }
+
+  if (options.starter) {
+    await writeFileBundle(options.starter)
+  }
+
+  // Setup the package.json file
+  await environment.writeFile(
+    resolve(targetDir, './package.json'),
+    JSON.stringify(createPackageJSON(options), null, 2),
   )
 
   await writeConfigFile(environment, targetDir, options)
@@ -106,48 +93,57 @@ export async function createApp(
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
-  async function runAddOn(addOn: AddOn) {
-    if (addOn.files) {
-      for (const file of Object.keys(addOn.files)) {
-        await copyAddOnFile(
-          environment,
-          addOn.files[file],
-          file,
-          resolve(targetDir, file),
-          (content, targetFileName) =>
-            templateFileFromContent(targetFileName, content),
-        )
-      }
-    }
-
-    if (addOn.command && addOn.command.command) {
-      await environment.execute(
-        addOn.command.command,
-        addOn.command.args || [],
-        resolve(targetDir),
-      )
-    }
-  }
-
   // Copy all the asset files from the addons
   for (const type of ['add-on', 'example']) {
     for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
-        (addOn) => addOn.phase === phase && addOn.type === type,
+        (addOn) =>
+          addOn.phase === phase &&
+          addOn.type === type &&
+          addOn.command &&
+          addOn.command.command,
       )) {
         s?.start(`Setting up ${addOn.name}...`)
-        await runAddOn(addOn)
+        await environment.execute(
+          addOn.command!.command,
+          addOn.command!.args || [],
+          resolve(targetDir),
+        )
         s?.stop(`${addOn.name} setup complete`)
       }
     }
   }
 
   // Adding starter
-  if (options.starter) {
+  if (
+    options.starter &&
+    options.starter.command &&
+    options.starter.command.command
+  ) {
     s?.start(`Setting up starter ${options.starter.name}...`)
-    await runAddOn(options.starter)
+    await environment.execute(
+      options.starter.command!.command,
+      options.starter.command!.args || [],
+      resolve(targetDir),
+    )
     s?.stop(`Starter ${options.starter.name} setup complete`)
   }
+
+  // Setup git
+  if (options.git) {
+    s?.start(`Initializing git repository...`)
+    await environment.execute('git', ['init'], resolve(targetDir))
+    s?.stop(`Initialized git repository`)
+  }
+
+  // Install dependencies
+  s?.start(`Installing dependencies via ${options.packageManager}...`)
+  await environment.execute(
+    options.packageManager,
+    ['install'],
+    resolve(targetDir),
+  )
+  s?.stop(`Installed dependencies`)
 
   // Run all the commands
   if (isAddOnEnabled('shadcn')) {
@@ -175,32 +171,10 @@ export async function createApp(
         environment,
         options.packageManager,
         'shadcn@latest',
-        ['add', '--silent', '--yes', ...shadcnComponents],
+        ['add', '--force', '--silent', '--yes', ...shadcnComponents],
         resolve(targetDir),
       )
       s?.stop(`Installed additional shadcn components`)
-    }
-  }
-
-  const warnings: Array<string> = []
-  for (const addOn of options.chosenAddOns) {
-    if (addOn.warning) {
-      warnings.push(addOn.warning)
-    }
-  }
-
-  // Install dependencies
-  s?.start(`Installing dependencies via ${options.packageManager}...`)
-  await environment.execute(
-    options.packageManager,
-    ['install'],
-    resolve(targetDir),
-  )
-  s?.stop(`Installed dependencies`)
-
-  if (warnings.length > 0) {
-    if (!silent) {
-      environment.warn('Warnings', warnings.join('\n'))
     }
   }
 
@@ -236,24 +210,31 @@ export async function createApp(
     s?.stop(`Applied toolchain ${options.toolchain}...`)
   }
 
-  if (options.git) {
-    s?.start(`Initializing git repository...`)
-    await environment.execute('git', ['init'], resolve(targetDir))
-    s?.stop(`Initialized git repository`)
-  }
-
   environment.finishRun()
 
-  let errorStatement = ''
-  if (environment.getErrors().length) {
-    errorStatement = `
+  if (!silent) {
+    // Check for warnings
+    const warnings: Array<string> = []
+    for (const addOn of options.chosenAddOns) {
+      if (addOn.warning) {
+        warnings.push(addOn.warning)
+      }
+    }
+
+    if (warnings.length > 0) {
+      environment.warn('Warnings', warnings.join('\n'))
+    }
+
+    // Format errors
+    let errorStatement = ''
+    if (environment.getErrors().length) {
+      errorStatement = `
 
 Errors were encountered during this process:
 
 ${environment.getErrors().join('\n')}`
-  }
+    }
 
-  if (!silent) {
     let startCommand = `${options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}`
     if (options.packageManager === 'deno') {
       startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`

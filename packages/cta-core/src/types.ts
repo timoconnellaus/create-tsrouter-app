@@ -22,7 +22,11 @@ export type FrameworkDefinition = {
   examplesDirectory: string
 }
 
-export type Framework = FrameworkDefinition & FileBundleHandler
+export type Framework = FrameworkDefinition &
+  FileBundleHandler & {
+    basePackageJSON: Record<string, any>
+    optionalPackages: Record<string, any>
+  }
 
 export interface Options {
   framework: Framework
@@ -98,7 +102,7 @@ type StringVariable = {
 
 export type Variable = BooleanVariable | NumberVariable | StringVariable
 
-export type AddOn = {
+export type AddOnDefinition = {
   id: string
   name: string
   description: string
@@ -136,7 +140,7 @@ export type AddOn = {
   deletedFiles?: Array<string>
 }
 
-export type Starter = AddOn & {
+export type StarterDefinition = AddOnDefinition & {
   type: 'starter'
   version: string
   author: string
@@ -147,3 +151,6 @@ export type Starter = AddOn & {
   typescript: boolean
   tailwind: boolean
 }
+
+export type AddOn = AddOnDefinition & FileBundleHandler
+export type Starter = StarterDefinition & FileBundleHandler

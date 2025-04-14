@@ -20,6 +20,12 @@
   },
   "commands": [
     {
+      "command": "git",
+      "args": [
+        "init"
+      ]
+    },
+    {
       "command": "npm",
       "args": [
         "install"
@@ -32,12 +38,6 @@
         "check",
         "--",
         "--fix"
-      ]
-    },
-    {
-      "command": "git",
-      "args": [
-        "init"
       ]
     }
   ]
