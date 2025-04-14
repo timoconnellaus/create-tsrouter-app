@@ -10,6 +10,7 @@ export {
   getPackageManager,
   getPackageManagerInstallCommand,
   getPackageManagerExecuteCommand,
+  getPackageManagerScriptCommand,
   packageManagerInstall,
   packageManagerExecute,
 } from './package-manager.js'

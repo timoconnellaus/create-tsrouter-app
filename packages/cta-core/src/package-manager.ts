@@ -24,6 +24,24 @@ export function getPackageManager(): PackageManager | undefined {
   return packageManager
 }
 
+export function getPackageManagerScriptCommand(
+  packagerManager: PackageManager,
+  args: Array<string> = [],
+) {
+  switch (packagerManager) {
+    case 'yarn':
+      return { command: 'yarn', args: ['run', ...args] }
+    case 'pnpm':
+      return { command: 'pnpm', args: ['run', ...args] }
+    case 'bun':
+      return { command: 'bunx', args: ['--bun', 'run', ...args] }
+    case 'deno':
+      return { command: 'deno', args: ['task', ...args] }
+    default:
+      return { command: 'npm', args: ['run', ...args] }
+  }
+}
+
 export function getPackageManagerExecuteCommand(
   packagerManager: PackageManager,
   pkg: string,

@@ -1,14 +1,16 @@
 import { basename, resolve } from 'node:path'
 
 import {
+  formatCommand,
   getBinaryFile,
-  packageManagerExecute,
+  getPackageManagerScriptCommand,
   packageManagerInstall,
   writeConfigFile,
 } from '@tanstack/cta-core'
 
 import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
+import { installShadcnComponents } from './integrations/shadcn.js'
 
 import type {
   Environment,
@@ -91,11 +93,8 @@ export async function createApp(
 
   const s = silent ? null : environment.spinner()
 
-  // Setup the add-ons
-  const isAddOnEnabled = (id: string) =>
-    options.chosenAddOns.find((a) => a.id === id)
+  // Install all the dependencies
 
-  // Copy all the asset files from the addons
   for (const phase of ['setup', 'add-on', 'example']) {
     for (const addOn of options.chosenAddOns.filter(
       (addOn) =>
@@ -142,81 +141,54 @@ export async function createApp(
   )
   s?.stop(`Installed dependencies`)
 
-  // Run all the commands
-  if (isAddOnEnabled('shadcn')) {
-    const shadcnComponents = new Set<string>()
-    for (const addOn of options.chosenAddOns) {
-      if (addOn.shadcnComponents) {
-        for (const component of addOn.shadcnComponents) {
-          shadcnComponents.add(component)
-        }
-      }
-    }
-    if (options.starter) {
-      if (options.starter.shadcnComponents) {
-        for (const component of options.starter.shadcnComponents) {
-          shadcnComponents.add(component)
-        }
-      }
-    }
-
-    if (shadcnComponents.size > 0) {
-      s?.start(
-        `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
-      )
-      await packageManagerExecute(
-        environment,
-        resolve(targetDir),
-        options.packageManager,
-        'shadcn@latest',
-        [
-          'add',
-          '--force',
-          '--silent',
-          '--yes',
-          ...Array.from(shadcnComponents),
-        ],
-      )
-      s?.stop(`Installed additional shadcn components`)
-    }
-  }
+  await installShadcnComponents(environment, targetDir, options, silent)
 
   environment.finishRun()
 
   if (!silent) {
-    // Check for warnings
-    const warnings: Array<string> = []
-    for (const addOn of options.chosenAddOns) {
-      if (addOn.warning) {
-        warnings.push(addOn.warning)
-      }
-    }
+    report(environment, options, appName, targetDir)
+  }
+}
 
-    if (warnings.length > 0) {
-      environment.warn('Warnings', warnings.join('\n'))
+function report(
+  environment: Environment,
+  options: Options,
+  appName: string,
+  targetDir: string,
+) {
+  const warnings: Array<string> = []
+  for (const addOn of options.chosenAddOns) {
+    if (addOn.warning) {
+      warnings.push(addOn.warning)
     }
+  }
 
-    // Format errors
-    let errorStatement = ''
-    if (environment.getErrors().length) {
-      errorStatement = `
+  if (warnings.length > 0) {
+    environment.warn('Warnings', warnings.join('\n'))
+  }
+
+  // Format errors
+  let errorStatement = ''
+  if (environment.getErrors().length) {
+    errorStatement = `
 
 Errors were encountered during this process:
 
 ${environment.getErrors().join('\n')}`
-    }
+  }
 
-    let startCommand = `${options.packageManager} ${isAddOnEnabled('start') ? 'dev' : 'start'}`
-    if (options.packageManager === 'deno') {
-      startCommand = `deno ${isAddOnEnabled('start') ? 'task dev' : 'start'}`
-    }
+  const start = !!options.chosenAddOns.find((a) => a.id === 'start')
+  const { command, args } = getPackageManagerScriptCommand(
+    options.packageManager,
+    start ? ['dev'] : ['start'],
+  )
+  const startCommand = formatCommand(command, args)
 
-    environment.outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
+  environment.outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
 % ${startCommand}
 
-Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`)
-  }
+  Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`)
 }
