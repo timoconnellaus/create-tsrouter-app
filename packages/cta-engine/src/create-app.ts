@@ -65,7 +65,7 @@ export async function createApp(
 
   await writeFileBundle(options.framework)
 
-  for (const type of ['add-on', 'example']) {
+  for (const type of ['add-on', 'example', 'toolchain']) {
     for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
         (addOn) => addOn.phase === phase && addOn.type === type,
@@ -176,38 +176,6 @@ export async function createApp(
       )
       s?.stop(`Installed additional shadcn components`)
     }
-  }
-
-  if (options.toolchain === 'biome') {
-    s?.start(`Applying toolchain ${options.toolchain}...`)
-    switch (options.packageManager) {
-      case 'pnpm':
-        // pnpm automatically forwards extra arguments
-        await environment.execute(
-          options.packageManager,
-          ['run', 'check', '--fix'],
-          resolve(targetDir),
-        )
-        break
-      default:
-        await environment.execute(
-          options.packageManager,
-          ['run', 'check', '--', '--fix'],
-          resolve(targetDir),
-        )
-        break
-    }
-    s?.stop(`Applied toolchain ${options.toolchain}...`)
-  }
-
-  if (options.toolchain === 'eslint+prettier') {
-    s?.start(`Applying toolchain ${options.toolchain}...`)
-    await environment.execute(
-      options.packageManager,
-      ['run', 'check'],
-      targetDir,
-    )
-    s?.stop(`Applied toolchain ${options.toolchain}...`)
   }
 
   environment.finishRun()

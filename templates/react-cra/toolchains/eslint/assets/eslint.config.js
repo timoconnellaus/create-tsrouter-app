@@ -1,4 +1,4 @@
-<% if (toolchain !== 'eslint+prettier') { ignoreFile() } %>//  @ts-check
+//  @ts-check
 
 import { tanstackConfig } from "@tanstack/eslint-config";
 

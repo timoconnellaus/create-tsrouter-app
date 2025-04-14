@@ -32,7 +32,6 @@ async function createReactOptions(projectName: string, addOns?: Array<string>) {
     packageManager: 'npm',
     projectName,
     tailwind: false,
-    toolchain: 'none',
     typescript: false,
     variableValues: {},
   } as Options
@@ -104,10 +103,9 @@ test('file router on npm with biome', async () => {
     createTestEnvironment(projectName)
   await createApp(
     {
-      ...(await createReactOptions(projectName)),
+      ...(await createReactOptions(projectName, ['biome'])),
       mode: 'file-router',
       typescript: true,
-      toolchain: 'biome',
     },
     {
       silent: true,

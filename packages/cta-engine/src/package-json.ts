@@ -38,12 +38,6 @@ export function createPackageJSON(options: Options) {
     options.tailwind
       ? options.framework.optionalPackages.tailwindcss
       : undefined,
-    options.toolchain === 'biome'
-      ? options.framework.optionalPackages.biome
-      : undefined,
-    options.toolchain === 'eslint+prettier'
-      ? options.framework.optionalPackages.eslintprettier
-      : undefined,
     options.mode === FILE_ROUTER
       ? options.framework.optionalPackages['file-router']
       : undefined,

@@ -4,7 +4,6 @@ import chalk from 'chalk'
 
 import {
   SUPPORTED_PACKAGE_MANAGERS,
-  SUPPORTED_TOOLCHAINS,
   getAllAddOns,
   getFrameworkById,
   getFrameworkByName,
@@ -65,6 +64,15 @@ export function cli({
   const program = new Command()
 
   const availableFrameworks = getFrameworks().map((f) => f.name)
+
+  const toolchains = new Set<string>()
+  for (const framework of getFrameworks()) {
+    for (const addOn of framework.getAddOns()) {
+      if (addOn.type === 'toolchain') {
+        toolchains.add(addOn.id)
+      }
+    }
+  }
 
   program.name(name).description(`CLI to create a new ${appName} application`)
 
@@ -157,14 +165,14 @@ export function cli({
       },
     )
     .option<ToolChain>(
-      `--toolchain <${SUPPORTED_TOOLCHAINS.join('|')}>`,
+      `--toolchain <${Array.from(toolchains).join('|')}>`,
       `Explicitly tell the CLI to use this toolchain`,
       (value) => {
-        if (!SUPPORTED_TOOLCHAINS.includes(value as ToolChain)) {
+        if (!toolchains.has(value as ToolChain)) {
           throw new InvalidArgumentError(
-            `Invalid toolchain: ${value}. The following are allowed: ${SUPPORTED_TOOLCHAINS.join(
-              ', ',
-            )}`,
+            `Invalid toolchain: ${value}. The following are allowed: ${Array.from(
+              toolchains,
+            ).join(', ')}`,
           )
         }
         return value as ToolChain

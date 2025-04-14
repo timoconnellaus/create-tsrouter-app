@@ -1,6 +1,5 @@
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
-import type { ToolChain } from './toolchain.js'
 
 export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
@@ -11,6 +10,59 @@ export type FileBundleHandler = {
   getFileContents: (path: string) => Promise<string>
 }
 
+export type AddOnDefinition = {
+  id: string
+  name: string
+  description: string
+  type: 'add-on' | 'example' | 'starter' | 'toolchain'
+  link: string
+  templates: Array<string>
+  routes?: Array<{
+    url: string
+    name: string
+    path: string
+    jsName: string
+  }>
+  packageAdditions: {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+    scripts?: Record<string, string>
+  }
+  command?: {
+    command: string
+    args?: Array<string>
+  }
+  readme?: string
+  phase: 'setup' | 'add-on'
+  shadcnComponents?: Array<string>
+  warning?: string
+  dependsOn?: Array<string>
+  integrations?: Array<{
+    type: 'provider' | 'root-provider' | 'layout' | 'header-user'
+    path: string
+    jsName: string
+  }>
+  variables?: Array<Variable>
+
+  files?: Record<string, string>
+  deletedFiles?: Array<string>
+}
+
+export type StarterDefinition = AddOnDefinition & {
+  type: 'starter'
+  version: string
+  author: string
+  link: string
+  license: string
+  mode: Mode
+  framework: string
+  typescript: boolean
+  tailwind: boolean
+}
+
+export type AddOn = AddOnDefinition & FileBundleHandler
+export type Starter = StarterDefinition & FileBundleHandler
+
 export type FrameworkDefinition = {
   id: string
   name: string
@@ -18,7 +70,7 @@ export type FrameworkDefinition = {
   version: string
 
   baseDirectory: string
-  addOnsDirectory: string
+  addOnsDirectories: Array<string>
   examplesDirectory: string
 }
 
@@ -26,6 +78,8 @@ export type Framework = FrameworkDefinition &
   FileBundleHandler & {
     basePackageJSON: Record<string, any>
     optionalPackages: Record<string, any>
+
+    getAddOns: () => Array<AddOn>
   }
 
 export interface Options {
@@ -34,7 +88,6 @@ export interface Options {
   typescript: boolean
   tailwind: boolean
   packageManager: PackageManager
-  toolchain: ToolChain
   mode: Mode
   addOns: boolean
   chosenAddOns: Array<AddOn>
@@ -101,56 +154,3 @@ type StringVariable = {
 }
 
 export type Variable = BooleanVariable | NumberVariable | StringVariable
-
-export type AddOnDefinition = {
-  id: string
-  name: string
-  description: string
-  type: 'add-on' | 'example' | 'starter'
-  link: string
-  templates: Array<string>
-  routes?: Array<{
-    url: string
-    name: string
-    path: string
-    jsName: string
-  }>
-  packageAdditions: {
-    dependencies?: Record<string, string>
-    devDependencies?: Record<string, string>
-    scripts?: Record<string, string>
-  }
-  command?: {
-    command: string
-    args?: Array<string>
-  }
-  readme?: string
-  phase: 'setup' | 'add-on'
-  shadcnComponents?: Array<string>
-  warning?: string
-  dependsOn?: Array<string>
-  integrations?: Array<{
-    type: 'provider' | 'root-provider' | 'layout' | 'header-user'
-    path: string
-    jsName: string
-  }>
-  variables?: Array<Variable>
-
-  files?: Record<string, string>
-  deletedFiles?: Array<string>
-}
-
-export type StarterDefinition = AddOnDefinition & {
-  type: 'starter'
-  version: string
-  author: string
-  link: string
-  license: string
-  mode: Mode
-  framework: string
-  typescript: boolean
-  tailwind: boolean
-}
-
-export type AddOn = AddOnDefinition & FileBundleHandler
-export type Starter = StarterDefinition & FileBundleHandler

@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeAll } from 'vitest'
+import { expect, test, beforeAll } from 'vitest'
 
 import { createApp } from '@tanstack/cta-engine'
 import { finalizeAddOns, getFrameworkById } from '@tanstack/cta-core'
@@ -32,7 +32,6 @@ async function createSolidOptions(projectName: string, addOns?: Array<string>) {
     packageManager: 'npm',
     projectName,
     tailwind: false,
-    toolchain: 'none',
     typescript: false,
     variableValues: {},
   } as Options

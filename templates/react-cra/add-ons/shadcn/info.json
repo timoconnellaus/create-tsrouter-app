@@ -3,5 +3,6 @@
   "description": "Add Shadcn UI to your application.",
   "phase": "add-on",
   "templates": ["file-router", "code-router"],
-  "link": "https://ui.shadcn.com/"
+  "link": "https://ui.shadcn.com/",
+  "type": "add-on"
 }

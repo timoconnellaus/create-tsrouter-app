@@ -1,15 +1,11 @@
-import type {
-  PackageManager,
-  TemplateOptions,
-  ToolChain,
-} from '@tanstack/cta-core'
+import type { PackageManager, TemplateOptions } from '@tanstack/cta-core'
 
 export interface CliOptions {
   template?: TemplateOptions
   framework?: string
   tailwind?: boolean
   packageManager?: PackageManager
-  toolchain?: ToolChain
+  toolchain?: string
   projectName?: string
   git?: boolean
   addOns?: Array<string> | boolean

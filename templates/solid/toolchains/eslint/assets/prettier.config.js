@@ -1,4 +1,4 @@
-<% if (toolchain !== 'eslint+prettier') { ignoreFile() } %>//  @ts-check
+//  @ts-check
 
 /** @type {import('prettier').Config} */
 const config = {

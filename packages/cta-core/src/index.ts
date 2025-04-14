@@ -10,7 +10,6 @@ export {
   getPackageManager,
   packageManagerExecute,
 } from './package-manager.js'
-export { SUPPORTED_TOOLCHAINS, DEFAULT_TOOLCHAIN } from './toolchain.js'
 export {
   registerFramework,
   getFrameworkById,

@@ -4,6 +4,7 @@
   "description": "Add Sentry for error monitoring, tracing, and session replays (requires Start).",
   "link": "https://sentry.com/",
   "templates": ["file-router", "code-router"],
+  "type": "add-on",
   "routes": [
     {
       "url": "/demo/sentry/testing",

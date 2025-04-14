@@ -3,6 +3,7 @@
   "description": "Add the Convex database to your application.",
   "link": "https://convex.dev",
   "phase": "add-on",
+  "type": "add-on",
   "templates": ["file-router"],
   "routes": [
     {

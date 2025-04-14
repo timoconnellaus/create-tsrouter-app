@@ -1,12 +1,68 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { findFilesRecursively } from './utils.js'
+import { findFilesRecursively, isDirectory } from './utils.js'
 import { readFileHelper } from './file-helper.js'
 
-import type { Framework, FrameworkDefinition } from './types.js'
+import type { AddOn, Framework, FrameworkDefinition } from './types.js'
 
 const frameworks: Array<Framework> = []
+
+function getAddOns(framework: FrameworkDefinition) {
+  const addOns: Array<AddOn> = []
+
+  for (const addOnsBase of framework.addOnsDirectories) {
+    for (const dir of readdirSync(addOnsBase).filter((file) =>
+      isDirectory(resolve(addOnsBase, file)),
+    )) {
+      const filePath = resolve(addOnsBase, dir, 'info.json')
+      const fileContent = readFileSync(filePath, 'utf-8')
+      const info = JSON.parse(fileContent)
+
+      let packageAdditions: Record<string, string> = {}
+      if (existsSync(resolve(addOnsBase, dir, 'package.json'))) {
+        packageAdditions = JSON.parse(
+          readFileSync(resolve(addOnsBase, dir, 'package.json'), 'utf-8'),
+        )
+      }
+
+      let readme: string | undefined
+      if (existsSync(resolve(addOnsBase, dir, 'README.md'))) {
+        readme = readFileSync(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
+      }
+
+      const absoluteFiles: Record<string, string> = {}
+      const assetsDir = resolve(addOnsBase, dir, 'assets')
+      if (existsSync(assetsDir)) {
+        findFilesRecursively(assetsDir, absoluteFiles)
+      }
+      const files: Record<string, string> = {}
+      for (const file of Object.keys(absoluteFiles)) {
+        files[file.replace(assetsDir, '.')] = readFileHelper(file)
+      }
+
+      const getFiles = () => {
+        return Promise.resolve(Object.keys(files))
+      }
+      const getFileContents = (path: string) => {
+        return Promise.resolve(files[path])
+      }
+
+      addOns.push({
+        ...info,
+        id: dir,
+        packageAdditions,
+        readme,
+        files,
+        deletedFiles: [],
+        getFiles,
+        getFileContents,
+      })
+    }
+  }
+
+  return addOns
+}
 
 export function registerFramework(framework: FrameworkDefinition) {
   const baseAssetsDirectory = resolve(framework.baseDirectory, 'base')
@@ -17,7 +73,8 @@ export function registerFramework(framework: FrameworkDefinition) {
   const optionalPackages = JSON.parse(
     readFileSync(resolve(framework.baseDirectory, 'packages.json'), 'utf8'),
   )
-  console.log(optionalPackages)
+
+  const addOns = getAddOns(framework)
 
   const frameworkWithBundler: Framework = {
     ...framework,
@@ -35,6 +92,7 @@ export function registerFramework(framework: FrameworkDefinition) {
     },
     basePackageJSON,
     optionalPackages,
+    getAddOns: () => addOns,
   }
 
   frameworks.push(frameworkWithBundler)

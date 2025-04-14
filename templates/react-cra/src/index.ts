@@ -13,10 +13,11 @@ export function register() {
       dirname(dirname(fileURLToPath(import.meta.url))),
       'project',
     ),
-    addOnsDirectory: join(
-      dirname(dirname(fileURLToPath(import.meta.url))),
-      'add-ons',
-    ),
+    addOnsDirectories: [
+      join(dirname(dirname(fileURLToPath(import.meta.url))), 'add-ons'),
+      join(dirname(dirname(fileURLToPath(import.meta.url))), 'toolchains'),
+      join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples'),
+    ],
     examplesDirectory: join(
       dirname(dirname(fileURLToPath(import.meta.url))),
       'examples',

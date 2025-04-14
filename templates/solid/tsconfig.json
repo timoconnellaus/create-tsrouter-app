@@ -12,16 +12,6 @@
     "declaration": true,
     "declarationDir": "./dist/types"
   },
-  "include": [
-    "./src/**/*.ts",
-    "../cta-core/src/add-ons.ts",
-    "../cta-core/src/config-file.ts",
-    "../cta-core/src/constants.ts",
-    "../cta-core/src/environment.ts",
-    "../cta-core/src/file-helper.ts",
-    "../cta-core/src/package-manager.ts",
-    "../cta-core/src/toolchain.ts",
-    "../cta-core/src/types.ts"
-  ],
+  "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -39,6 +39,9 @@ export async function readConfigFile(
   try {
     const configFile = resolve(targetDir, CONFIG_FILE)
     const config = await readFile(configFile, 'utf8')
+
+    // TODO: Look for old config files and convert them to the new format
+
     return JSON.parse(config)
   } catch {
     return null

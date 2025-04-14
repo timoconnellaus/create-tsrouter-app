@@ -4,6 +4,7 @@
   "phase": "add-on",
   "link": "https://tanstack.com/form/latest",
   "templates": ["file-router", "code-router"],
+  "type": "add-on",
   "routes": [
     {
       "url": "/demo/form",

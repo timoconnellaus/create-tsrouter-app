@@ -4,5 +4,6 @@
   "phase": "add-on",
   "templates": ["file-router"],
   "link": "https://trpc.io/",
-  "dependsOn": ["tanstack-query", "start"]
+  "dependsOn": ["tanstack-query", "start"],
+  "type": "add-on"
 }

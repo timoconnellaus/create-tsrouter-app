@@ -10,10 +10,8 @@ import {
 import {
   CODE_ROUTER,
   DEFAULT_PACKAGE_MANAGER,
-  DEFAULT_TOOLCHAIN,
   FILE_ROUTER,
   SUPPORTED_PACKAGE_MANAGERS,
-  SUPPORTED_TOOLCHAINS,
   finalizeAddOns,
   getAllAddOns,
   getFrameworkById,
@@ -78,7 +76,8 @@ export async function normalizeOptions(
     if (
       Array.isArray(cliOptions.addOns) ||
       starter?.dependsOn ||
-      forcedAddOns
+      forcedAddOns ||
+      cliOptions.toolchain
     ) {
       addOns = true
       let finalAddOns = Array.from(
@@ -94,6 +93,11 @@ export async function normalizeOptions(
         )
       }
       const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+
+      if (cliOptions.toolchain) {
+        finalAddOns.push(cliOptions.toolchain)
+      }
+
       chosenAddOns = await finalizeAddOns(
         framework,
         forcedMode || cliOptions.template === 'file-router'
@@ -115,7 +119,6 @@ export async function normalizeOptions(
         cliOptions.packageManager ||
         getPackageManager() ||
         DEFAULT_PACKAGE_MANAGER,
-      toolchain: cliOptions.toolchain || DEFAULT_TOOLCHAIN,
       mode,
       git: !!cliOptions.git,
       addOns,
@@ -297,30 +300,50 @@ export async function promptForOptions(
   }
 
   // Toolchain selection
+  let toolchain: AddOn | undefined = undefined
   if (cliOptions.toolchain === undefined) {
-    const tc = await select({
+    const toolchains = new Set<AddOn>()
+    for (const addOn of framework.getAddOns()) {
+      if (addOn.type === 'toolchain') {
+        toolchains.add(addOn)
+      }
+    }
+
+    const tc = await select<AddOn | undefined>({
       message: 'Select toolchain',
-      options: SUPPORTED_TOOLCHAINS.map((tc) => ({
-        value: tc,
-        label: tc,
-      })),
-      initialValue: DEFAULT_TOOLCHAIN,
+      options: [
+        {
+          value: undefined,
+          label: 'None',
+        },
+        ...Array.from(toolchains).map((tc) => ({
+          value: tc,
+          label: tc.name,
+        })),
+      ],
+      initialValue: undefined,
     })
     if (isCancel(tc)) {
       cancel('Operation cancelled.')
       process.exit(0)
     }
-    options.toolchain = tc
+    toolchain = tc
   } else {
-    options.toolchain = cliOptions.toolchain
+    for (const addOn of framework.getAddOns()) {
+      if (addOn.type === 'toolchain' && addOn.id === cliOptions.toolchain) {
+        toolchain = addOn
+      }
+    }
   }
 
-  options.chosenAddOns = []
+  options.chosenAddOns = toolchain ? [toolchain] : []
   if (Array.isArray(cliOptions.addOns)) {
     options.chosenAddOns = await finalizeAddOns(
       options.framework,
       options.mode,
-      Array.from(new Set([...cliOptions.addOns, ...forcedAddOns])),
+      Array.from(
+        new Set([...cliOptions.addOns, ...forcedAddOns, toolchain?.id]),
+      ).filter(Boolean) as Array<string>,
     )
     options.tailwind = true
   } else if (cliOptions.addOns) {
@@ -374,14 +397,20 @@ export async function promptForOptions(
     if (
       selectedAddOns.length > 0 ||
       selectedExamples.length > 0 ||
-      forcedAddOns.length > 0
+      forcedAddOns.length > 0 ||
+      toolchain
     ) {
       options.chosenAddOns = await finalizeAddOns(
         options.framework,
         options.mode,
         Array.from(
-          new Set([...selectedAddOns, ...selectedExamples, ...forcedAddOns]),
-        ),
+          new Set([
+            ...selectedAddOns,
+            ...selectedExamples,
+            ...forcedAddOns,
+            toolchain?.id,
+          ]),
+        ).filter(Boolean) as Array<string>,
       )
       options.tailwind = true
     }
@@ -389,7 +418,9 @@ export async function promptForOptions(
     options.chosenAddOns = await finalizeAddOns(
       options.framework,
       options.mode,
-      forcedAddOns,
+      Array.from(new Set([...forcedAddOns, toolchain?.id])).filter(
+        Boolean,
+      ) as Array<string>,
     )
   }
 

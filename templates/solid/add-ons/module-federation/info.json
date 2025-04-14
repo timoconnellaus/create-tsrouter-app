@@ -3,5 +3,6 @@
   "description": "Module Federation",
   "phase": "add-on",
   "templates": ["code-router"],
-  "link": "https://module-federation.io/"
+  "link": "https://module-federation.io/",
+  "type": "add-on"
 }

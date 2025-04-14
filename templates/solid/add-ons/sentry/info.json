@@ -4,6 +4,7 @@
   "description": "Add Sentry for error monitoring and crash reporting (requires Start).",
   "link": "https://sentry.com/",
   "templates": ["file-router"],
+  "type": "add-on",
   "routes": [
     {
       "url": "/demo/sentry/bad-event-handler",

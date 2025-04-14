@@ -86,7 +86,6 @@ export function createTemplateFile(
       projectName: projectName,
       typescript: options.typescript,
       tailwind: options.tailwind,
-      toolchain: options.toolchain,
       js: options.typescript ? 'ts' : 'js',
       jsx: options.typescript ? 'tsx' : 'jsx',
       fileRouter: options.mode === FILE_ROUTER,
@@ -114,15 +113,17 @@ export function createTemplateFile(
 
     let ignoreFile = false
 
-    try {
-      content = render(content, templateValues)
-    } catch (error) {
-      if (error instanceof IgnoreFileError) {
-        ignoreFile = true
-      } else {
-        console.error(file, error)
-        environment.error(`EJS error in file ${file}`, error?.toString())
-        process.exit(1)
+    if (file.endsWith('.ejs')) {
+      try {
+        content = render(content, templateValues)
+      } catch (error) {
+        if (error instanceof IgnoreFileError) {
+          ignoreFile = true
+        } else {
+          console.error(file, error)
+          environment.error(`EJS error in file ${file}`, error?.toString())
+          process.exit(1)
+        }
       }
     }
 

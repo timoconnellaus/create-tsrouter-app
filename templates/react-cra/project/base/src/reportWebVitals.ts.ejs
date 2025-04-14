@@ -1,4 +1,4 @@
-<% if (addOnEnabled['start']) { ignoreFile() } %><% if (typescript) { %>
+<% if (addOnEnabled.start) { ignoreFile() } %><% if (typescript) { %>
 const reportWebVitals = (onPerfEntry?: () => void) => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
     import("web-vitals").then(
