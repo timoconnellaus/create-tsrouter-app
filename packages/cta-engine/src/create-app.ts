@@ -88,9 +88,7 @@ export async function createApp(
     )
   }
 
-  if (!options.tailwind) {
-    await copyFiles(templateDirBase, ['./src/App.css'])
-  }
+  await templateFile(templateDirBase, './src/App.css.ejs')
 
   await templateFile(templateDirBase, './vite.config.js.ejs')
   await templateFile(templateDirBase, './src/styles.css.ejs')
@@ -148,8 +146,9 @@ export async function createApp(
     options.chosenAddOns.map((addOn) => addOn.packageAdditions),
   )
 
-  // Setup the add-ons
+  const s = silent ? null : environment.spinner()
 
+  // Setup the add-ons
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
@@ -182,7 +181,6 @@ export async function createApp(
   }
 
   // Copy all the asset files from the addons
-  const s = silent ? null : environment.spinner()
   for (const type of ['add-on', 'example']) {
     for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
@@ -195,6 +193,14 @@ export async function createApp(
     }
   }
 
+  // Adding starter
+  if (options.starter) {
+    s?.start(`Setting up starter ${options.starter.name}...`)
+    await runAddOn(options.starter)
+    s?.stop(`Starter ${options.starter.name} setup complete`)
+  }
+
+  // Run all the commands
   if (isAddOnEnabled('shadcn')) {
     const shadcnComponents = new Set<string>()
     for (const addOn of options.chosenAddOns) {
@@ -232,13 +238,6 @@ export async function createApp(
     if (addOn.warning) {
       warnings.push(addOn.warning)
     }
-  }
-
-  // Adding starter
-  if (options.starter) {
-    s?.start(`Setting up starter ${options.starter.name}...`)
-    await runAddOn(options.starter)
-    s?.stop(`Starter ${options.starter.name} setup complete`)
   }
 
   // Install dependencies
