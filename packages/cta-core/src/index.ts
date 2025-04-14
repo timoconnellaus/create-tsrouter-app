@@ -22,7 +22,7 @@ export {
   getFrameworkByName,
   getFrameworks,
 } from './frameworks.js'
-export { jsSafeName, sortObject } from './utils.js'
+export { jsSafeName, relativePath, sortObject } from './utils.js'
 export { writeConfigFile, readConfigFile } from './config-file.js'
 export { readFileHelper } from './file-helper.js'
 

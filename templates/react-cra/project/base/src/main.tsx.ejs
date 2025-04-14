@@ -12,13 +12,13 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-<% for(const route of routes) { %>import <%= route.name %> from "<%= route.path %>";
+<% for(const route of routes) { %>import <%= route.jsName %> from "<%= route.path %>";
 <% } %><% if (routes.length > 0) { %>
 import Header from "./components/Header";
 <% } %><% for(const integration of integrations.filter(i => i.type === 'layout' || i.type === 'provider')) { %>
-import <%= integration.name %> from "./<%= integration.path %>";
+import <%= integration.jsName %> from "<%= relativePath(integration.path) %>";
 <% } %><% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-import * as <%= integration.name %> from "./<%= integration.path %>";
+import * as <%= integration.jsName %> from "<%= relativePath(integration.path) %>";
 <% } %>
 
 import "./styles.css";
@@ -30,16 +30,16 @@ const rootRoute = createRootRoute({
   component: () => (
     <>
     <% for(const integration of integrations.filter(i => i.type === 'provider')) { %>
-      <<%= integration.name %>>
+      <<%= integration.jsName %>>
     <% } %>
     <% if (routes.length > 0) { %><Header /><% } %>
       <Outlet />
       <TanStackRouterDevtools />
       <% for(const integration of integrations.filter(i => i.type === 'layout')) { %>
-        <<%= integration.name %> />
+        <<%= integration.jsName %> />
       <% } %>
     <% for(const integration of integrations.filter(i => i.type === 'provider').reverse()) { %>
-      </<%= integration.name %>>
+      </<%= integration.jsName %>>
     <% } %>
     </>
   ),
@@ -51,13 +51,13 @@ const indexRoute = createRoute({
   component: App,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute<%= routes.map(route => `, ${route.name}(rootRoute)`).join('') %>]);
+const routeTree = rootRoute.addChildren([indexRoute<%= routes.map(route => `, ${route.jsName}(rootRoute)`).join('') %>]);
 
 const router = createRouter({
   routeTree,
   context: {
     <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-      ...<%= integration.name %>.getContext(),
+      ...<%= integration.jsName %>.getContext(),
     <% } %>
   },
   defaultPreload: "intent",
@@ -80,11 +80,11 @@ const rootElement = document.getElementById("app");
   root.render(
     <StrictMode>
       <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-        <<%= integration.name %>.Provider>
+        <<%= integration.jsName %>.Provider>
       <% } %>
         <RouterProvider router={router} />
       <% for(const integration of integrations.filter(i => i.type === 'root-provider').reverse()) { %>
-        </<%= integration.name %>.Provider>
+        </<%= integration.jsName %>.Provider>
       <% } %>
     </StrictMode>
   );
@@ -102,7 +102,7 @@ reportWebVitals();
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-import * as <%= integration.name %> from "./<%= integration.path %>";
+import * as <%= integration.jsName %> from "<%= relativePath(integration.path) %>";
 <% } %>
 
 // Import the generated route tree
@@ -116,7 +116,7 @@ const router = createRouter({
   routeTree,
   context: {
     <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-      ...<%= integration.name %>.getContext(),
+      ...<%= integration.jsName %>.getContext(),
     <% } %>
   },
   defaultPreload: "intent",
@@ -139,11 +139,11 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <% for(const integration of integrations.filter(i => i.type === 'root-provider')) { %>
-        <<%= integration.name %>.Provider>
+        <<%= integration.jsName %>.Provider>
       <% } %>
           <RouterProvider router={router} />
       <% for(const integration of integrations.filter(i => i.type === 'root-provider').reverse()) { %>
-        </<%= integration.name %>.Provider>
+        </<%= integration.jsName %>.Provider>
       <% } %>
     </StrictMode>
   );

@@ -2,7 +2,6 @@ import { basename, resolve } from 'node:path'
 
 import {
   copyAddOnFile,
-  jsSafeName,
   packageManagerExecute,
   writeConfigFile,
 } from '@tanstack/cta-core'
@@ -71,6 +70,86 @@ export async function createApp(
     )
   }
 
+  // Setup the base files
+  await templateFile(templateDirBase, '_dot_vscode/settings.json.ejs')
+
+  copyFiles(templateDirBase, [
+    './public/robots.txt',
+    './public/favicon.ico',
+    './public/manifest.json',
+    './public/logo192.png',
+    './public/logo512.png',
+  ])
+
+  if (environment.exists(resolve(templateDirBase, '_dot_cursorrules'))) {
+    await environment.copyFile(
+      resolve(templateDirBase, '_dot_cursorrules'),
+      resolve(targetDir, '.cursorrules'),
+    )
+  }
+
+  if (!options.tailwind) {
+    await copyFiles(templateDirBase, ['./src/App.css'])
+  }
+
+  await templateFile(templateDirBase, './vite.config.js.ejs')
+  await templateFile(templateDirBase, './src/styles.css.ejs')
+
+  copyFiles(templateDirBase, ['./src/logo.svg'])
+
+  await templateFile(templateDirBase, 'biome.json.ejs')
+  await templateFile(templateDirBase, '_dot_prettierignore.ejs')
+  await templateFile(templateDirBase, 'eslint.config.js.ejs')
+  await templateFile(templateDirBase, 'prettier.config.js.ejs')
+
+  if (
+    environment.exists(resolve(templateDirBase, './src/reportWebVitals.ts.ejs'))
+  ) {
+    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
+  }
+  await templateFile(templateDirBase, './index.html.ejs')
+
+  await environment.copyFile(
+    resolve(templateDirBase, '_dot_gitignore'),
+    resolve(targetDir, '.gitignore'),
+  )
+
+  await templateFile(templateDirBase, './tsconfig.json.ejs')
+
+  await templateFile(templateDirBase, './src/main.tsx.ejs', './src/main.tsx')
+
+  await templateFile(
+    templateDirBase,
+    './src/routes/__root.tsx.ejs',
+    './src/routes/__root.tsx',
+  )
+
+  if (options.framework.id === 'react-cra') {
+    await templateFile(templateDirBase, './src/App.test.tsx.ejs')
+  }
+  await templateFile(templateDirBase, './src/App.tsx.ejs')
+  await templateFile(templateDirBase, './src/routes/index.tsx.ejs')
+
+  await templateFile(
+    templateDirBase,
+    './src/components/Header.tsx.ejs',
+    './src/components/Header.tsx',
+  )
+
+  await templateFile(templateDirBase, 'README.md.ejs')
+
+  // Setup the package.json file, optionally with typescript, tailwind and formatter/linter
+  await createPackageJSON(
+    environment,
+    options.projectName,
+    options,
+    projectBaseDir,
+    targetDir,
+    options.chosenAddOns.map((addOn) => addOn.packageAdditions),
+  )
+
+  // Setup the add-ons
+
   const isAddOnEnabled = (id: string) =>
     options.chosenAddOns.find((a) => a.id === id)
 
@@ -101,69 +180,6 @@ export async function createApp(
       )
     }
   }
-
-  // Setup the .vscode directory
-  await templateFile(templateDirBase, '_dot_vscode/settings.json.ejs')
-
-  // Fill the public directory
-  copyFiles(templateDirBase, [
-    './public/robots.txt',
-    './public/favicon.ico',
-    './public/manifest.json',
-    './public/logo192.png',
-    './public/logo512.png',
-  ])
-
-  // Check for a .cursorrules file
-  if (environment.exists(resolve(templateDirBase, '_dot_cursorrules'))) {
-    await environment.copyFile(
-      resolve(templateDirBase, '_dot_cursorrules'),
-      resolve(targetDir, '.cursorrules'),
-    )
-  }
-
-  // Copy in Vite and Tailwind config and CSS
-  if (!options.tailwind) {
-    await copyFiles(templateDirBase, ['./src/App.css'])
-  }
-
-  await templateFile(templateDirBase, './vite.config.js.ejs')
-  await templateFile(templateDirBase, './src/styles.css.ejs')
-
-  copyFiles(templateDirBase, ['./src/logo.svg'])
-
-  await templateFile(templateDirBase, 'biome.json.ejs')
-  await templateFile(templateDirBase, '_dot_prettierignore.ejs')
-  await templateFile(templateDirBase, 'eslint.config.js.ejs')
-  await templateFile(templateDirBase, 'prettier.config.js.ejs')
-
-  // Setup reportWebVitals
-  // TODO: This is a bit of a hack to check if the framework is react
-  if (
-    environment.exists(resolve(templateDirBase, './src/reportWebVitals.ts.ejs'))
-  ) {
-    await templateFile(templateDirBase, './src/reportWebVitals.ts.ejs')
-  }
-  await templateFile(templateDirBase, './index.html.ejs')
-
-  // Add .gitignore
-  await environment.copyFile(
-    resolve(templateDirBase, '_dot_gitignore'),
-    resolve(targetDir, '.gitignore'),
-  )
-
-  // Setup tsconfig
-  await templateFile(templateDirBase, './tsconfig.json.ejs')
-
-  // Setup the package.json file, optionally with typescript, tailwind and formatter/linter
-  await createPackageJSON(
-    environment,
-    options.projectName,
-    options,
-    projectBaseDir,
-    targetDir,
-    options.chosenAddOns.map((addOn) => addOn.packageAdditions),
-  )
 
   // Copy all the asset files from the addons
   const s = silent ? null : environment.spinner()
@@ -211,127 +227,12 @@ export async function createApp(
     }
   }
 
-  const integrations: Array<{
-    type: 'layout' | 'provider' | 'root-provider' | 'header-user'
-    name: string
-    path: string
-  }> = []
-  if (environment.exists(resolve(targetDir, 'src/integrations'))) {
-    for (const integration of environment.readdir(
-      resolve(targetDir, 'src/integrations'),
-    )) {
-      const integrationName = jsSafeName(integration)
-      if (
-        environment.exists(
-          resolve(targetDir, 'src/integrations', integration, 'layout.tsx'),
-        )
-      ) {
-        integrations.push({
-          type: 'layout',
-          name: `${integrationName}Layout`,
-          path: `integrations/${integration}/layout`,
-        })
-      }
-      if (
-        environment.exists(
-          resolve(targetDir, 'src/integrations', integration, 'provider.tsx'),
-        )
-      ) {
-        integrations.push({
-          type: 'provider',
-          name: `${integrationName}Provider`,
-          path: `integrations/${integration}/provider`,
-        })
-      }
-      if (
-        environment.exists(
-          resolve(
-            targetDir,
-            'src/integrations',
-            integration,
-            'root-provider.tsx',
-          ),
-        )
-      ) {
-        integrations.push({
-          type: 'root-provider',
-          name: integrationName,
-          path: `integrations/${integration}/root-provider`,
-        })
-      }
-      if (
-        environment.exists(
-          resolve(
-            targetDir,
-            'src/integrations',
-            integration,
-            'header-user.tsx',
-          ),
-        )
-      ) {
-        integrations.push({
-          type: 'header-user',
-          name: `${integrationName}Header`,
-          path: `integrations/${integration}/header-user`,
-        })
-      }
-    }
-  }
-
-  const routes: Array<{
-    path: string
-    name: string
-  }> = []
-  if (environment.exists(resolve(targetDir, 'src/routes'))) {
-    for (const file of environment.readdir(resolve(targetDir, 'src/routes'))) {
-      const name = file.replace(/\.tsx?|\.jsx?/, '')
-      const safeRouteName = jsSafeName(name)
-      routes.push({
-        path: `./routes/${name}`,
-        name: safeRouteName,
-      })
-    }
-  }
-
-  await templateFile(templateDirBase, './src/main.tsx.ejs', './src/main.tsx', {
-    routes,
-    integrations,
-  })
-
-  await templateFile(
-    templateDirBase,
-    './src/routes/__root.tsx.ejs',
-    './src/routes/__root.tsx',
-    {
-      integrations,
-    },
-  )
-
-  if (options.framework.id === 'react-cra') {
-    await templateFile(templateDirBase, './src/App.test.tsx.ejs')
-  }
-  await templateFile(templateDirBase, './src/App.tsx.ejs')
-  await templateFile(templateDirBase, './src/routes/index.tsx.ejs')
-
-  await templateFile(
-    templateDirBase,
-    './src/components/Header.tsx.ejs',
-    './src/components/Header.tsx',
-    {
-      integrations,
-      routes,
-    },
-  )
-
   const warnings: Array<string> = []
   for (const addOn of options.chosenAddOns) {
     if (addOn.warning) {
       warnings.push(addOn.warning)
     }
   }
-
-  // Create the README.md
-  await templateFile(templateDirBase, 'README.md.ejs')
 
   // Adding starter
   if (options.starter) {

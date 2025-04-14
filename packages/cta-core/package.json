@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "eslint ./src"
+    "test": "eslint ./src",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,8 @@
     "ejs": "^3.1.10",
     "execa": "^9.5.2",
     "memfs": "^4.17.0",
-    "prettier": "^3.5.0"
+    "prettier": "^3.5.0",
+    "vitest": "^3.1.1"
   },
   "devDependencies": {
     "@tanstack/config": "^0.16.2",

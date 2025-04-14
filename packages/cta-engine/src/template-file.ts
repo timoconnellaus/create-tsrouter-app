@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { render } from 'ejs'
 import { format } from 'prettier'
 
-import { CODE_ROUTER, FILE_ROUTER } from '@tanstack/cta-core'
+import { CODE_ROUTER, FILE_ROUTER, relativePath } from '@tanstack/cta-core'
 
 import type { Environment, Options } from '@tanstack/cta-core'
 
@@ -70,6 +70,22 @@ export function createTemplateFile(
       }
     }
 
+    const integrations: Array<Required<AddOn>['integrations'][number]> = []
+    for (const addOn of options.chosenAddOns) {
+      if (addOn.integrations) {
+        for (const integration of addOn.integrations) {
+          integrations.push(integration)
+        }
+      }
+    }
+
+    const routes: Array<Required<AddOn>['routes'][number]> = []
+    for (const addOn of options.chosenAddOns) {
+      if (addOn.routes) {
+        routes.push(...addOn.routes)
+      }
+    }
+
     const templateValues = {
       packageManager: options.packageManager,
       projectName: projectName,
@@ -88,11 +104,15 @@ export function createTemplateFile(
         {},
       ),
       addOns: options.chosenAddOns,
+      integrations,
+      routes,
 
       ...extraTemplateValues,
 
       getPackageManagerAddScript,
       getPackageManagerRunScript,
+
+      relativePath: (path: string) => relativePath(file, path),
 
       ignoreFile: () => {
         throw new IgnoreFileError()

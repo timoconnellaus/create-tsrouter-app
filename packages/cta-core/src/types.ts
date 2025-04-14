@@ -98,7 +98,7 @@ export type AddOn = {
   type: 'add-on' | 'example' | 'starter'
   link: string
   templates: Array<string>
-  routes: Array<{
+  routes?: Array<{
     url: string
     name: string
     path: string
