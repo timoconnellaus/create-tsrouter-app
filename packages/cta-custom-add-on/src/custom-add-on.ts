@@ -3,16 +3,19 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
 import {
+  createApp,
   createMemoryEnvironment,
   finalizeAddOns,
   getFrameworkById,
   readConfigFile,
   readFileHelper,
-} from '@tanstack/cta-core'
+} from '@tanstack/cta-engine'
 
-import { createApp } from '@tanstack/cta-engine'
-
-import type { Environment, Options, PersistedOptions } from '@tanstack/cta-core'
+import type {
+  Environment,
+  Options,
+  PersistedOptions,
+} from '@tanstack/cta-engine'
 
 type AddOnMode = 'add-on' | 'starter'
 

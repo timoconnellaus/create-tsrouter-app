@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
-import { packageManagerExecute } from '@tanstack/cta-core'
-import type { Environment, Options } from '@tanstack/cta-core'
+import { packageManagerExecute } from '../package-manager.js'
+import type { Environment, Options } from '../types.js'
 
 export async function installShadcnComponents(
   environment: Environment,

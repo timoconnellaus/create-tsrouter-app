@@ -1,9 +1,12 @@
 import { describe, expect, test, beforeAll } from 'vitest'
 
-import { createApp } from '@tanstack/cta-engine'
-import { finalizeAddOns, getFrameworkById } from '@tanstack/cta-core'
+import {
+  createApp,
+  finalizeAddOns,
+  getFrameworkById,
+} from '@tanstack/cta-engine'
 
-import type { AddOn, Options } from '@tanstack/cta-core'
+import type { AddOn, Options } from '@tanstack/cta-engine'
 
 import { register as registerReactCra } from '@tanstack/cta-templates-react-cra'
 

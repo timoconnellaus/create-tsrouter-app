@@ -25,10 +25,6 @@ await publish({
       packageDir: './packages/cta-cli',
     },
     {
-      name: '@tanstack/cta-core',
-      packageDir: './packages/cta-core',
-    },
-    {
       name: '@tanstack/cta-custom-add-on',
       packageDir: './packages/cta-custom-add-on',
     },

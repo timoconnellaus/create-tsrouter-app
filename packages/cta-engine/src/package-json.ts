@@ -1,6 +1,7 @@
-import { FILE_ROUTER, sortObject } from '@tanstack/cta-core'
+import { FILE_ROUTER } from './constants.js'
+import { sortObject } from './utils.js'
 
-import type { Options } from '@tanstack/cta-core'
+import type { Options } from './types.js'
 
 function mergePackageJSON(
   packageJSON: Record<string, any>,

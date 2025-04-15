@@ -1,6 +1,6 @@
 import { dirname, join, basename, extname } from 'node:path'
 
-import { createMemoryEnvironment, Environment } from '@tanstack/cta-core'
+import { createMemoryEnvironment } from '@tanstack/cta-engine'
 
 const IGNORE_EXTENSIONS = ['.png', '.ico', '.svg']
 

@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { registerFramework } from '@tanstack/cta-core'
+import { registerFramework } from '@tanstack/cta-engine'
 
 export function register() {
   registerFramework({

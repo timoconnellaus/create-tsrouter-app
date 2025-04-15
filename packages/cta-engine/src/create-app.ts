@@ -1,22 +1,18 @@
 import { basename, resolve } from 'node:path'
 
+import { getBinaryFile } from './file-helpers.js'
+import { formatCommand } from './utils.js'
+import { writeConfigFile } from './config-file.js'
 import {
-  formatCommand,
-  getBinaryFile,
   getPackageManagerScriptCommand,
   packageManagerInstall,
-  writeConfigFile,
-} from '@tanstack/cta-core'
-
+} from './package-manager.js'
 import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
 import { installShadcnComponents } from './integrations/shadcn.js'
 import { setupGit } from './integrations/git.js'
-import type {
-  Environment,
-  FileBundleHandler,
-  Options,
-} from '@tanstack/cta-core'
+
+import type { Environment, FileBundleHandler, Options } from './types.js'
 
 async function writeFiles(
   environment: Environment,

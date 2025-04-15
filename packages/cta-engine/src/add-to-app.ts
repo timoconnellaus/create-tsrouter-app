@@ -3,19 +3,19 @@ import { existsSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { execa, execaSync } from 'execa'
 
+import { CONFIG_FILE } from './constants.js'
+import { finalizeAddOns } from './add-ons.js'
+import { getFrameworkById } from './frameworks.js'
 import {
-  CONFIG_FILE,
   createDefaultEnvironment,
   createMemoryEnvironment,
-  finalizeAddOns,
-  getFrameworkById,
-  readConfigFile,
-  sortObject,
-  writeConfigFile,
-} from '@tanstack/cta-core'
+} from './environment.js'
 import { createApp } from './create-app.js'
+import { readConfigFile, writeConfigFile } from './config-file.js'
+import { sortObject } from './utils.js'
 
-import type { Environment, Options, PersistedOptions } from '@tanstack/cta-core'
+import type { Environment, Options } from './types.js'
+import type { PersistedOptions } from './config-file.js'
 
 function isDirectory(path: string) {
   return statSync(path).isDirectory()

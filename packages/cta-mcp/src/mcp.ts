@@ -5,14 +5,13 @@ import express from 'express'
 import { z } from 'zod'
 
 import {
+  createApp,
   createDefaultEnvironment,
   finalizeAddOns,
   getFrameworkById,
-} from '@tanstack/cta-core'
+} from '@tanstack/cta-engine'
 
-import { createApp } from '@tanstack/cta-engine'
-
-import type { TemplateOptions } from '@tanstack/cta-core'
+import type { TemplateOptions } from '@tanstack/cta-engine'
 
 const tanStackReactAddOns = [
   {

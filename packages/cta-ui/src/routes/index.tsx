@@ -22,7 +22,7 @@ import {
   getOriginalOptions,
   runCreateApp,
 } from '@/lib/server-fns'
-import type { AddOn } from '@tanstack/cta-core'
+import type { AddOn } from '@tanstack/cta-engine'
 
 export const Route = createFileRoute('/')({
   component: App,

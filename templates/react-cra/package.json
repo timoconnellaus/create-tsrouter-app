@@ -29,7 +29,7 @@
   "license": "MIT",
   "packageManager": "pnpm@9.15.5",
   "dependencies": {
-    "@tanstack/cta-core": "workspace:*"
+    "@tanstack/cta-engine": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

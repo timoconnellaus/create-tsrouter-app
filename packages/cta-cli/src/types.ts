@@ -1,4 +1,4 @@
-import type { PackageManager, TemplateOptions } from '@tanstack/cta-core'
+import type { PackageManager, TemplateOptions } from '@tanstack/cta-engine'
 
 export interface CliOptions {
   template?: TemplateOptions

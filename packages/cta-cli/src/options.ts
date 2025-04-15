@@ -17,7 +17,7 @@ import {
   getFrameworkById,
   getPackageManager,
   loadRemoteAddOn,
-} from '@tanstack/cta-core'
+} from '@tanstack/cta-engine'
 
 import type {
   AddOn,
@@ -26,7 +26,7 @@ import type {
   Starter,
   TemplateOptions,
   Variable,
-} from '@tanstack/cta-core'
+} from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
 

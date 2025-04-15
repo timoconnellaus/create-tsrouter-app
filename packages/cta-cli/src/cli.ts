@@ -4,12 +4,13 @@ import chalk from 'chalk'
 
 import {
   SUPPORTED_PACKAGE_MANAGERS,
+  addToApp,
+  createApp,
   getAllAddOns,
   getFrameworkById,
   getFrameworkByName,
   getFrameworks,
-} from '@tanstack/cta-core'
-import { addToApp, createApp } from '@tanstack/cta-engine'
+} from '@tanstack/cta-engine'
 import { initAddOn } from '@tanstack/cta-custom-add-on'
 
 import { runMCPServer } from '@tanstack/cta-mcp'
@@ -20,7 +21,11 @@ import { normalizeOptions, promptForOptions } from './options.js'
 
 import { createUIEnvironment } from './ui-environment.js'
 
-import type { Mode, PackageManager, TemplateOptions } from '@tanstack/cta-core'
+import type {
+  Mode,
+  PackageManager,
+  TemplateOptions,
+} from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
 

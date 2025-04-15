@@ -2,16 +2,15 @@ import { resolve } from 'node:path'
 import { render } from 'ejs'
 import { format } from 'prettier'
 
+import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
+import { formatCommand } from './utils.js'
 import {
-  CODE_ROUTER,
-  FILE_ROUTER,
-  formatCommand,
   getPackageManagerExecuteCommand,
   getPackageManagerInstallCommand,
-  relativePath,
-} from '@tanstack/cta-core'
+} from './package-manager.js'
+import { relativePath } from './file-helpers.js'
 
-import type { AddOn, Environment, Options } from '@tanstack/cta-core'
+import type { AddOn, Environment, Options } from './types.js'
 
 function convertDotFilesAndPaths(path: string) {
   return path

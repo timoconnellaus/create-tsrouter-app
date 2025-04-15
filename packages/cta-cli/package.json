@@ -29,7 +29,6 @@
   "license": "MIT",
   "packageManager": "pnpm@9.15.5",
   "dependencies": {
-    "@tanstack/cta-core": "workspace:*",
     "@tanstack/cta-engine": "workspace:*",
     "@tanstack/cta-custom-add-on": "workspace:*",
     "@tanstack/cta-mcp": "workspace:*",

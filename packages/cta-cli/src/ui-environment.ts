@@ -9,9 +9,9 @@ import {
 } from '@clack/prompts'
 import chalk from 'chalk'
 
-import { createDefaultEnvironment } from '@tanstack/cta-core'
+import { createDefaultEnvironment } from '@tanstack/cta-engine'
 
-import type { Environment } from '@tanstack/cta-core'
+import type { Environment } from '@tanstack/cta-engine'
 
 export function createUIEnvironment(): Environment {
   const defaultEnvironment = createDefaultEnvironment()

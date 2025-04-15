@@ -29,7 +29,6 @@
       "create-tanstack": "workspace:*",
       "create-tsrouter-app": "workspace:*",
       "@tanstack/cta-cli": "workspace:*",
-      "@tanstack/cta-core": "workspace:*",
       "@tanstack/cta-custom-add-on": "workspace:*",
       "@tanstack/cta-engine": "workspace:*",
       "@tanstack/cta-mcp": "workspace:*",
