@@ -1,6 +1,5 @@
 {
   "name": "@tanstack/cta-ui",
-  "private": true,
   "type": "module",
   "main": "./lib-dist/index.js",
   "types": "./lib-dist/index.d.ts",
