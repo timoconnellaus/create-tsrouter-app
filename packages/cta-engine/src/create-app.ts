@@ -11,42 +11,18 @@ import {
 import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
 import { installShadcnComponents } from './integrations/shadcn.js'
-
+import { setupGit } from './integrations/git.js'
 import type {
   Environment,
   FileBundleHandler,
   Options,
 } from '@tanstack/cta-core'
 
-export async function createApp(
+async function writeFiles(
+  environment: Environment,
+  targetDir: string,
   options: Options,
-  {
-    silent = false,
-    environment,
-    cwd,
-    appName = 'TanStack',
-  }: {
-    silent?: boolean
-    environment: Environment
-    cwd?: string
-    name?: string
-    appName?: string
-  },
 ) {
-  environment.startRun()
-
-  let targetDir: string = cwd || ''
-  if (!targetDir.length) {
-    targetDir = resolve(process.cwd(), options.projectName)
-
-    if (environment.exists(targetDir)) {
-      if (!silent) {
-        environment.error(`Directory "${options.projectName}" already exists`)
-      }
-      return
-    }
-  }
-
   const templateFileFromContent = createTemplateFile(
     environment,
     options,
@@ -65,8 +41,6 @@ export async function createApp(
       }
     }
   }
-
-  // Write the project files
 
   await writeFileBundle(options.framework)
 
@@ -90,10 +64,31 @@ export async function createApp(
   )
 
   await writeConfigFile(environment, targetDir, options)
+}
 
+async function runCommandsAndInstallDependencies(
+  environment: Environment,
+  targetDir: string,
+  options: Options,
+  silent: boolean,
+) {
   const s = silent ? null : environment.spinner()
 
-  // Install all the dependencies
+  // Setup git
+  if (options.git) {
+    s?.start(`Initializing git repository...`)
+    await setupGit(environment, targetDir)
+    s?.stop(`Initialized git repository`)
+  }
+
+  // Install dependencies
+  s?.start(`Installing dependencies via ${options.packageManager}...`)
+  await packageManagerInstall(
+    environment,
+    resolve(targetDir),
+    options.packageManager,
+  )
+  s?.stop(`Installed dependencies`)
 
   for (const phase of ['setup', 'add-on', 'example']) {
     for (const addOn of options.chosenAddOns.filter(
@@ -125,29 +120,7 @@ export async function createApp(
     s?.stop(`Starter ${options.starter.name} setup complete`)
   }
 
-  // Setup git
-  if (options.git) {
-    s?.start(`Initializing git repository...`)
-    await environment.execute('git', ['init'], resolve(targetDir))
-    s?.stop(`Initialized git repository`)
-  }
-
-  // Install dependencies
-  s?.start(`Installing dependencies via ${options.packageManager}...`)
-  await packageManagerInstall(
-    environment,
-    resolve(targetDir),
-    options.packageManager,
-  )
-  s?.stop(`Installed dependencies`)
-
   await installShadcnComponents(environment, targetDir, options, silent)
-
-  environment.finishRun()
-
-  if (!silent) {
-    report(environment, options, appName, targetDir)
-  }
 }
 
 function report(
@@ -191,4 +164,49 @@ Use the following commands to start your app:
 % ${startCommand}
 
   Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`)
+}
+
+export async function createApp(
+  options: Options,
+  {
+    silent = false,
+    environment,
+    cwd,
+    appName = 'TanStack',
+  }: {
+    silent?: boolean
+    environment: Environment
+    cwd?: string
+    name?: string
+    appName?: string
+  },
+) {
+  environment.startRun()
+
+  let targetDir: string = cwd || ''
+  if (!targetDir.length) {
+    targetDir = resolve(process.cwd(), options.projectName)
+
+    if (environment.exists(targetDir)) {
+      if (!silent) {
+        environment.error(`Directory "${options.projectName}" already exists`)
+      }
+      return
+    }
+  }
+
+  await writeFiles(environment, targetDir, options)
+
+  await runCommandsAndInstallDependencies(
+    environment,
+    targetDir,
+    options,
+    silent,
+  )
+
+  environment.finishRun()
+
+  if (!silent) {
+    report(environment, options, appName, targetDir)
+  }
 }
