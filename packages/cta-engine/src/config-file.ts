@@ -19,7 +19,9 @@ export async function writeConfigFile(
   targetDir: string,
   options: Options,
 ) {
+  /* eslint-disable unused-imports/no-unused-vars */
   const { addOns, chosenAddOns, framework, ...rest } = options
+  /* eslint-enable unused-imports/no-unused-vars */
   const persistedOptions: PersistedOptions = {
     ...rest,
     version: 1,

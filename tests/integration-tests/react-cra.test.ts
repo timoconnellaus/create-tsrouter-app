@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeAll } from 'vitest'
+import { expect, test, beforeAll } from 'vitest'
 
 import {
   createApp,
@@ -56,6 +56,25 @@ test('code router in javascript on npm', async () => {
   cleanupOutput(output, trimProjectRelativePath)
   await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-js-npm.json',
+  )
+})
+
+test('code router with form add-on on npm', async () => {
+  const projectName = 'TEST'
+  const { environment, output, trimProjectRelativePath } =
+    createTestEnvironment(projectName)
+  await createApp(
+    {
+      ...(await createReactOptions(projectName, ['form'])),
+    },
+    {
+      silent: true,
+      environment,
+    },
+  )
+  cleanupOutput(output, trimProjectRelativePath)
+  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+    './snapshots/react-cra/cr-js-form-npm.json',
   )
 })
 

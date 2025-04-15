@@ -16,6 +16,12 @@ export function jsSafeName(name: string) {
     .join('')
 }
 
-export function formatCommand(command: string, args: Array<string>) {
+export function formatCommand({
+  command,
+  args,
+}: {
+  command: string
+  args: Array<string>
+}) {
   return `${command} ${args.join(' ')}`
 }

@@ -109,8 +109,8 @@ async function runCommandsAndInstallDependencies(
   ) {
     s?.start(`Setting up starter ${options.starter.name}...`)
     await environment.execute(
-      options.starter.command!.command,
-      options.starter.command!.args || [],
+      options.starter.command.command,
+      options.starter.command.args || [],
       resolve(targetDir),
     )
     s?.stop(`Starter ${options.starter.name} setup complete`)
@@ -146,18 +146,13 @@ Errors were encountered during this process:
 ${environment.getErrors().join('\n')}`
   }
 
-  const start = !!options.chosenAddOns.find((a) => a.id === 'start')
-  const { command, args } = getPackageManagerScriptCommand(
-    options.packageManager,
-    start ? ['dev'] : ['start'],
-  )
-  const startCommand = formatCommand(command, args)
-
   environment.outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
-% ${startCommand}
+% ${formatCommand(
+    getPackageManagerScriptCommand(options.packageManager, ['dev']),
+  )}
 
   Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`)
 }

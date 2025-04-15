@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "vitest": "^3.0.8",

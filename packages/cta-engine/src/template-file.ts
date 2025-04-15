@@ -28,19 +28,18 @@ export function createTemplateFile(
     packageName: string,
     isDev: boolean = false,
   ) {
-    const { command, args } = getPackageManagerInstallCommand(
-      options.packageManager,
-      packageName,
-      isDev,
+    return formatCommand(
+      getPackageManagerInstallCommand(
+        options.packageManager,
+        packageName,
+        isDev,
+      ),
     )
-    return formatCommand(command, args)
   }
   function getPackageManagerRunScript(scriptName: string) {
-    const { command, args } = getPackageManagerExecuteCommand(
-      options.packageManager,
-      scriptName,
+    return formatCommand(
+      getPackageManagerExecuteCommand(options.packageManager, scriptName),
     )
-    return formatCommand(command, args)
   }
 
   class IgnoreFileError extends Error {
@@ -135,7 +134,7 @@ export function createTemplateFile(
     }
 
     if (!options.typescript) {
-      target = target.replace(/\.tsx?$/, '.jsx').replace(/\.ts$/, '.js')
+      target = target.replace(/\.tsx$/, '.jsx').replace(/\.ts$/, '.js')
     }
 
     if (append) {
