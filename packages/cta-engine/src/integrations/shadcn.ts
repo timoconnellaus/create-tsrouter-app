@@ -36,13 +36,7 @@ export async function installShadcnComponents(
         resolve(targetDir),
         options.packageManager,
         'shadcn@latest',
-        [
-          'add',
-          '--force',
-          '--silent',
-          '--yes',
-          ...Array.from(shadcnComponents),
-        ],
+        ['add', '--silent', '--yes', ...Array.from(shadcnComponents)],
       )
       s?.stop(`Installed additional shadcn components`)
     }
