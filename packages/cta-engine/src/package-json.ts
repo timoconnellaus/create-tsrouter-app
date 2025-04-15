@@ -25,8 +25,6 @@ function mergePackageJSON(
 }
 
 export function createPackageJSON(options: Options) {
-  const addOns = options.chosenAddOns.map((addOn) => addOn.packageAdditions)
-
   let packageJSON = {
     ...JSON.parse(JSON.stringify(options.framework.basePackageJSON)),
     name: options.projectName,
@@ -47,15 +45,17 @@ export function createPackageJSON(options: Options) {
     packageJSON = mergePackageJSON(packageJSON, addition!)
   }
 
-  for (const addOn of addOns) {
+  for (const addOn of options.chosenAddOns.map(
+    (addOn) => addOn.packageAdditions,
+  )) {
     packageJSON = mergePackageJSON(packageJSON, addOn)
   }
 
   packageJSON.dependencies = sortObject(
-    packageJSON.dependencies as Record<string, string>,
+    (packageJSON.dependencies ?? {}) as Record<string, string>,
   )
   packageJSON.devDependencies = sortObject(
-    packageJSON.devDependencies as Record<string, string>,
+    (packageJSON.devDependencies ?? {}) as Record<string, string>,
   )
 
   return packageJSON

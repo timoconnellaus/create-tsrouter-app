@@ -13,3 +13,5 @@ my-app
 .nx/workspace-data
 
 .content-collections
+
+coverage

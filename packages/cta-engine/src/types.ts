@@ -10,6 +10,12 @@ export type FileBundleHandler = {
   getFileContents: (path: string) => Promise<string>
 }
 
+export type Integration = {
+  type: 'provider' | 'root-provider' | 'layout' | 'header-user'
+  path: string
+  jsName: string
+}
+
 export type AddOnDefinition = {
   id: string
   name: string
@@ -37,11 +43,7 @@ export type AddOnDefinition = {
   shadcnComponents?: Array<string>
   warning?: string
   dependsOn?: Array<string>
-  integrations?: Array<{
-    type: 'provider' | 'root-provider' | 'layout' | 'header-user'
-    path: string
-    jsName: string
-  }>
+  integrations?: Array<Integration>
   variables?: Array<Variable>
 
   files?: Record<string, string>

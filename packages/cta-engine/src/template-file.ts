@@ -5,8 +5,8 @@ import { format } from 'prettier'
 import { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import { formatCommand } from './utils.js'
 import {
-  getPackageManagerExecuteCommand,
   getPackageManagerInstallCommand,
+  getPackageManagerScriptCommand,
 } from './package-manager.js'
 import { relativePath } from './file-helpers.js'
 
@@ -36,9 +36,15 @@ export function createTemplateFile(
       ),
     )
   }
-  function getPackageManagerRunScript(scriptName: string) {
+  function getPackageManagerRunScript(
+    scriptName: string,
+    args: Array<string> = [],
+  ) {
     return formatCommand(
-      getPackageManagerExecuteCommand(options.packageManager, scriptName),
+      getPackageManagerScriptCommand(options.packageManager, [
+        scriptName,
+        ...args,
+      ]),
     )
   }
 
@@ -65,6 +71,24 @@ export function createTemplateFile(
     }
   }
 
+  const variables = {
+    ...options.variableValues,
+    ...options.chosenAddOns.reduce<Record<string, any>>((acc, addOn) => {
+      return {
+        ...acc,
+        ...addOn.variables,
+      }
+    }, {}),
+  }
+
+  const addOnEnabled = options.chosenAddOns.reduce<Record<string, boolean>>(
+    (acc, addOn) => {
+      acc[addOn.id] = true
+      return acc
+    },
+    {},
+  )
+
   return async function templateFile(file: string, content: string) {
     const templateValues = {
       packageManager: options.packageManager,
@@ -75,16 +99,11 @@ export function createTemplateFile(
       jsx: options.typescript ? 'tsx' : 'jsx',
       fileRouter: options.mode === FILE_ROUTER,
       codeRouter: options.mode === CODE_ROUTER,
-      addOnEnabled: options.chosenAddOns.reduce<Record<string, boolean>>(
-        (acc, addOn) => {
-          acc[addOn.id] = true
-          return acc
-        },
-        {},
-      ),
+      addOnEnabled,
       addOns: options.chosenAddOns,
       integrations,
       routes,
+      variables,
 
       getPackageManagerAddScript,
       getPackageManagerRunScript,
