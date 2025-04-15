@@ -1,5 +1,7 @@
 import { defineConfig } from '@tanstack/solid-start/config'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
+import viteTsConfigPaths from 'vite-tsconfig-paths'<% if (tailwind) { %>
+import tailwindcss from "@tailwindcss/vite"
+<% } %>
 
 export default defineConfig({
   tsr: {
@@ -11,6 +13,7 @@ export default defineConfig({
       viteTsConfigPaths({
         projects: ['./tsconfig.json'],
       }),
+      <% if (tailwind) { %>tailwindcss(),<% } %>
     ],
   },
 })
