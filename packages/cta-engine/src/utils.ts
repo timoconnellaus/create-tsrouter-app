@@ -23,5 +23,5 @@ export function formatCommand({
   command: string
   args: Array<string>
 }) {
-  return `${command} ${args.join(' ')}`
+  return `${command} ${args.join(' ')}`.trim()
 }

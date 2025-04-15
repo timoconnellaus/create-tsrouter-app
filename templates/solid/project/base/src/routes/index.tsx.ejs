@@ -1,7 +1,6 @@
 <% if (codeRouter) { ignoreFile() } %>import * as Solid from 'solid-js'
 import { createFileRoute } from '@tanstack/solid-router'
-<% if (addOns.length || integrations.length || routes.length) { %>
-import Header from '../components/Header'<% } %>
+
 import logo from '../logo.svg'
 
 export const Route = createFileRoute('/')({
@@ -10,8 +9,7 @@ export const Route = createFileRoute('/')({
 
 function IndexComponent() {
   return (
-    <div class="text-center"><% if (addOns.length || integrations.length || routes.length) { %>
-      <Header /><% } %>
+    <div class="text-center">
       <header class="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
         <img
           src={logo}

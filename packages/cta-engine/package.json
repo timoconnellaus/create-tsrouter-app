@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "eslint ./src"
+    "test": "eslint ./src && vitest run",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",

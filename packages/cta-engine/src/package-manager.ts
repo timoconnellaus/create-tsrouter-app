@@ -32,7 +32,7 @@ export function getPackageManagerScriptCommand(
     case 'yarn':
       return { command: 'yarn', args: ['run', ...args] }
     case 'pnpm':
-      return { command: 'pnpm', args: ['run', ...args] }
+      return { command: 'pnpm', args: [...args] }
     case 'bun':
       return { command: 'bunx', args: ['--bun', 'run', ...args] }
     case 'deno':
