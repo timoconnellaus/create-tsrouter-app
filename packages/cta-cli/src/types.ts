@@ -14,4 +14,5 @@ export interface CliOptions {
   mcpSse?: boolean
   starter?: string
   targetDir?: string
+  interactive?: boolean
 }

@@ -178,7 +178,7 @@ export async function promptForOptions(
     forcedAddOns?: Array<string>
     forcedMode?: TemplateOptions
   },
-): Promise<Required<Options>> {
+): Promise<Required<Options> | undefined> {
   const options = {} as Required<Options>
 
   const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
@@ -208,6 +208,8 @@ export async function promptForOptions(
       process.exit(0)
     }
     options.projectName = value
+  } else {
+    options.projectName = cliOptions.projectName
   }
 
   // Router type selection

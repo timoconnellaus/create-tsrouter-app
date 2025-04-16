@@ -23,6 +23,7 @@ import { createUIEnvironment } from './ui-environment.js'
 
 import type {
   Mode,
+  Options,
   PackageManager,
   TemplateOptions,
 } from '@tanstack/cta-engine'
@@ -179,6 +180,7 @@ export function cli({
         return value
       },
     )
+    .option('--interactive', 'interactive mode', false)
     .option('--tailwind', 'add Tailwind CSS', false)
     .option<Array<string> | boolean>(
       '--add-ons [...add-ons]',
@@ -227,11 +229,17 @@ export function cli({
           cliOptions.template = forcedMode as TemplateOptions
         }
 
-        let finalOptions = await normalizeOptions(
-          cliOptions,
-          forcedMode,
-          forcedAddOns,
-        )
+        let finalOptions: Options | undefined
+        if (cliOptions.interactive) {
+          cliOptions.addOns = true
+        } else {
+          finalOptions = await normalizeOptions(
+            cliOptions,
+            forcedMode,
+            forcedAddOns,
+          )
+        }
+
         if (finalOptions) {
           intro(`Creating a new ${appName} app in ${projectName}...`)
         } else {
@@ -241,7 +249,8 @@ export function cli({
             forcedAddOns,
           })
         }
-        await createApp(finalOptions, {
+
+        await createApp(finalOptions!, {
           environment: createUIEnvironment(),
           cwd: options.targetDir || undefined,
           name,
