@@ -138,7 +138,6 @@ describe('createApp', () => {
       },
     )
 
-    console.log(output.commands)
     expect(output.files['/src/test2.txt']).toEqual('hello')
     expect(output.commands.some(({ command }) => command === 'echo')).toBe(true)
   })

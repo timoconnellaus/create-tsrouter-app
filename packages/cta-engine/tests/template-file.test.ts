@@ -154,8 +154,6 @@ describe('createTemplateFile', () => {
     )
     environment.finishRun()
 
-    console.log(output.files['/test/test.txt'])
-
     expect(output.files['/test/test.txt']).toEqual('/test')
   })
 

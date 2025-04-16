@@ -1,10 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fs, vol } from 'memfs'
 import { resolve } from 'node:path'
 
-import { writeConfigFile } from '../src/config-file.js'
+import { readConfigFile, writeConfigFile } from '../src/config-file.js'
 import { CONFIG_FILE } from '../src/constants.js'
 
 import type { AddOn, Environment, Framework, Options } from '../src/types.js'
+
+vi.mock('node:fs', () => fs)
+vi.mock('node:fs/promises', () => fs.promises)
+
+beforeEach(() => {
+  vol.reset()
+})
 
 describe('writeConfigFile', () => {
   it('should write the config file', async () => {
@@ -35,5 +43,22 @@ describe('writeConfigFile', () => {
       },
     } as Environment
     await writeConfigFile(env, targetDir, options)
+  })
+})
+
+describe('readConfigFile', () => {
+  it('should read the config file', async () => {
+    const persistedOptions = {
+      version: 1,
+      framework: 'react-cra',
+      existingAddOns: ['add-on-1'],
+    }
+    vol.mkdirSync('/test')
+    vol.writeFileSync(
+      resolve('/test', CONFIG_FILE),
+      JSON.stringify(persistedOptions, null, 2),
+    )
+    const config = await readConfigFile('/test')
+    expect(config).toEqual(persistedOptions)
   })
 })
