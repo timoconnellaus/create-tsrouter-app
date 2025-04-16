@@ -1,6 +1,6 @@
 {
   "name": "@tanstack/cta-templates-solid",
-  "version": "0.10.0-alpha.18",
+  "version": "0.10.0-alpha.19",
   "description": "React CRA Template for Create Tanstack Application",
   "type": "module",
   "main": "./dist/index.js",
