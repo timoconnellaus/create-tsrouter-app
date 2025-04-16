@@ -1,6 +1,6 @@
 {
   "name": "@tanstack/cta-custom-add-on",
-  "version": "0.10.0-alpha.15",
+  "version": "0.10.0-alpha.18",
   "description": "Tanstack Application Builder Custom Add-On Support",
   "type": "module",
   "main": "./dist/index.js",
