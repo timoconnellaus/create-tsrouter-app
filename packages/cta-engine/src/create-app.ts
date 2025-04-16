@@ -174,17 +174,7 @@ export async function createApp(
 ) {
   environment.startRun()
 
-  let targetDir: string = cwd || ''
-  if (!targetDir.length) {
-    targetDir = resolve(process.cwd(), options.projectName)
-
-    if (environment.exists(targetDir)) {
-      if (!silent) {
-        environment.error(`Directory "${options.projectName}" already exists`)
-      }
-      return
-    }
-  }
+  const targetDir: string = cwd || resolve(process.cwd(), options.projectName)
 
   await writeFiles(environment, targetDir, options)
 
