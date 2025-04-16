@@ -66,38 +66,37 @@ async function runCommandsAndInstallDependencies(
   environment: Environment,
   targetDir: string,
   options: Options,
-  silent: boolean,
 ) {
-  const s = silent ? null : environment.spinner()
+  const s = environment.spinner()
 
   // Setup git
   if (options.git) {
-    s?.start(`Initializing git repository...`)
+    s.start(`Initializing git repository...`)
     await setupGit(environment, targetDir)
-    s?.stop(`Initialized git repository`)
+    s.stop(`Initialized git repository`)
   }
 
   // Install dependencies
-  s?.start(`Installing dependencies via ${options.packageManager}...`)
+  s.start(`Installing dependencies via ${options.packageManager}...`)
   await packageManagerInstall(
     environment,
     resolve(targetDir),
     options.packageManager,
   )
-  s?.stop(`Installed dependencies`)
+  s.stop(`Installed dependencies`)
 
   for (const phase of ['setup', 'add-on', 'example']) {
     for (const addOn of options.chosenAddOns.filter(
       (addOn) =>
         addOn.phase === phase && addOn.command && addOn.command.command,
     )) {
-      s?.start(`Setting up ${addOn.name}...`)
+      s.start(`Setting up ${addOn.name}...`)
       await environment.execute(
         addOn.command!.command,
         addOn.command!.args || [],
         resolve(targetDir),
       )
-      s?.stop(`${addOn.name} setup complete`)
+      s.stop(`${addOn.name} setup complete`)
     }
   }
 
@@ -107,24 +106,19 @@ async function runCommandsAndInstallDependencies(
     options.starter.command &&
     options.starter.command.command
   ) {
-    s?.start(`Setting up starter ${options.starter.name}...`)
+    s.start(`Setting up starter ${options.starter.name}...`)
     await environment.execute(
       options.starter.command.command,
       options.starter.command.args || [],
       resolve(targetDir),
     )
-    s?.stop(`Starter ${options.starter.name} setup complete`)
+    s.stop(`Starter ${options.starter.name} setup complete`)
   }
 
-  await installShadcnComponents(environment, targetDir, options, silent)
+  await installShadcnComponents(environment, targetDir, options)
 }
 
-function report(
-  environment: Environment,
-  options: Options,
-  appName: string,
-  targetDir: string,
-) {
+function report(environment: Environment, options: Options, targetDir: string) {
   const warnings: Array<string> = []
   for (const addOn of options.chosenAddOns) {
     if (addOn.warning) {
@@ -146,7 +140,7 @@ Errors were encountered during this process:
 ${environment.getErrors().join('\n')}`
   }
 
-  environment.outro(`Your ${appName} app is ready in '${basename(targetDir)}'.
+  environment.outro(`Your ${environment.appName} app is ready in '${basename(targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
@@ -158,19 +152,13 @@ Use the following commands to start your app:
 }
 
 export async function createApp(
+  environment: Environment,
   options: Options,
   {
-    silent = false,
-    environment,
     cwd,
-    appName = 'TanStack',
   }: {
-    silent?: boolean
-    environment: Environment
     cwd?: string
-    name?: string
-    appName?: string
-  },
+  } = {},
 ) {
   environment.startRun()
 
@@ -178,16 +166,9 @@ export async function createApp(
 
   await writeFiles(environment, targetDir, options)
 
-  await runCommandsAndInstallDependencies(
-    environment,
-    targetDir,
-    options,
-    silent,
-  )
+  await runCommandsAndInstallDependencies(environment, targetDir, options)
 
   environment.finishRun()
 
-  if (!silent) {
-    report(environment, options, appName, targetDir)
-  }
+  report(environment, options, targetDir)
 }

@@ -9,22 +9,17 @@ describe('shadcn', () => {
   it('should skip if no components are selected', async () => {
     const { environment, output } = createMemoryEnvironment()
     environment.startRun()
-    await installShadcnComponents(
-      environment,
-      '/test',
-      {
-        packageManager: 'pnpm',
-        chosenAddOns: [],
-        projectName: 'test',
-        typescript: true,
-        spinner: () => ({
-          start: () => {},
-          succeed: () => {},
-          fail: () => {},
-        }),
-      } as unknown as Options,
-      true,
-    )
+    await installShadcnComponents(environment, '/test', {
+      packageManager: 'pnpm',
+      chosenAddOns: [],
+      projectName: 'test',
+      typescript: true,
+      spinner: () => ({
+        start: () => {},
+        succeed: () => {},
+        fail: () => {},
+      }),
+    } as unknown as Options)
     environment.finishRun()
 
     expect(output.commands).toEqual([])
@@ -33,31 +28,26 @@ describe('shadcn', () => {
   it('should add shadcn components for add-ons', async () => {
     const { environment, output } = createMemoryEnvironment()
     environment.startRun()
-    await installShadcnComponents(
-      environment,
-      '/test',
-      {
-        packageManager: 'pnpm',
-        chosenAddOns: [
-          {
-            id: 'shadcn',
-            shadcnComponents: ['button'],
-          },
-          {
-            id: 'test-1',
-            shadcnComponents: ['button', 'card'],
-          },
-        ],
-        projectName: 'test',
-        typescript: true,
-        spinner: () => ({
-          start: () => {},
-          succeed: () => {},
-          fail: () => {},
-        }),
-      } as unknown as Options,
-      false,
-    )
+    await installShadcnComponents(environment, '/test', {
+      packageManager: 'pnpm',
+      chosenAddOns: [
+        {
+          id: 'shadcn',
+          shadcnComponents: ['button'],
+        },
+        {
+          id: 'test-1',
+          shadcnComponents: ['button', 'card'],
+        },
+      ],
+      projectName: 'test',
+      typescript: true,
+      spinner: () => ({
+        start: () => {},
+        succeed: () => {},
+        fail: () => {},
+      }),
+    } as unknown as Options)
     environment.finishRun()
 
     expect(output.commands).toEqual([
@@ -71,29 +61,24 @@ describe('shadcn', () => {
   it('should add shadcn components in the starter', async () => {
     const { environment, output } = createMemoryEnvironment()
     environment.startRun()
-    await installShadcnComponents(
-      environment,
-      '/test',
-      {
-        packageManager: 'pnpm',
-        chosenAddOns: [
-          {
-            id: 'shadcn',
-          },
-        ],
-        projectName: 'test',
-        typescript: true,
-        starter: {
-          shadcnComponents: ['button', 'card'],
+    await installShadcnComponents(environment, '/test', {
+      packageManager: 'pnpm',
+      chosenAddOns: [
+        {
+          id: 'shadcn',
         },
-        spinner: () => ({
-          start: () => {},
-          succeed: () => {},
-          fail: () => {},
-        }),
-      } as unknown as Options,
-      false,
-    )
+      ],
+      projectName: 'test',
+      typescript: true,
+      starter: {
+        shadcnComponents: ['button', 'card'],
+      },
+      spinner: () => ({
+        start: () => {},
+        succeed: () => {},
+        fail: () => {},
+      }),
+    } as unknown as Options)
     environment.finishRun()
 
     expect(output.commands).toEqual([

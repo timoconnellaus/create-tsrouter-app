@@ -28,7 +28,6 @@ describe('writeConfigFile', () => {
           templates: ['file-router'],
         } as AddOn,
       ],
-      addOns: [],
     } as unknown as Options
     const targetDir = 'test-dir'
     const persistedOptions = {

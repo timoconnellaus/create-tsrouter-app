@@ -6,9 +6,8 @@ export async function installShadcnComponents(
   environment: Environment,
   targetDir: string,
   options: Options,
-  silent: boolean,
 ) {
-  const s = silent ? null : environment.spinner()
+  const s = environment.spinner()
 
   if (options.chosenAddOns.find((a) => a.id === 'shadcn')) {
     const shadcnComponents = new Set<string>()
@@ -28,7 +27,7 @@ export async function installShadcnComponents(
     }
 
     if (shadcnComponents.size > 0) {
-      s?.start(
+      s.start(
         `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
       )
       await packageManagerExecute(
@@ -38,7 +37,7 @@ export async function installShadcnComponents(
         'shadcn@latest',
         ['add', '--silent', '--yes', ...Array.from(shadcnComponents)],
       )
-      s?.stop(`Installed additional shadcn components`)
+      s.stop(`Installed additional shadcn components`)
     }
   }
 }

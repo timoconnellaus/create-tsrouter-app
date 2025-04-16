@@ -51,6 +51,7 @@ export function createDefaultEnvironment(): Environment {
 
     exists: (path: string) => existsSync(path),
 
+    appName: 'TanStack',
     intro: () => {},
     outro: () => {},
     info: () => {},

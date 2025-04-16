@@ -85,6 +85,7 @@ function createServer({
             ),
           )
           await createApp(
+            createDefaultEnvironment(),
             {
               projectName: projectName.replace(/^\//, './'),
               framework,
@@ -92,15 +93,11 @@ function createServer({
               tailwind: true,
               packageManager: 'pnpm',
               mode: 'file-router',
-              addOns: true,
               chosenAddOns,
               git: true,
               variableValues: {},
             },
             {
-              silent: true,
-              environment: createDefaultEnvironment(),
-              name,
               cwd: targetDir,
             },
           )
@@ -183,6 +180,7 @@ function createServer({
             ),
           )
           await createApp(
+            createDefaultEnvironment(),
             {
               projectName: projectName.replace(/^\//, './'),
               framework,
@@ -190,15 +188,11 @@ function createServer({
               tailwind: true,
               packageManager: 'pnpm',
               mode: 'file-router',
-              addOns: true,
               chosenAddOns,
               git: true,
               variableValues: {},
             },
             {
-              silent: true,
-              environment: createDefaultEnvironment(),
-              name,
               cwd: targetDir,
             },
           )

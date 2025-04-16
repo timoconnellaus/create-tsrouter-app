@@ -49,12 +49,8 @@ const simpleOptions = {
 describe('createApp', () => {
   it('should create an app', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(simpleOptions, {
-      silent: true,
-      environment,
-      name: 'Test',
+    await createApp(environment, simpleOptions, {
       cwd: '/',
-      appName: 'TanStack App',
     })
 
     expect(output.files['/src/test.txt']).toEqual('Hello')
@@ -62,12 +58,8 @@ describe('createApp', () => {
 
   it('should create an app - not silent', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(simpleOptions, {
-      silent: false,
-      environment,
-      name: 'Test',
+    await createApp(environment, simpleOptions, {
       cwd: '/foo/bar/baz',
-      appName: 'TanStack App',
     })
 
     const cwd = process.cwd()
@@ -80,6 +72,7 @@ describe('createApp', () => {
   it('should create an app - with a starter', async () => {
     const { environment, output } = createMemoryEnvironment()
     await createApp(
+      environment,
       {
         ...simpleOptions,
         starter: {
@@ -92,11 +85,7 @@ describe('createApp', () => {
         } as unknown as AddOn,
       },
       {
-        silent: false,
-        environment,
-        name: 'Test',
         cwd: '/',
-        appName: 'TanStack App',
       },
     )
 
@@ -107,10 +96,10 @@ describe('createApp', () => {
   it('should create an app - with a add-on', async () => {
     const { environment, output } = createMemoryEnvironment()
     await createApp(
+      environment,
       {
         ...simpleOptions,
         git: true,
-        addOns: true,
         chosenAddOns: [
           {
             type: 'add-on',
@@ -130,11 +119,7 @@ describe('createApp', () => {
         ],
       },
       {
-        silent: false,
-        environment,
-        name: 'Test',
         cwd: '/',
-        appName: 'TanStack App',
       },
     )
 

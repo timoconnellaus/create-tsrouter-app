@@ -85,17 +85,21 @@ export type Framework = FrameworkDefinition &
   }
 
 export interface Options {
-  framework: Framework
   projectName: string
+
+  framework: Framework
+  mode: Mode
+
   typescript: boolean
   tailwind: boolean
+
   packageManager: PackageManager
-  mode: Mode
-  addOns: boolean
-  chosenAddOns: Array<AddOn>
   git: boolean
-  variableValues: Record<string, string | number | boolean>
+
+  chosenAddOns: Array<AddOn>
   starter?: AddOn | undefined
+
+  variableValues: Record<string, string | number | boolean>
 }
 
 type ProjectEnvironment = {
@@ -114,6 +118,8 @@ type FileEnvironment = {
 }
 
 type UIEnvironment = {
+  appName: string
+
   intro: (message: string) => void
   outro: (message: string) => void
 

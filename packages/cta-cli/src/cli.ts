@@ -60,7 +60,7 @@ export function cli({
   forcedMode?: Mode
   forcedAddOns?: Array<string>
 }) {
-  const environment = createUIEnvironment()
+  const environment = createUIEnvironment(appName, false)
 
   const program = new Command()
 
@@ -250,11 +250,8 @@ export function cli({
           })
         }
 
-        await createApp(finalOptions!, {
-          environment: createUIEnvironment(),
+        await createApp(environment, finalOptions!, {
           cwd: options.targetDir || undefined,
-          name,
-          appName,
         })
       } catch (error) {
         log.error(

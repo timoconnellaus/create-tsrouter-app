@@ -71,7 +71,6 @@ export async function normalizeOptions(
       mode = starter.mode
     }
 
-    let addOns = false
     let chosenAddOns: Array<AddOn> = []
     if (
       Array.isArray(cliOptions.addOns) ||
@@ -79,7 +78,6 @@ export async function normalizeOptions(
       forcedAddOns ||
       cliOptions.toolchain
     ) {
-      addOns = true
       let finalAddOns = Array.from(
         new Set([...(starter?.dependsOn || []), ...(forcedAddOns || [])]),
       )
@@ -111,20 +109,19 @@ export async function normalizeOptions(
 
     return {
       // TODO: This is a bit to fix the default framework
-      framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
       projectName: cliOptions.projectName,
+      framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
+      mode,
       typescript,
       tailwind,
       packageManager:
         cliOptions.packageManager ||
         getPackageManager() ||
         DEFAULT_PACKAGE_MANAGER,
-      mode,
       git: !!cliOptions.git,
-      addOns,
       chosenAddOns,
-      variableValues: {},
       starter,
+      variableValues: {},
     }
   }
 }

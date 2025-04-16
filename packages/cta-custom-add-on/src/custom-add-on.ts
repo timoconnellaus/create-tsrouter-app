@@ -123,11 +123,8 @@ export async function createAppOptionsFromPersisted(
 
 async function runCreateApp(options: Required<Options>) {
   const { environment, output } = createMemoryEnvironment()
-  await createApp(options, {
-    silent: true,
-    environment,
+  await createApp(environment, options, {
     cwd: process.cwd(),
-    name: 'create-tsrouter-app',
   })
   return output
 }
