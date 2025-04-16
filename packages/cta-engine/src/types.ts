@@ -86,6 +86,7 @@ export type Framework = FrameworkDefinition &
 
 export interface Options {
   projectName: string
+  targetDir: string
 
   framework: Framework
   mode: Mode

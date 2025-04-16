@@ -123,8 +123,9 @@ export async function createAppOptionsFromPersisted(
 
 async function runCreateApp(options: Required<Options>) {
   const { environment, output } = createMemoryEnvironment()
-  await createApp(environment, options, {
-    cwd: process.cwd(),
+  await createApp(environment, {
+    ...options,
+    targetDir: process.cwd(),
   })
   return output
 }

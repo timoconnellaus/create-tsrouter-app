@@ -84,23 +84,18 @@ function createServer({
               ]),
             ),
           )
-          await createApp(
-            createDefaultEnvironment(),
-            {
-              projectName: projectName.replace(/^\//, './'),
-              framework,
-              typescript: true,
-              tailwind: true,
-              packageManager: 'pnpm',
-              mode: 'file-router',
-              chosenAddOns,
-              git: true,
-              variableValues: {},
-            },
-            {
-              cwd: targetDir,
-            },
-          )
+          await createApp(createDefaultEnvironment(), {
+            projectName: projectName.replace(/^\//, './'),
+            targetDir,
+            framework,
+            typescript: true,
+            tailwind: true,
+            packageManager: 'pnpm',
+            mode: 'file-router',
+            chosenAddOns,
+            git: true,
+            variableValues: {},
+          })
         } catch (error) {
           console.error(error)
           return {
@@ -179,23 +174,18 @@ function createServer({
               ]),
             ),
           )
-          await createApp(
-            createDefaultEnvironment(),
-            {
-              projectName: projectName.replace(/^\//, './'),
-              framework,
-              typescript: true,
-              tailwind: true,
-              packageManager: 'pnpm',
-              mode: 'file-router',
-              chosenAddOns,
-              git: true,
-              variableValues: {},
-            },
-            {
-              cwd: targetDir,
-            },
-          )
+          await createApp(createDefaultEnvironment(), {
+            projectName: projectName.replace(/^\//, './'),
+            targetDir,
+            framework,
+            typescript: true,
+            tailwind: true,
+            packageManager: 'pnpm',
+            mode: 'file-router',
+            chosenAddOns,
+            git: true,
+            variableValues: {},
+          })
         } catch (error) {
           return {
             content: [

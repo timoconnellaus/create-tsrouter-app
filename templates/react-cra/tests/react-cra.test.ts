@@ -2,6 +2,7 @@ import { expect, test, beforeAll } from 'vitest'
 
 import {
   createApp,
+  createMemoryEnvironment,
   finalizeAddOns,
   getFrameworkById,
 } from '@tanstack/cta-engine'
@@ -10,13 +11,16 @@ import type { AddOn, Options } from '@tanstack/cta-engine'
 
 import { register as registerReactCra } from '../src/index.js'
 
-import { cleanupOutput, createTestEnvironment } from './test-utilities.js'
+import { cleanupOutput } from './test-utilities.js'
 
 beforeAll(async () => {
   await registerReactCra()
 })
 
-async function createReactOptions(projectName: string, addOns?: Array<string>) {
+async function createReactOptions(
+  addOns: Array<string> = [],
+  projectName: string = 'TEST',
+) {
   const framework = getFrameworkById('react-cra')!
 
   let chosenAddOns: Array<AddOn> = []
@@ -34,6 +38,7 @@ async function createReactOptions(projectName: string, addOns?: Array<string>) {
     mode,
     packageManager: 'npm',
     projectName,
+    targetDir: `/foo/bar/baz/${projectName}`,
     tailwind: false,
     typescript: false,
     variableValues: {},
@@ -41,117 +46,105 @@ async function createReactOptions(projectName: string, addOns?: Array<string>) {
 }
 
 test('code router in javascript on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName)),
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  const { environment, output } = createMemoryEnvironment()
+  const options = await createReactOptions()
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-js-npm.json',
   )
 })
 
 test('code router with form add-on on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName, ['form'])),
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  const { environment, output } = createMemoryEnvironment()
+  const options = await createReactOptions(['form'])
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-js-form-npm.json',
   )
 })
 
 test('code router in typescript on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName)),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions()),
     typescript: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  }
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-ts-npm.json',
   )
 })
 
 test('file router on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName)),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions()),
     mode: 'file-router',
     typescript: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  } as Options
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/fr-ts-npm.json',
   )
 })
 
 test('file router on npm with biome', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName, ['biome'])),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions(['biome'])),
     mode: 'file-router',
     typescript: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  } as Options
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/fr-ts-biome-npm.json',
   )
 })
 
 test('file router with tailwind on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName)),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions()),
     mode: 'file-router',
     typescript: true,
     tailwind: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  } as Options
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/fr-ts-tw-npm.json',
   )
 })
 
 test('file router with add-on start on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName, ['start'])),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions(['start'])),
     tailwind: true,
     typescript: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  } as Options
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-ts-start-npm.json',
   )
 })
 
 test('file router with add-on start on npm', async () => {
-  const projectName = 'TEST'
-  const { environment, output, trimProjectRelativePath } =
-    createTestEnvironment(projectName)
-  await createApp(environment, {
-    ...(await createReactOptions(projectName, ['start', 'tanstack-query'])),
+  const { environment, output } = createMemoryEnvironment()
+  const options = {
+    ...(await createReactOptions(['start', 'tanstack-query'])),
     tailwind: true,
     typescript: true,
-  })
-  cleanupOutput(output, trimProjectRelativePath)
-  await expect(JSON.stringify(output, null, 2)).toMatchFileSnapshot(
+  } as Options
+  await createApp(environment, options)
+  const cleanedOutput = cleanupOutput(options, output)
+  await expect(JSON.stringify(cleanedOutput, null, 2)).toMatchFileSnapshot(
     './snapshots/react-cra/cr-ts-start-tanstack-query-npm.json',
   )
 })

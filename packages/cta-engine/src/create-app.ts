@@ -14,16 +14,8 @@ import { setupGit } from './integrations/git.js'
 
 import type { Environment, FileBundleHandler, Options } from './types.js'
 
-async function writeFiles(
-  environment: Environment,
-  targetDir: string,
-  options: Options,
-) {
-  const templateFileFromContent = createTemplateFile(
-    environment,
-    options,
-    targetDir,
-  )
+async function writeFiles(environment: Environment, options: Options) {
+  const templateFileFromContent = createTemplateFile(environment, options)
 
   async function writeFileBundle(bundle: FileBundleHandler) {
     const files = await bundle.getFiles()
@@ -31,7 +23,10 @@ async function writeFiles(
       const contents = await bundle.getFileContents(file)
       const binaryFile = getBinaryFile(contents)
       if (binaryFile) {
-        await environment.writeFile(resolve(targetDir, file), binaryFile)
+        await environment.writeFile(
+          resolve(options.targetDir, file),
+          binaryFile,
+        )
       } else {
         await templateFileFromContent(file, contents)
       }
@@ -55,16 +50,15 @@ async function writeFiles(
   }
 
   await environment.writeFile(
-    resolve(targetDir, './package.json'),
+    resolve(options.targetDir, './package.json'),
     JSON.stringify(createPackageJSON(options), null, 2),
   )
 
-  await writeConfigFile(environment, targetDir, options)
+  await writeConfigFile(environment, options.targetDir, options)
 }
 
 async function runCommandsAndInstallDependencies(
   environment: Environment,
-  targetDir: string,
   options: Options,
 ) {
   const s = environment.spinner()
@@ -72,7 +66,7 @@ async function runCommandsAndInstallDependencies(
   // Setup git
   if (options.git) {
     s.start(`Initializing git repository...`)
-    await setupGit(environment, targetDir)
+    await setupGit(environment, options.targetDir)
     s.stop(`Initialized git repository`)
   }
 
@@ -80,7 +74,7 @@ async function runCommandsAndInstallDependencies(
   s.start(`Installing dependencies via ${options.packageManager}...`)
   await packageManagerInstall(
     environment,
-    resolve(targetDir),
+    options.targetDir,
     options.packageManager,
   )
   s.stop(`Installed dependencies`)
@@ -94,7 +88,7 @@ async function runCommandsAndInstallDependencies(
       await environment.execute(
         addOn.command!.command,
         addOn.command!.args || [],
-        resolve(targetDir),
+        options.targetDir,
       )
       s.stop(`${addOn.name} setup complete`)
     }
@@ -110,15 +104,15 @@ async function runCommandsAndInstallDependencies(
     await environment.execute(
       options.starter.command.command,
       options.starter.command.args || [],
-      resolve(targetDir),
+      options.targetDir,
     )
     s.stop(`Starter ${options.starter.name} setup complete`)
   }
 
-  await installShadcnComponents(environment, targetDir, options)
+  await installShadcnComponents(environment, options.targetDir, options)
 }
 
-function report(environment: Environment, options: Options, targetDir: string) {
+function report(environment: Environment, options: Options) {
   const warnings: Array<string> = []
   for (const addOn of options.chosenAddOns) {
     if (addOn.warning) {
@@ -140,35 +134,24 @@ Errors were encountered during this process:
 ${environment.getErrors().join('\n')}`
   }
 
-  environment.outro(`Your ${environment.appName} app is ready in '${basename(targetDir)}'.
+  environment.outro(
+    `Your ${environment.appName} app is ready in '${basename(options.targetDir)}'.
 
 Use the following commands to start your app:
 % cd ${options.projectName}
 % ${formatCommand(
-    getPackageManagerScriptCommand(options.packageManager, ['dev']),
-  )}
+      getPackageManagerScriptCommand(options.packageManager, ['dev']),
+    )}
 
-  Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`)
+  Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`,
+  )
 }
 
-export async function createApp(
-  environment: Environment,
-  options: Options,
-  {
-    cwd,
-  }: {
-    cwd?: string
-  } = {},
-) {
+export async function createApp(environment: Environment, options: Options) {
   environment.startRun()
-
-  const targetDir: string = cwd || resolve(process.cwd(), options.projectName)
-
-  await writeFiles(environment, targetDir, options)
-
-  await runCommandsAndInstallDependencies(environment, targetDir, options)
-
+  await writeFiles(environment, options)
+  await runCommandsAndInstallDependencies(environment, options)
   environment.finishRun()
 
-  report(environment, options, targetDir)
+  report(environment, options)
 }

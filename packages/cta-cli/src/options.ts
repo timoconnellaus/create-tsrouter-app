@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import {
   cancel,
   confirm,
@@ -110,6 +111,7 @@ export async function normalizeOptions(
     return {
       // TODO: This is a bit to fix the default framework
       projectName: cliOptions.projectName,
+      targetDir: resolve(process.cwd(), cliOptions.projectName),
       framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
       mode,
       typescript,
@@ -229,7 +231,7 @@ export async function promptForOptions(
       cancel('Operation cancelled.')
       process.exit(0)
     }
-    options.mode = routerType as typeof CODE_ROUTER | typeof FILE_ROUTER
+    options.mode = routerType as Mode
   } else if (forcedMode) {
     options.mode = forcedMode === 'file-router' ? FILE_ROUTER : CODE_ROUTER
     options.typescript = options.mode === FILE_ROUTER

@@ -1,26 +1,11 @@
 import { dirname, join, basename, extname } from 'node:path'
 
-import { createMemoryEnvironment } from '@tanstack/cta-engine'
+import { formatCommand, Options } from '@tanstack/cta-engine'
 
 const IGNORE_EXTENSIONS = ['.png', '.ico', '.svg']
 
-export function createTestEnvironment(projectName: string) {
-  const { environment, output } = createMemoryEnvironment()
-
-  const trimProjectRelativePath = (path: string) =>
-    join(
-      dirname(path).replace(new RegExp(`^.*/${projectName}`), ''),
-      basename(path),
-    )
-
-  return {
-    environment,
-    output,
-    trimProjectRelativePath,
-  }
-}
-
 export function cleanupOutput(
+  options: Options,
   output: {
     files: Record<string, string>
     commands: Array<{
@@ -28,8 +13,10 @@ export function cleanupOutput(
       args: Array<string>
     }>
   },
-  trimProjectRelativePath: (path: string) => string,
 ) {
+  const trimProjectRelativePath = (path: string) =>
+    join(dirname(path).replace(options.targetDir, ''), basename(path))
+
   const filteredFiles = Object.keys(output.files)
     .filter((key) => !IGNORE_EXTENSIONS.includes(extname(key)))
     .reduce(
@@ -40,7 +27,7 @@ export function cleanupOutput(
       {} as Record<string, string>,
     )
 
-  const sortedFiles = Object.keys(filteredFiles)
+  const files = Object.keys(filteredFiles)
     .sort()
     .reduce(
       (acc, key) => {
@@ -50,5 +37,8 @@ export function cleanupOutput(
       {} as Record<string, string>,
     )
 
-  output.files = sortedFiles
+  return {
+    files,
+    commands: output.commands.map((c) => formatCommand(c)),
+  }
 }

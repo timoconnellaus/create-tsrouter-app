@@ -19,11 +19,7 @@ function convertDotFilesAndPaths(path: string) {
     .join('/')
 }
 
-export function createTemplateFile(
-  environment: Environment,
-  options: Options,
-  targetDir: string,
-) {
+export function createTemplateFile(environment: Environment, options: Options) {
   function getPackageManagerAddScript(
     packageName: string,
     isDev: boolean = false,
@@ -157,9 +153,9 @@ export function createTemplateFile(
     }
 
     if (append) {
-      await environment.appendFile(resolve(targetDir, target), content)
+      await environment.appendFile(resolve(options.targetDir, target), content)
     } else {
-      await environment.writeFile(resolve(targetDir, target), content)
+      await environment.writeFile(resolve(options.targetDir, target), content)
     }
   }
 }

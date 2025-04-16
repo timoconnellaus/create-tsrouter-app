@@ -10,6 +10,7 @@ import { AddOn, Options } from '../src/types.js'
 
 const simpleOptions = {
   projectName: 'test',
+  targetDir: '/',
   framework: {
     id: 'test',
     name: 'Test',
@@ -49,17 +50,16 @@ const simpleOptions = {
 describe('createApp', () => {
   it('should create an app', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(environment, simpleOptions, {
-      cwd: '/',
-    })
+    await createApp(environment, simpleOptions)
 
     expect(output.files['/src/test.txt']).toEqual('Hello')
   })
 
   it('should create an app - not silent', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(environment, simpleOptions, {
-      cwd: '/foo/bar/baz',
+    await createApp(environment, {
+      ...simpleOptions,
+      targetDir: '/foo/bar/baz',
     })
 
     const cwd = process.cwd()
@@ -71,23 +71,17 @@ describe('createApp', () => {
 
   it('should create an app - with a starter', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(
-      environment,
-      {
-        ...simpleOptions,
-        starter: {
-          command: {
-            command: 'echo',
-            args: ['Hello'],
-          },
-          getFiles: () => ['./src/test2.txt'],
-          getFileContents: () => 'Hello-2',
-        } as unknown as AddOn,
-      },
-      {
-        cwd: '/',
-      },
-    )
+    await createApp(environment, {
+      ...simpleOptions,
+      starter: {
+        command: {
+          command: 'echo',
+          args: ['Hello'],
+        },
+        getFiles: () => ['./src/test2.txt'],
+        getFileContents: () => 'Hello-2',
+      } as unknown as AddOn,
+    })
 
     expect(output.files['/src/test2.txt']).toEqual('Hello-2')
     expect(output.commands.some(({ command }) => command === 'echo')).toBe(true)
@@ -95,33 +89,27 @@ describe('createApp', () => {
 
   it('should create an app - with a add-on', async () => {
     const { environment, output } = createMemoryEnvironment()
-    await createApp(
-      environment,
-      {
-        ...simpleOptions,
-        git: true,
-        chosenAddOns: [
-          {
-            type: 'add-on',
-            phase: 'add-on',
-            warning: 'This is a warning',
-            command: {
-              command: 'echo',
-              args: ['Hello'],
-            },
-            packageAdditions: {
-              dependencies: {},
-              devDependencies: {},
-            },
-            getFiles: () => ['./src/test2.txt', './public/foo.jpg'],
-            getFileContents: () => 'base64::aGVsbG8=',
-          } as unknown as AddOn,
-        ],
-      },
-      {
-        cwd: '/',
-      },
-    )
+    await createApp(environment, {
+      ...simpleOptions,
+      git: true,
+      chosenAddOns: [
+        {
+          type: 'add-on',
+          phase: 'add-on',
+          warning: 'This is a warning',
+          command: {
+            command: 'echo',
+            args: ['Hello'],
+          },
+          packageAdditions: {
+            dependencies: {},
+            devDependencies: {},
+          },
+          getFiles: () => ['./src/test2.txt', './public/foo.jpg'],
+          getFileContents: () => 'base64::aGVsbG8=',
+        } as unknown as AddOn,
+      ],
+    })
 
     expect(output.files['/src/test2.txt']).toEqual('hello')
     expect(output.commands.some(({ command }) => command === 'echo')).toBe(true)

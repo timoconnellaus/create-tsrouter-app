@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
 import { intro, log } from '@clack/prompts'
 import chalk from 'chalk'
@@ -250,9 +251,14 @@ export function cli({
           })
         }
 
-        await createApp(environment, finalOptions!, {
-          cwd: options.targetDir || undefined,
-        })
+        if (!finalOptions) {
+          throw new Error('No options were provided')
+        }
+
+        finalOptions.targetDir =
+          options.targetDir || resolve(process.cwd(), finalOptions!.projectName)
+
+        await createApp(environment, finalOptions!)
       } catch (error) {
         log.error(
           error instanceof Error ? error.message : 'An unknown error occurred',

@@ -8,6 +8,7 @@ import type { AddOn, Integration, Options } from '../src/types.js'
 
 const simpleOptions = {
   projectName: 'test',
+  targetDir: '/test',
   framework: {
     id: 'test',
     name: 'Test',
@@ -35,16 +36,12 @@ describe('createTemplateFile', () => {
 
   it('should template a simple file with ejs', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(
-      environment,
-      {
-        ...simpleOptions,
-        variableValues: {
-          a: 'foo',
-        },
-      } as unknown as Options,
-      '/test',
-    )
+    const templateFile = createTemplateFile(environment, {
+      ...simpleOptions,
+      variableValues: {
+        a: 'foo',
+      },
+    } as unknown as Options)
     environment.startRun()
     await templateFile('./test.ts.ejs', "let a = '<%= variables.a %>'")
     environment.finishRun()
