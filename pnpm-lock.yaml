@@ -381,6 +381,9 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.8.2
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   templates/solid:
     dependencies:
@@ -394,20 +397,8 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.8.2
-
-  tests/integration-tests:
-    dependencies:
-      '@tanstack/cta-engine':
-        specifier: workspace:*
-        version: link:../../packages/cta-engine
-      '@tanstack/cta-templates-react-cra':
-        specifier: workspace:*
-        version: link:../../templates/react-cra
-      '@tanstack/cta-templates-solid':
-        specifier: workspace:*
-        version: link:../../templates/solid
       vitest:
-        specifier: ^3.0.8
+        specifier: ^3.1.1
         version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
 packages:
