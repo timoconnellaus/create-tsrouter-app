@@ -16,7 +16,13 @@ import { createDefaultEnvironment } from './environment.js'
 
 import type { PackageManager } from './package-manager.js'
 import type { ToolChain } from './toolchain.js'
-import type { CliOptions, Framework, Mode, TemplateOptions } from './types.js'
+import type {
+  CliOptions,
+  Framework,
+  Mode,
+  Options,
+  TemplateOptions,
+} from './types.js'
 
 export function cli({
   name,
@@ -119,6 +125,7 @@ export function cli({
         return value as ToolChain
       },
     )
+    .option('--interactive', 'interactive mode', false)
     .option('--tailwind', 'add Tailwind CSS', false)
     .option<Array<string> | boolean>(
       '--add-ons [...add-ons]',
@@ -163,11 +170,17 @@ export function cli({
           cliOptions.template = forcedMode as TemplateOptions
         }
 
-        let finalOptions = await normalizeOptions(
-          cliOptions,
-          forcedMode,
-          forcedAddOns,
-        )
+        let finalOptions: Options | undefined
+        if (cliOptions.interactive) {
+          cliOptions.addOns = true
+        } else {
+          finalOptions = await normalizeOptions(
+            cliOptions,
+            forcedMode,
+            forcedAddOns,
+          )
+        }
+
         if (finalOptions) {
           intro(`Creating a new ${appName} app in ${projectName}...`)
         } else {
@@ -177,7 +190,8 @@ export function cli({
             forcedAddOns,
           })
         }
-        await createApp(finalOptions, {
+
+        await createApp(finalOptions!, {
           environment: createDefaultEnvironment(),
           cwd: options.targetDir || undefined,
           name,

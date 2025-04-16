@@ -167,7 +167,7 @@ export async function promptForOptions(
     forcedAddOns?: Array<string>
     forcedMode?: TemplateOptions
   },
-): Promise<Required<Options>> {
+): Promise<Required<Options> | undefined> {
   const options = {} as Required<Options>
 
   options.framework = cliOptions.framework || DEFAULT_FRAMEWORK
@@ -195,6 +195,8 @@ export async function promptForOptions(
       process.exit(0)
     }
     options.projectName = value
+  } else {
+    options.projectName = cliOptions.projectName
   }
 
   // Router type selection
