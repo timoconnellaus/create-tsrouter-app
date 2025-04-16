@@ -335,13 +335,6 @@ export async function createApp(
   let targetDir: string = cwd || ''
   if (!targetDir.length) {
     targetDir = resolve(process.cwd(), options.projectName)
-
-    if (environment.exists(targetDir)) {
-      if (!silent) {
-        log.error(`Directory "${options.projectName}" already exists`)
-      }
-      return
-    }
   }
 
   const copyFiles = createCopyFiles(environment, targetDir)
