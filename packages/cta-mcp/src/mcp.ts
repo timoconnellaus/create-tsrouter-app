@@ -93,7 +93,6 @@ function createServer({
             mode: 'file-router',
             chosenAddOns,
             git: true,
-            variableValues: {},
           })
         } catch (error) {
           console.error(error)
@@ -183,7 +182,6 @@ function createServer({
             mode: 'file-router',
             chosenAddOns,
             git: true,
-            variableValues: {},
           })
         } catch (error) {
           return {

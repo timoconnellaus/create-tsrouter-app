@@ -122,8 +122,6 @@ export async function promptForOptions(
     options.typescript = true
   }
 
-  options.variableValues = {}
-
   options.git = cliOptions.git || (await selectGit())
 
   return options

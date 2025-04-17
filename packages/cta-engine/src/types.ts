@@ -42,7 +42,6 @@ export type AddOnDefinition = {
   warning?: string
   dependsOn?: Array<string>
   integrations?: Array<Integration>
-  variables?: Array<Variable>
 
   files?: Record<string, string>
   deletedFiles?: Array<string>
@@ -97,8 +96,6 @@ export interface Options {
 
   chosenAddOns: Array<AddOn>
   starter?: AddOn | undefined
-
-  variableValues: Record<string, string | number | boolean>
 }
 
 type ProjectEnvironment = {
@@ -134,26 +131,3 @@ type UIEnvironment = {
 }
 
 export type Environment = ProjectEnvironment & FileEnvironment & UIEnvironment
-
-type BooleanVariable = {
-  name: string
-  default: boolean
-  description: string
-  type: 'boolean'
-}
-
-type NumberVariable = {
-  name: string
-  default: number
-  description: string
-  type: 'number'
-}
-
-type StringVariable = {
-  name: string
-  default: string
-  description: string
-  type: 'string'
-}
-
-export type Variable = BooleanVariable | NumberVariable | StringVariable

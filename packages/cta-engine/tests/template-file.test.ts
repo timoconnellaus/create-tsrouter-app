@@ -18,15 +18,12 @@ const simpleOptions = {
   typescript: true,
   tailwind: true,
   mode: FILE_ROUTER,
-  variableValues: {
-    a: 'foo',
-  },
 } as unknown as Options
 
 describe('createTemplateFile', () => {
   it('should template a simple file', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(environment, simpleOptions, '/test')
+    const templateFile = createTemplateFile(environment, simpleOptions)
     environment.startRun()
     await templateFile('./test.ts', 'let a = 1')
     environment.finishRun()
@@ -34,30 +31,11 @@ describe('createTemplateFile', () => {
     expect(output.files['/test/test.ts'].trim()).toEqual('let a = 1')
   })
 
-  it('should template a simple file with ejs', async () => {
+  it('should handle ignore files', async () => {
     const { environment, output } = createMemoryEnvironment()
     const templateFile = createTemplateFile(environment, {
       ...simpleOptions,
-      variableValues: {
-        a: 'foo',
-      },
     } as unknown as Options)
-    environment.startRun()
-    await templateFile('./test.ts.ejs', "let a = '<%= variables.a %>'")
-    environment.finishRun()
-
-    expect(output.files['/test/test.ts'].trim()).toEqual("let a = 'foo'")
-  })
-
-  it('should handle ignore files', async () => {
-    const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(
-      environment,
-      {
-        ...simpleOptions,
-      } as unknown as Options,
-      '/test',
-    )
     environment.startRun()
     await templateFile('./test.ts.ejs', '<% ignoreFile() %>let a = 1')
     environment.finishRun()
@@ -67,7 +45,7 @@ describe('createTemplateFile', () => {
 
   it('should handle append files', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(environment, simpleOptions, '/test')
+    const templateFile = createTemplateFile(environment, simpleOptions)
     environment.startRun()
     await templateFile('./test.txt.ejs', 'Line 1\n')
     await templateFile('./test.txt.append', 'Line 2\n')
@@ -78,23 +56,19 @@ describe('createTemplateFile', () => {
 
   it('should handle enabled add-ons', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(
-      environment,
-      {
-        ...simpleOptions,
-        chosenAddOns: [
-          {
-            id: 'test1',
-            name: 'Test 1',
-          },
-          {
-            id: 'test2',
-            name: 'Test 2',
-          },
-        ] as Array<AddOn>,
-      },
-      '/test',
-    )
+    const templateFile = createTemplateFile(environment, {
+      ...simpleOptions,
+      chosenAddOns: [
+        {
+          id: 'test1',
+          name: 'Test 1',
+        },
+        {
+          id: 'test2',
+          name: 'Test 2',
+        },
+      ] as Array<AddOn>,
+    })
     environment.startRun()
     await templateFile(
       './test.txt.ejs',
@@ -107,7 +81,7 @@ describe('createTemplateFile', () => {
 
   it('should handle relative paths', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(environment, simpleOptions, '/test')
+    const templateFile = createTemplateFile(environment, simpleOptions)
     environment.startRun()
     await templateFile(
       './src/test/test.txt.ejs',
@@ -122,27 +96,23 @@ describe('createTemplateFile', () => {
 
   it('should handle routes', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(
-      environment,
-      {
-        ...simpleOptions,
-        chosenAddOns: [
-          {
-            id: 'test',
-            name: 'Test',
-            routes: [
-              {
-                path: '/test',
-                name: 'Test',
-                url: '/test',
-                jsName: 'test',
-              },
-            ],
-          } as AddOn,
-        ],
-      },
-      '/test',
-    )
+    const templateFile = createTemplateFile(environment, {
+      ...simpleOptions,
+      chosenAddOns: [
+        {
+          id: 'test',
+          name: 'Test',
+          routes: [
+            {
+              path: '/test',
+              name: 'Test',
+              url: '/test',
+              jsName: 'test',
+            },
+          ],
+        } as AddOn,
+      ],
+    })
 
     environment.startRun()
     await templateFile(
@@ -156,26 +126,22 @@ describe('createTemplateFile', () => {
 
   it('should handle integrations', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(
-      environment,
-      {
-        ...simpleOptions,
-        chosenAddOns: [
-          {
-            id: 'test',
-            name: 'Test',
-            integrations: [
-              {
-                type: 'header-user',
-                path: '/test',
-                jsName: 'test',
-              } as Integration,
-            ],
-          } as AddOn,
-        ],
-      },
-      '/test',
-    )
+    const templateFile = createTemplateFile(environment, {
+      ...simpleOptions,
+      chosenAddOns: [
+        {
+          id: 'test',
+          name: 'Test',
+          integrations: [
+            {
+              type: 'header-user',
+              path: '/test',
+              jsName: 'test',
+            } as Integration,
+          ],
+        } as AddOn,
+      ],
+    })
 
     environment.startRun()
     await templateFile(
@@ -189,7 +155,7 @@ describe('createTemplateFile', () => {
 
   it('should handle package manager', async () => {
     const { environment, output } = createMemoryEnvironment()
-    const templateFile = createTemplateFile(environment, simpleOptions, '/test')
+    const templateFile = createTemplateFile(environment, simpleOptions)
     environment.startRun()
     await templateFile(
       './foo.txt.ejs',

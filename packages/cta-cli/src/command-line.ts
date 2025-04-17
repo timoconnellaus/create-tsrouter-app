@@ -111,6 +111,5 @@ export async function normalizeOptions(
     git: !!cliOptions.git,
     chosenAddOns,
     starter,
-    variableValues: {},
   }
 }

@@ -1,4 +1,4 @@
-# Add-on Authoring for the React CRA Template System
+# Add-on Authoring for the CTA Framework for React CRA
 
 # Available Integrations
 
@@ -135,3 +135,35 @@ Configuration in `info.json`:
   },
 ]
 ```
+
+# Routes
+
+If your add-on creates routes you need to specify those in the `info.json` file.
+
+This example will define a route at `/demo/my-demo-route` that will be rendered by the `DemoMyDemoRoute` component. There will be a `Demo Route` link in the header to this route.
+
+```json
+"routes": [
+  {
+    "url": "/demo/my-demo-route",
+    "name": "Demo Route",
+    "path": "src/routes/demo.my-demo-route.tsx",
+    "jsName": "DemoMyDemoRoute"
+  }
+],
+```
+
+If you don't want a header link you can omit the `url` and `name` properties.
+
+```json
+"routes": [
+  {
+    "path": "src/routes/demo.my-hidden-demo-route.tsx",
+    "jsName": "DemoMyHiddenDemoRoute"
+  }
+],
+```
+
+You **MUST** specify routes in the `info.json` file if your add-on supports the `code-router` mode. This is because the `code-routers` setup needs to import the routes in order to add them to the router.
+
+By convension you should prefix demo routes with `demo` to make it clear that they are demo routes so they can be easily identified and removed.

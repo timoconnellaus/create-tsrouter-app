@@ -24,3 +24,28 @@
 
 - `@tanstack/cta-frameworks-react-cra` - The React (Create React App) framework for TanStack CTA.
 - `@tanstack/cta-frameworks-solid` - The Solid framework for TanStack CTA.
+
+## File Templates
+
+The CTA system uses EJS to render the files into the final application.
+
+Below are all of the variables that are available to the file templates.
+
+| Variable                     | Description                                                                                                                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packageManager`             | The package manager that is being used (e.g. `npm`, `yarn`, `pnpm`)                                                                                                                                  |
+| `projectName`                | The name of the project                                                                                                                                                                              |
+| `typescript`                 | Boolean value that is `true` if TypeScript is being used, otherwise it is `false`                                                                                                                    |
+| `tailwind`                   | Boolean value that is `true` if Tailwind CSS is being used, otherwise it is `false`                                                                                                                  |
+| `js`                         | The file extension for files that do not include JSX. When in TypeScript mode it is `ts`. When in JavaScript mode it is `js`.                                                                        |
+| `jsx`                        | The file extension for files that include JSX. When in TypeScript mode it is `tsx`. When in JavaScript mode it is `jsx`.                                                                             |
+| `fileRouter`                 | Boolean value that is `true` if the file router is being used, otherwise it is `false`                                                                                                               |
+| `codeRouter`                 | Boolean value that is `true` if the code router is being used, otherwise it is `false`                                                                                                               |
+| `addOnEnabled`               | An object that contains the enabled add-ons. The keys are the `id` values of the add-ons. For example, if the tanstack-query add-on is enabled the `addOnEnabled]['tanstack-query']` will be `true`. |
+| `addOns`                     | An array of the enabled add-on objects                                                                                                                                                               |
+| `integrations`               | An array of the enabled integrations                                                                                                                                                                 |
+| `routes`                     | An array containing all of the routes from all of the add-ons. (Used by the header and the `code-router` setup.)                                                                                     |
+| `getPackageManagerAddScript` | A function that returns the script to add a dependency to the project.                                                                                                                               |
+| `getPackageManagerRunScript` | A function that returns the script to run a command in the project.                                                                                                                                  |
+| `relativePath`               | A function that returns the relative path from the current file to the specified target file.                                                                                                        |
+| `ignoreFile`                 | A function that if called will tell CTA to not include this file in the application.                                                                                                                 |

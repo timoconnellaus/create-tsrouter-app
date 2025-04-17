@@ -67,16 +67,6 @@ export function createTemplateFile(environment: Environment, options: Options) {
     }
   }
 
-  const variables = {
-    ...options.variableValues,
-    ...options.chosenAddOns.reduce<Record<string, any>>((acc, addOn) => {
-      return {
-        ...acc,
-        ...addOn.variables,
-      }
-    }, {}),
-  }
-
   const addOnEnabled = options.chosenAddOns.reduce<Record<string, boolean>>(
     (acc, addOn) => {
       acc[addOn.id] = true
@@ -99,7 +89,6 @@ export function createTemplateFile(environment: Environment, options: Options) {
       addOns: options.chosenAddOns,
       integrations,
       routes,
-      variables,
 
       getPackageManagerAddScript,
       getPackageManagerRunScript,

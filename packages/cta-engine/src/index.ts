@@ -38,7 +38,6 @@ export type {
   Mode,
   Options,
   Starter,
-  Variable,
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'
 export type { PackageManager } from './package-manager.js'
