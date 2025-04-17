@@ -18,7 +18,8 @@ import { runMCPServer } from '@tanstack/cta-mcp'
 
 import { launchUI } from '@tanstack/cta-ui'
 
-import { normalizeOptions, promptForOptions } from './options.js'
+import { promptForOptions } from './options.js'
+import { normalizeOptions } from './command-line.js'
 
 import { createUIEnvironment } from './ui-environment.js'
 
@@ -246,7 +247,7 @@ export function cli({
         } else {
           intro(`Let's configure your ${appName} application`)
           finalOptions = await promptForOptions(cliOptions, {
-            forcedMode: forcedMode as TemplateOptions,
+            forcedMode: forcedMode as Mode,
             forcedAddOns,
           })
         }
@@ -256,9 +257,9 @@ export function cli({
         }
 
         finalOptions.targetDir =
-          options.targetDir || resolve(process.cwd(), finalOptions!.projectName)
+          options.targetDir || resolve(process.cwd(), finalOptions.projectName)
 
-        await createApp(environment, finalOptions!)
+        await createApp(environment, finalOptions)
       } catch (error) {
         log.error(
           error instanceof Error ? error.message : 'An unknown error occurred',

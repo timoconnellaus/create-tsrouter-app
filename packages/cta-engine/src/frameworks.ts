@@ -67,6 +67,14 @@ function getAddOns(framework: FrameworkDefinition) {
   return addOns
 }
 
+export function __testRegisterFramework(framework: Framework) {
+  frameworks.push(framework)
+}
+
+export function __testClearFrameworks() {
+  frameworks.length = 0
+}
+
 export function registerFramework(framework: FrameworkDefinition) {
   const baseAssetsDirectory = resolve(framework.baseDirectory, 'base')
 
