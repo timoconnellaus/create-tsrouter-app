@@ -41,12 +41,12 @@ await publish({
       packageDir: './packages/cta-ui',
     },
     {
-      name: '@tanstack/cta-templates-react-cra',
-      packageDir: './templates/react-cra',
+      name: '@tanstack/cta-frameworks-react-cra',
+      packageDir: './frameworks/react-cra',
     },
     {
-      name: '@tanstack/cta-templates-solid',
-      packageDir: './templates/solid',
+      name: '@tanstack/cta-frameworks-solid',
+      packageDir: './frameworks/solid',
     },
   ],
   branchConfigs: {

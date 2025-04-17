@@ -33,14 +33,14 @@
       "@tanstack/cta-engine": "workspace:*",
       "@tanstack/cta-mcp": "workspace:*",
       "@tanstack/cta-ui": "workspace:*",
-      "@tanstack/cta-templates-react-cra": "workspace:*",
-      "@tanstack/cta-templates-solid": "workspace:*"
+      "@tanstack/cta-framework-react-cra": "workspace:*",
+      "@tanstack/cta-framework-solid": "workspace:*"
     }
   },
   "workspaces": [
     "./cli/*",
     "./packages/*",
-    "./templates/*"
+    "./frameworks/*"
   ],
   "dependencies": {
     "@tanstack/config": "^0.16.2"

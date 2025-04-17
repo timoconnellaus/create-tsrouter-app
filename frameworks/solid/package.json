@@ -1,7 +1,7 @@
 {
-  "name": "@tanstack/cta-templates-react-cra",
+  "name": "@tanstack/cta-framework-solid",
   "version": "0.10.0-alpha.19",
-  "description": "React CRA Template for Create Tanstack Application",
+  "description": "CTA Framework for Solid",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
@@ -21,10 +21,9 @@
     "url": "https://github.com/sponsors/tannerlinsley"
   },
   "keywords": [
-    "react",
+    "solid",
     "tanstack",
-    "router",
-    "create-react-app"
+    "router"
   ],
   "author": "Jack Herrington <jherr@pobox.com>",
   "license": "MIT",

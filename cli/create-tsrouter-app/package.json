@@ -29,8 +29,8 @@
   "packageManager": "pnpm@9.15.5",
   "dependencies": {
     "@tanstack/cta-cli": "workspace:*",
-    "@tanstack/cta-templates-react-cra": "workspace:*",
-    "@tanstack/cta-templates-solid": "workspace:*"
+    "@tanstack/cta-framework-react-cra": "workspace:*",
+    "@tanstack/cta-framework-solid": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

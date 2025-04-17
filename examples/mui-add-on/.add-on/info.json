@@ -7,9 +7,7 @@
   "link": "https://github.com/jane-smith/mui-add-on-add-on",
   "command": {},
   "shadcnComponents": [],
-  "templates": [
-    "file-router", "code-router"
-  ],
+  "modes": ["file-router", "code-router"],
   "routes": [
     {
       "url": "/demo/mui",
@@ -20,7 +18,7 @@
   "variables": {},
   "phase": "add-on",
   "type": "add-on",
-  "framework": "react",
+  "framework": "react-cra",
   "packageAdditions": {
     "scripts": {},
     "dependencies": {

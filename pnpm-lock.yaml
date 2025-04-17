@@ -13,8 +13,8 @@ overrides:
   '@tanstack/cta-engine': workspace:*
   '@tanstack/cta-mcp': workspace:*
   '@tanstack/cta-ui': workspace:*
-  '@tanstack/cta-templates-react-cra': workspace:*
-  '@tanstack/cta-templates-solid': workspace:*
+  '@tanstack/cta-framework-react-cra': workspace:*
+  '@tanstack/cta-framework-solid': workspace:*
 
 importers:
 
@@ -45,12 +45,12 @@ importers:
       '@tanstack/cta-cli':
         specifier: workspace:*
         version: link:../../packages/cta-cli
-      '@tanstack/cta-templates-react-cra':
+      '@tanstack/cta-framework-react-cra':
         specifier: workspace:*
-        version: link:../../templates/react-cra
-      '@tanstack/cta-templates-solid':
+        version: link:../../frameworks/react-cra
+      '@tanstack/cta-framework-solid':
         specifier: workspace:*
-        version: link:../../templates/solid
+        version: link:../../frameworks/solid
     devDependencies:
       '@types/node':
         specifier: ^22.13.4
@@ -64,12 +64,12 @@ importers:
       '@tanstack/cta-cli':
         specifier: workspace:*
         version: link:../../packages/cta-cli
-      '@tanstack/cta-templates-react-cra':
+      '@tanstack/cta-framework-react-cra':
         specifier: workspace:*
-        version: link:../../templates/react-cra
-      '@tanstack/cta-templates-solid':
+        version: link:../../frameworks/react-cra
+      '@tanstack/cta-framework-solid':
         specifier: workspace:*
-        version: link:../../templates/solid
+        version: link:../../frameworks/solid
     devDependencies:
       '@types/node':
         specifier: ^22.13.4
@@ -83,12 +83,12 @@ importers:
       '@tanstack/cta-cli':
         specifier: workspace:*
         version: link:../../packages/cta-cli
-      '@tanstack/cta-templates-react-cra':
+      '@tanstack/cta-framework-react-cra':
         specifier: workspace:*
-        version: link:../../templates/react-cra
-      '@tanstack/cta-templates-solid':
+        version: link:../../frameworks/react-cra
+      '@tanstack/cta-framework-solid':
         specifier: workspace:*
-        version: link:../../templates/solid
+        version: link:../../frameworks/solid
     devDependencies:
       '@types/node':
         specifier: ^22.13.4
@@ -96,6 +96,38 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.8.2
+
+  frameworks/react-cra:
+    dependencies:
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../../packages/cta-engine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.17
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
+
+  frameworks/solid:
+    dependencies:
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../../packages/cta-engine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.13.17
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
+      vitest:
+        specifier: ^3.1.1
+        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/cta-cli:
     dependencies:
@@ -374,38 +406,6 @@ importers:
       web-vitals:
         specifier: ^4.2.4
         version: 4.2.4
-
-  templates/react-cra:
-    dependencies:
-      '@tanstack/cta-engine':
-        specifier: workspace:*
-        version: link:../../packages/cta-engine
-    devDependencies:
-      '@types/node':
-        specifier: ^22.13.4
-        version: 22.13.17
-      typescript:
-        specifier: ^5.6.3
-        version: 5.8.2
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
-
-  templates/solid:
-    dependencies:
-      '@tanstack/cta-engine':
-        specifier: workspace:*
-        version: link:../../packages/cta-engine
-    devDependencies:
-      '@types/node':
-        specifier: ^22.13.4
-        version: 22.13.17
-      typescript:
-        specifier: ^5.6.3
-        version: 5.8.2
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
 packages:
 
