@@ -101,7 +101,7 @@ describe('normalizeOptions', () => {
         {
           id: 'foo',
           name: 'foobar',
-          templates: ['file-router'],
+          modes: ['file-router'],
         },
       ],
     })
@@ -123,12 +123,12 @@ describe('normalizeOptions', () => {
         {
           id: 'foo',
           name: 'foobar',
-          templates: ['file-router'],
+          modes: ['file-router'],
         },
         {
           id: 'baz',
           name: 'baz',
-          templates: ['file-router'],
+          modes: ['file-router'],
         },
       ],
     })
@@ -154,7 +154,7 @@ describe('normalizeOptions', () => {
         {
           id: 'biome',
           name: 'Biome',
-          templates: ['file-router', 'code-router'],
+          modes: ['file-router', 'code-router'],
         },
       ],
     })
@@ -175,12 +175,12 @@ describe('normalizeOptions', () => {
         {
           id: 'foo',
           name: 'foobar',
-          templates: ['file-router', 'code-router'],
+          modes: ['file-router', 'code-router'],
         },
         {
           id: 'baz',
           name: 'baz',
-          templates: ['file-router', 'code-router'],
+          modes: ['file-router', 'code-router'],
         },
       ],
     })

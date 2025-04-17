@@ -11,12 +11,11 @@ import {
   getFrameworkById,
 } from '@tanstack/cta-engine'
 
-import type { TemplateOptions } from '@tanstack/cta-engine'
+import type { Mode } from '@tanstack/cta-engine'
 
 function createServer({
   appName,
   forcedAddOns = [],
-  name,
 }: {
   appName?: string
   forcedAddOns?: Array<string>
@@ -40,7 +39,7 @@ function createServer({
             text: JSON.stringify(
               framework
                 .getAddOns()
-                .filter((addOn) => addOn.templates.includes('file-router'))
+                .filter((addOn) => addOn.modes.includes('file-router'))
                 .map((addOn) => ({
                   id: addOn.id,
                   description: addOn.description,
@@ -130,7 +129,7 @@ function createServer({
             text: JSON.stringify(
               framework
                 .getAddOns()
-                .filter((addOn) => addOn.templates.includes('file-router'))
+                .filter((addOn) => addOn.modes.includes('file-router'))
                 .map((addOn) => ({
                   id: addOn.id,
                   description: addOn.description,
@@ -216,7 +215,7 @@ export async function runMCPServer(
     appName,
     name,
   }: {
-    forcedMode?: TemplateOptions
+    forcedMode?: Mode
     forcedAddOns?: Array<string>
     appName?: string
     name?: string

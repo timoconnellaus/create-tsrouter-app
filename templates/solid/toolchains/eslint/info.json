@@ -3,6 +3,6 @@
   "description": "ESLint + Prettier toolchain support.",
   "phase": "setup",
   "type": "toolchain",
-  "templates": ["code-router", "file-router"],
+  "modes": ["code-router", "file-router"],
   "link": "https://eslint.org"
 }

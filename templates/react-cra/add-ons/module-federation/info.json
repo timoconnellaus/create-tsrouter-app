@@ -2,7 +2,7 @@
   "name": "Module Federation",
   "description": "Module Federation",
   "phase": "add-on",
-  "templates": ["code-router"],
+  "modes": ["code-router"],
   "link": "https://module-federation.io/",
   "type": "add-on"
 }

@@ -1,8 +1,6 @@
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 
-export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
-
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
 export type FileBundleHandler = {
@@ -22,7 +20,7 @@ export type AddOnDefinition = {
   description: string
   type: 'add-on' | 'example' | 'starter' | 'toolchain'
   link: string
-  templates: Array<string>
+  modes: Array<Mode>
   routes?: Array<{
     url: string
     name: string

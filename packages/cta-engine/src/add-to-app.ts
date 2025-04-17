@@ -14,7 +14,7 @@ import { createApp } from './create-app.js'
 import { readConfigFile, writeConfigFile } from './config-file.js'
 import { sortObject } from './utils.js'
 
-import type { Environment, Options } from './types.js'
+import type { Environment, Mode, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
 
 function isDirectory(path: string) {
@@ -37,7 +37,7 @@ async function createOptions(
     framework,
     tailwind: true,
     addOns: true,
-    chosenAddOns: await finalizeAddOns(framework!, json.mode as string, [
+    chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
       ...json.existingAddOns,
       ...addOns,
     ]),

@@ -22,29 +22,27 @@ import { promptForOptions } from './options.js'
 import { normalizeOptions } from './command-line.js'
 
 import { createUIEnvironment } from './ui-environment.js'
+import { convertTemplateToMode } from './utils.js'
 
-import type {
-  Mode,
-  Options,
-  PackageManager,
-  TemplateOptions,
-} from '@tanstack/cta-engine'
+import type { Mode, Options, PackageManager } from '@tanstack/cta-engine'
 
-import type { CliOptions } from './types.js'
+import type { CliOptions, TemplateOptions } from './types.js'
 
 async function listAddOns(
   options: CliOptions,
   {
     forcedMode,
-    forcedAddOns = [],
+    forcedAddOns,
+    defaultTemplate,
   }: {
-    forcedMode?: TemplateOptions
-    forcedAddOns?: Array<string>
+    forcedMode?: Mode
+    forcedAddOns: Array<string>
+    defaultTemplate: TemplateOptions
   },
 ) {
   const addOns = await getAllAddOns(
     getFrameworkById(options.framework || 'react-cra')!,
-    forcedMode || options.template || 'typescript',
+    forcedMode || convertTemplateToMode(options.template || defaultTemplate),
   )
   for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
     console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
@@ -55,12 +53,14 @@ export function cli({
   name,
   appName,
   forcedMode,
-  forcedAddOns,
+  forcedAddOns = [],
+  defaultTemplate = 'javascript',
 }: {
   name: string
   appName: string
   forcedMode?: Mode
   forcedAddOns?: Array<string>
+  defaultTemplate?: TemplateOptions
 }) {
   const environment = createUIEnvironment(appName, false)
 
@@ -132,6 +132,7 @@ export function cli({
         }
         return value
       },
+      defaultTemplate,
     )
   }
 
@@ -207,12 +208,13 @@ export function cli({
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
       await listAddOns(options, {
-        forcedMode: forcedMode as TemplateOptions,
+        forcedMode,
         forcedAddOns,
+        defaultTemplate,
       })
     } else if (options.mcp || options.mcpSse) {
       await runMCPServer(!!options.mcpSse, {
-        forcedMode: forcedMode as TemplateOptions,
+        forcedMode,
         forcedAddOns,
         appName,
       })
@@ -247,7 +249,7 @@ export function cli({
         } else {
           intro(`Let's configure your ${appName} application`)
           finalOptions = await promptForOptions(cliOptions, {
-            forcedMode: forcedMode as Mode,
+            forcedMode,
             forcedAddOns,
           })
         }

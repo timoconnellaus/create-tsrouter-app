@@ -38,7 +38,6 @@ export type {
   Mode,
   Options,
   Starter,
-  TemplateOptions,
   Variable,
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'

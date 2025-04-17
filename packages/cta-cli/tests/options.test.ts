@@ -23,17 +23,17 @@ beforeEach(() => {
       {
         id: 'react-query',
         type: 'add-on',
-        templates: ['file-router', 'code-router'],
+        modes: ['file-router', 'code-router'],
       },
       {
         id: 'tanstack-chat',
         type: 'add-on',
-        templates: ['file-router', 'code-router'],
+        modes: ['file-router', 'code-router'],
       },
       {
         id: 'biome',
         type: 'toolchain',
-        templates: ['file-router', 'code-router'],
+        modes: ['file-router', 'code-router'],
       },
     ],
   } as unknown as Framework)
@@ -101,6 +101,36 @@ describe('promptForOptions', () => {
 
     expect(options?.mode).toBe('file-router')
     expect(options?.typescript).toBe(true)
+  })
+
+  it('takes template from cli options - code-router', async () => {
+    setBasicSpies()
+
+    vi.spyOn(prompts, 'selectRouterType').mockImplementation(
+      async () => 'code-router',
+    )
+
+    const options = await promptForOptions(
+      { ...baseCliOptions, template: 'javascript' },
+      {},
+    )
+
+    expect(options?.mode).toBe('code-router')
+  })
+
+  it('takes template from cli options - file-router', async () => {
+    setBasicSpies()
+
+    vi.spyOn(prompts, 'selectRouterType').mockImplementation(
+      async () => 'code-router',
+    )
+
+    const options = await promptForOptions(
+      { ...baseCliOptions, template: 'file-router' },
+      {},
+    )
+
+    expect(options?.mode).toBe('file-router')
   })
 
   it('prompt for router type when unspecified', async () => {

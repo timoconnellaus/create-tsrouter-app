@@ -1,4 +1,6 @@
-import type { PackageManager, TemplateOptions } from '@tanstack/cta-engine'
+import type { PackageManager } from '@tanstack/cta-engine'
+
+export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
 export interface CliOptions {
   template?: TemplateOptions

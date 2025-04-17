@@ -2,7 +2,7 @@
   "name": "TanStack Query",
   "description": "Integrate TanStack Query into your application.",
   "phase": "add-on",
-  "templates": ["file-router"],
+  "modes": ["file-router"],
   "type": "add-on",
   "link": "https://tanstack.com/query/latest",
   "routes": [

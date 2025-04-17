@@ -4,5 +4,5 @@
   "phase": "add-on",
   "type": "add-on",
   "link": "https://github.com/t3-oss/t3-env",
-  "templates": ["file-router", "code-router"]
+  "modes": ["file-router", "code-router"]
 }

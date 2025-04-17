@@ -10,4 +10,5 @@ registerSolid()
 cli({
   name: 'create-tanstack',
   appName: 'TanStack',
+  defaultTemplate: 'file-router',
 })

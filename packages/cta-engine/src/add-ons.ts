@@ -1,21 +1,18 @@
-import type { AddOn, Framework } from './types.js'
+import type { AddOn, Framework, Mode } from './types.js'
 
-export function getAllAddOns(
-  framework: Framework,
-  template: string,
-): Array<AddOn> {
-  return framework.getAddOns().filter((a) => a.templates.includes(template))
+export function getAllAddOns(framework: Framework, mode: Mode): Array<AddOn> {
+  return framework.getAddOns().filter((a) => a.modes.includes(mode))
 }
 
 // Turn the list of chosen add-on IDs into a final list of add-ons by resolving dependencies
 export async function finalizeAddOns(
   framework: Framework,
-  template: string,
+  mode: Mode,
   chosenAddOnIDs: Array<string>,
 ): Promise<Array<AddOn>> {
   const finalAddOnIDs = new Set(chosenAddOnIDs)
 
-  const addOns = getAllAddOns(framework, template)
+  const addOns = getAllAddOns(framework, mode)
 
   for (const addOnID of finalAddOnIDs) {
     let addOn: AddOn | undefined

@@ -25,7 +25,7 @@ describe('writeConfigFile', () => {
         {
           id: 'add-on-1',
           description: 'Add-on 1',
-          templates: ['file-router'],
+          modes: ['file-router'],
         } as AddOn,
       ],
     } as unknown as Options

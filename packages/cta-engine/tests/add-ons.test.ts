@@ -13,12 +13,12 @@ describe('getAllAddOns', () => {
           {
             id: 'add-on-1',
             description: 'Add-on 1',
-            templates: ['file-router'],
+            modes: ['file-router'],
           } as AddOn,
           {
             id: 'add-on-2',
             description: 'Add-on 2',
-            templates: ['code-router'],
+            modes: ['code-router'],
           } as AddOn,
         ],
       } as Framework,
@@ -39,18 +39,18 @@ describe('finalizeAddOns', () => {
           {
             id: 'add-on-1',
             description: 'Add-on 1',
-            templates: ['file-router'],
+            modes: ['file-router'],
             dependsOn: ['add-on-2'],
           } as AddOn,
           {
             id: 'add-on-2',
             description: 'Add-on 2',
-            templates: ['file-router'],
+            modes: ['file-router'],
           } as AddOn,
           {
             id: 'add-on-3',
             description: 'Add-on 3',
-            templates: ['file-router'],
+            modes: ['file-router'],
           } as AddOn,
         ],
       } as Framework,

@@ -13,6 +13,7 @@ import {
 
 import type {
   Environment,
+  Mode,
   Options,
   PersistedOptions,
 } from '@tanstack/cta-engine'
@@ -115,7 +116,7 @@ export async function createAppOptionsFromPersisted(
     ...json,
     framework,
     addOns: true,
-    chosenAddOns: await finalizeAddOns(framework!, json.mode as string, [
+    chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
       ...json.existingAddOns,
     ]),
   } as Required<Options>
