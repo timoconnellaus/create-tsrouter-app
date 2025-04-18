@@ -51,6 +51,13 @@ export function createPackageJSON(options: Options) {
     packageJSON = mergePackageJSON(packageJSON, addOn)
   }
 
+  if (options.starter) {
+    packageJSON = mergePackageJSON(
+      packageJSON,
+      options.starter.packageAdditions,
+    )
+  }
+
   packageJSON.dependencies = sortObject(
     (packageJSON.dependencies ?? {}) as Record<string, string>,
   )

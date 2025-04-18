@@ -187,9 +187,15 @@ importers:
       execa:
         specifier: ^9.5.2
         version: 9.5.2
+      ignore:
+        specifier: ^7.0.3
+        version: 7.0.3
       memfs:
         specifier: ^4.17.0
         version: 4.17.0
+      parse-gitignore:
+        specifier: ^2.0.0
+        version: 2.0.0
       prettier:
         specifier: ^3.5.0
         version: 3.5.3
@@ -203,6 +209,9 @@ importers:
       '@types/node':
         specifier: ^22.13.4
         version: 22.13.14
+      '@types/parse-gitignore':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@vitest/coverage-v8':
         specifier: 3.1.1
         version: 3.1.1(vitest@3.1.1(@types/node@22.13.14)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
@@ -2247,6 +2256,9 @@ packages:
 
   '@types/node@22.13.17':
     resolution: {integrity: sha512-nAJuQXoyPj04uLgu+obZcSmsfOenUg6DxPKogeUy6yNCFwWaj5sBF8/G/pNo8EtBJjAfSVgfIlugR/BCOleO+g==}
+
+  '@types/parse-gitignore@1.0.2':
+    resolution: {integrity: sha512-AQwj+lNTWI7y1kkMe8qLByiToXoXs/du70qGFIHJZaJUVrF5jB8QzvWmLyR1VWYqRagpY8ABrqAjs7uHsJnVBQ==}
 
   '@types/qs@6.9.18':
     resolution: {integrity: sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA==}
@@ -4494,6 +4506,10 @@ packages:
   parse-filepath@1.0.2:
     resolution: {integrity: sha512-FwdRXKCohSVeXqwtYonZTXtbGJKrn+HNyWDYVcp5yuJlesTwNH4rsmRZ+GrKAPJ5bLpRxESMeS+Rl0VCHRvB2Q==}
     engines: {node: '>=0.8'}
+
+  parse-gitignore@2.0.0:
+    resolution: {integrity: sha512-RmVuCHWsfu0QPNW+mraxh/xjQVw/lhUCUru8Zni3Ctq3AoMhpDTq0OVdKS6iesd6Kqb7viCV3isAL43dciOSog==}
+    engines: {node: '>=14'}
 
   parse-ms@4.0.0:
     resolution: {integrity: sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw==}
@@ -7995,6 +8011,10 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
+  '@types/parse-gitignore@1.0.2':
+    dependencies:
+      '@types/node': 22.13.17
+
   '@types/qs@6.9.18': {}
 
   '@types/range-parser@1.2.7': {}
@@ -10550,6 +10570,8 @@ snapshots:
       is-absolute: 1.0.0
       map-cache: 0.2.2
       path-root: 0.1.1
+
+  parse-gitignore@2.0.0: {}
 
   parse-ms@4.0.0: {}
 

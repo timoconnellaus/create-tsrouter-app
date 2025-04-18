@@ -1,6 +1,6 @@
 import { basename, resolve } from 'node:path'
 
-import { getBinaryFile } from './file-helpers.js'
+import { isBase64 } from './file-helpers.js'
 import { formatCommand } from './utils.js'
 import { writeConfigFile } from './config-file.js'
 import {
@@ -21,11 +21,11 @@ async function writeFiles(environment: Environment, options: Options) {
     const files = await bundle.getFiles()
     for (const file of files) {
       const contents = await bundle.getFileContents(file)
-      const binaryFile = getBinaryFile(contents)
-      if (binaryFile) {
-        await environment.writeFile(
+      const isBinaryFile = isBase64(contents)
+      if (isBinaryFile) {
+        await environment.writeFileBase64(
           resolve(options.targetDir, file),
-          binaryFile,
+          contents,
         )
       } else {
         await templateFileFromContent(file, contents)

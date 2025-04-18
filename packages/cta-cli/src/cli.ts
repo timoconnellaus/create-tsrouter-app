@@ -120,7 +120,7 @@ export function cli({
 
   const starterCommand = program.command('starter')
   starterCommand
-    .command('update')
+    .command('init')
     .description('Initialize a project starter from the current project')
     .action(async () => {
       await initStarter(environment)

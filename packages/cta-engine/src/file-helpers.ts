@@ -4,11 +4,23 @@ import { basename, extname, resolve } from 'node:path'
 const BINARY_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico']
 
 export function readFileHelper(path: string): string {
-  if (BINARY_EXTENSIONS.includes(extname(path))) {
+  if (isBinaryFile(path)) {
     return `base64::${readFileSync(path).toString('base64')}`
   } else {
     return readFileSync(path, 'utf-8').toString()
   }
+}
+
+export function isBinaryFile(path: string): boolean {
+  return BINARY_EXTENSIONS.includes(extname(path))
+}
+
+export function convertBinaryContentsToBase64(contents: any): string {
+  return `base64::${Buffer.from(contents).toString('base64')}`
+}
+
+export function isBase64(content: string): boolean {
+  return content.startsWith('base64::')
 }
 
 export function getBinaryFile(content: string): string | null {

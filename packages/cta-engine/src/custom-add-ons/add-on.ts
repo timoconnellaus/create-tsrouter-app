@@ -3,9 +3,9 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
 import {
-  IGNORE_FILES,
   compareFiles,
   createAppOptionsFromPersisted,
+  createIgnore,
   createPackageAdditions,
   readCurrentProjectOptions,
   recursivelyGatherFiles,
@@ -163,9 +163,11 @@ export async function buildAssetsDirectory(
   info: AddOnInfo,
 ) {
   const assetsDir = resolve(ADD_ON_DIR, ASSETS_DIR)
+  const ignore = createIgnore(process.cwd())
+
   if (!existsSync(assetsDir)) {
     const changedFiles: Record<string, string> = {}
-    await compareFiles('.', IGNORE_FILES, output.files, changedFiles)
+    await compareFiles('.', ignore, output.files, changedFiles)
 
     for (const file of Object.keys(changedFiles).filter(
       (file) => !ADD_ON_IGNORE_FILES.includes(basename(file)),
@@ -196,7 +198,7 @@ export async function updateAddOnInfo(environment: Environment) {
   )
 
   info.packageAdditions = createPackageAdditions(
-    JSON.parse(output.files[resolve(process.cwd(), 'package.json')]),
+    JSON.parse(output.files['./package.json']),
     JSON.parse((await readFile('package.json')).toString()),
   )
 

@@ -11,6 +11,8 @@ import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
 
+import { getBinaryFile } from './file-helpers.js'
+
 import type { Environment } from './types.js'
 
 export function createDefaultEnvironment(): Environment {
@@ -33,6 +35,10 @@ export function createDefaultEnvironment(): Environment {
     writeFile: async (path: string, contents: string) => {
       await mkdir(dirname(path), { recursive: true })
       return writeFile(path, contents)
+    },
+    writeFileBase64: async (path: string, base64Contents: string) => {
+      await mkdir(dirname(path), { recursive: true })
+      return writeFile(path, getBinaryFile(base64Contents) as string)
     },
     execute: async (command: string, args: Array<string>, cwd: string) => {
       try {
@@ -107,6 +113,12 @@ export function createMemoryEnvironment() {
     return Promise.resolve()
   }
   environment.writeFile = async (path: string, contents: string) => {
+    fs.mkdirSync(dirname(path), { recursive: true })
+    await fs.writeFileSync(path, contents)
+  }
+  environment.writeFileBase64 = async (path: string, contents: string) => {
+    // For the in-memory file system, we are not converting the base64 to binary
+    // because it's not needed.
     fs.mkdirSync(dirname(path), { recursive: true })
     await fs.writeFileSync(path, contents)
   }

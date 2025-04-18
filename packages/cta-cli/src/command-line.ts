@@ -85,13 +85,7 @@ export async function normalizeOptions(
         selectedAddOns.add(cliOptions.toolchain)
       }
 
-      return await finalizeAddOns(
-        framework,
-        forcedMode || cliOptions.template === 'file-router'
-          ? FILE_ROUTER
-          : CODE_ROUTER,
-        Array.from(selectedAddOns),
-      )
+      return await finalizeAddOns(framework, mode, Array.from(selectedAddOns))
     }
 
     return []

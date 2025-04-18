@@ -32,13 +32,16 @@
   "dependencies": {
     "ejs": "^3.1.10",
     "execa": "^9.5.2",
+    "ignore": "^7.0.3",
     "memfs": "^4.17.0",
+    "parse-gitignore": "^2.0.0",
     "prettier": "^3.5.0"
   },
   "devDependencies": {
     "@tanstack/config": "^0.16.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.13.4",
+    "@types/parse-gitignore": "^1.0.2",
     "@vitest/coverage-v8": "3.1.1",
     "eslint": "^9.20.0",
     "typescript": "^5.6.3",

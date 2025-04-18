@@ -110,7 +110,8 @@ describe('createApp', () => {
       ],
     })
 
-    expect(output.files['/src/test2.txt']).toEqual('hello')
+    // This is ok, we convert to binary right at the end of the process
+    expect(output.files['/src/test2.txt']).toEqual('base64::aGVsbG8=')
     expect(output.commands.some(({ command }) => command === 'echo')).toBe(true)
   })
 })

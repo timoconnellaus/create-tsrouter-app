@@ -1,13 +1,15 @@
 {
-  "framework": "react",
-  "typescript": true,
   "projectName": "resume-example",
+  "targetDir": "/Users/jherr/projects/cta/new-examples/resume-example",
   "mode": "file-router",
+  "typescript": true,
   "tailwind": true,
-  "packageManager": "pnpm",
-  "toolchain": "none",
-  "variableValues": {},
+  "packageManager": "npm",
   "git": true,
   "version": 1,
-  "existingAddOns": ["shadcn", "start"]
+  "framework": "react-cra",
+  "existingAddOns": [
+    "start",
+    "shadcn"
+  ]
 }

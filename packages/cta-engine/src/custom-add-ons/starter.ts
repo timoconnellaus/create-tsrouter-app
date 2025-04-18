@@ -3,9 +3,9 @@ import { existsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import {
-  IGNORE_FILES,
   compareFiles,
   createAppOptionsFromPersisted,
+  createIgnore,
   createPackageAdditions,
   readCurrentProjectOptions,
   recursivelyGatherFiles,
@@ -42,6 +42,7 @@ export async function readOrGenerateStarterInfo(
           dependencies: {},
           devDependencies: {},
         },
+        dependsOn: options.existingAddOns,
         typescript: options.typescript!,
         tailwind: options.tailwind!,
       }
@@ -62,7 +63,7 @@ export async function updateStarterInfo(environment: Environment) {
   const { info, output } = await loadCurrentStarterInfo(environment)
 
   info.packageAdditions = createPackageAdditions(
-    JSON.parse(output.files[resolve(process.cwd(), 'package.json')]),
+    JSON.parse(output.files['./package.json']),
     JSON.parse((await readFile('package.json')).toString()),
   )
 
@@ -75,7 +76,9 @@ export async function compileStarter(environment: Environment) {
   const files: Record<string, string> = await recursivelyGatherFiles(
     resolve(process.cwd()),
   )
-  await compareFiles('.', IGNORE_FILES, output.files, files)
+  const ignore = createIgnore(process.cwd())
+  const changedFiles: Record<string, string> = {}
+  await compareFiles('.', ignore, output.files, changedFiles)
 
   const deletedFiles: Array<string> = []
   for (const file of Object.keys(files)) {
@@ -86,7 +89,7 @@ export async function compileStarter(environment: Environment) {
 
   const compiledInfo: StarterCompiled = {
     ...info,
-    files,
+    files: changedFiles,
     deletedFiles,
   }
 

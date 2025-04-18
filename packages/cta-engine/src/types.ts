@@ -120,6 +120,7 @@ type FileEnvironment = {
   appendFile: (path: string, contents: string) => Promise<void>
   copyFile: (from: string, to: string) => Promise<void>
   writeFile: (path: string, contents: string) => Promise<void>
+  writeFileBase64: (path: string, base64Contents: string) => Promise<void>
   execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
   deleteFile: (path: string) => Promise<void>
   exists: (path: string) => boolean

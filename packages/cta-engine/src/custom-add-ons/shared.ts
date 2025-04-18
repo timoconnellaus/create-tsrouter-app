@@ -1,5 +1,8 @@
-import { readFile, readdir } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { readdir } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
+import { basename, resolve } from 'node:path'
+import parseGitignore from 'parse-gitignore'
+import ignore from 'ignore'
 
 import { createApp } from '../create-app.js'
 import { createMemoryEnvironment } from '../environment.js'
@@ -26,21 +29,47 @@ export const IGNORE_FILES = [
   'package-lock.json',
   'package.json',
   'pnpm-lock.yaml',
+  'starter.json',
+  'starter-info.json',
   'yarn.lock',
 ]
+
+export function createIgnore(path: string) {
+  const ignoreList = existsSync(resolve(path, '.gitignore'))
+    ? (
+        parseGitignore(
+          readFileSync(resolve(path, '.gitignore')),
+        ) as unknown as { patterns: Array<string> }
+      ).patterns
+    : []
+  const ig = ignore().add(ignoreList)
+  return (filePath: string) => {
+    const fileName = basename(filePath)
+    if (IGNORE_FILES.includes(fileName)) {
+      return true
+    }
+    const nameWithoutDotSlash = fileName.replace(/^\.\//, '')
+    return ig.ignores(nameWithoutDotSlash)
+  }
+}
 
 async function recursivelyGatherFilesHelper(
   basePath: string,
   path: string,
   files: Record<string, string>,
+  ignore: (filePath: string) => boolean,
 ) {
   const dirFiles = await readdir(path, { withFileTypes: true })
   for (const file of dirFiles) {
+    if (ignore(file.name)) {
+      continue
+    }
     if (file.isDirectory()) {
       await recursivelyGatherFilesHelper(
         basePath,
         resolve(path, file.name),
         files,
+        ignore,
       )
     } else {
       const filePath = resolve(path, file.name)
@@ -50,8 +79,9 @@ async function recursivelyGatherFilesHelper(
 }
 
 export async function recursivelyGatherFiles(path: string) {
+  const ignore = createIgnore(path)
   const files: Record<string, string> = {}
-  await recursivelyGatherFilesHelper(path, path, files)
+  await recursivelyGatherFilesHelper(path, path, files, ignore)
   return files
 }
 
@@ -119,29 +149,38 @@ export async function createAppOptionsFromPersisted(
 
 export async function runCreateApp(options: Required<Options>) {
   const { environment, output } = createMemoryEnvironment()
+
+  const targetDir = resolve(process.cwd())
+
   await createApp(environment, {
     ...options,
-    targetDir: process.cwd(),
+    targetDir,
   })
+
+  output.files = Object.fromEntries(
+    Object.entries(output.files).map(([key, value]) => {
+      return [key.replace(targetDir, '.'), value]
+    }),
+  )
+
   return output
 }
 
 export async function compareFiles(
   path: string,
-  ignore: Array<string>,
+  ignore: (filePath: string) => boolean,
   original: Record<string, string>,
   changedFiles: Record<string, string>,
 ) {
   const files = await readdir(path, { withFileTypes: true })
   for (const file of files) {
     const filePath = `${path}/${file.name}`
-    if (!ignore.includes(file.name)) {
+    if (!ignore(file.name)) {
       if (file.isDirectory()) {
         await compareFiles(filePath, ignore, original, changedFiles)
       } else {
-        const contents = (await readFile(filePath)).toString()
-        const absolutePath = resolve(process.cwd(), filePath)
-        if (!original[absolutePath] || original[absolutePath] !== contents) {
+        const contents = await readFileHelper(filePath)
+        if (!original[filePath] || original[filePath] !== contents) {
           changedFiles[filePath] = contents
         }
       }
