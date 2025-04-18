@@ -1,3 +1,5 @@
+import { loadRemoteAddOn } from './custom-add-ons/add-on.js'
+
 import type { AddOn, Framework, Mode } from './types.js'
 
 export function getAllAddOns(framework: Framework, mode: Mode): Array<AddOn> {
@@ -44,16 +46,4 @@ export async function finalizeAddOns(
 
 function loadAddOn(addOn: AddOn): AddOn {
   return addOn
-}
-
-export async function loadRemoteAddOn(url: string): Promise<AddOn> {
-  const response = await fetch(url)
-  const fileContent = await response.json()
-  fileContent.id = url
-  return {
-    ...fileContent,
-    getFiles: () => Promise.resolve(Object.keys(fileContent.files)),
-    getFileContents: (path: string) => Promise.resolve(fileContent.files[path]),
-    getDeletedFiles: () => Promise.resolve(fileContent.deletedFiles),
-  }
 }

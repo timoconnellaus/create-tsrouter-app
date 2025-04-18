@@ -7,15 +7,10 @@ import {
   finalizeAddOns,
   getFrameworkById,
   getPackageManager,
-  loadRemoteAddOn,
+  loadStarter,
 } from '@tanstack/cta-engine'
 
-import type {
-  AddOn,
-  Mode,
-  Options,
-  StarterCompiled,
-} from '@tanstack/cta-engine'
+import type { Mode, Options } from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
 
@@ -40,19 +35,19 @@ export async function normalizeOptions(
   }
 
   let mode: typeof FILE_ROUTER | typeof CODE_ROUTER =
-    cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
+    forcedMode || cliOptions.template === 'file-router'
+      ? FILE_ROUTER
+      : CODE_ROUTER
 
   const starter = cliOptions.starter
-    ? ((await loadRemoteAddOn(
-        cliOptions.starter,
-      )) as unknown as StarterCompiled)
+    ? await loadStarter(cliOptions.starter)
     : undefined
 
   if (starter) {
     tailwind = starter.tailwind
     typescript = starter.typescript
     cliOptions.framework = starter.framework
-    mode = starter.mode
+    mode = starter.mode as Mode
   }
 
   const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
@@ -111,6 +106,6 @@ export async function normalizeOptions(
       DEFAULT_PACKAGE_MANAGER,
     git: !!cliOptions.git,
     chosenAddOns,
-    starter: starter as unknown as AddOn,
+    starter: starter,
   }
 }

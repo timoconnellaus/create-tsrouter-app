@@ -19,3 +19,19 @@
 - Run `pnpm dev` at that top level to build everything in watch mode
 - Run `pnpm build` and `pnpm test` to make sure the changes work
 - Check your work and PR
+
+# Testing Add-ons and Starters
+
+Create the add-on or starter using the CLI. Then serve it locally from the project directory using `npx static-server`.
+
+Then, when creating apps with add-ons:
+
+```bash
+node [root of the monorepo]/cli/create-tsrouter-app/dist/index.js app-js --add-ons http://localhost:9080/add-on.json
+```
+
+And when creating apps with a starter:
+
+```bash
+node [root of the monorepo]/cli/create-tsrouter-app/dist/index.js app-js --starter http://localhost:9080/starter.json
+```

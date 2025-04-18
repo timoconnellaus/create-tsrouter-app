@@ -1,5 +1,5 @@
 {
-  "framework": "react",
+  "framework": "react-cra",
   "projectName": "mui-add-on",
   "typescript": true,
   "tailwind": true,

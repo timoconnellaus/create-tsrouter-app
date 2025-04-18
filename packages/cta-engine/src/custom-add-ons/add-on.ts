@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
+import { AddOnCompiledSchema } from '../types.js'
 import {
-  compareFiles,
+  compareFilesRecursively,
   createAppOptionsFromPersisted,
   createIgnore,
   createPackageAdditions,
@@ -13,7 +14,7 @@ import {
 } from './shared.js'
 
 import type { PersistedOptions } from '../config-file'
-import type { AddOnCompiled, AddOnInfo, Environment } from '../types'
+import type { AddOn, AddOnCompiled, AddOnInfo, Environment } from '../types'
 
 const ADD_ON_DIR = '.add-on'
 
@@ -167,7 +168,7 @@ export async function buildAssetsDirectory(
 
   if (!existsSync(assetsDir)) {
     const changedFiles: Record<string, string> = {}
-    await compareFiles('.', ignore, output.files, changedFiles)
+    await compareFilesRecursively('.', ignore, output.files, changedFiles)
 
     for (const file of Object.keys(changedFiles).filter(
       (file) => !ADD_ON_IGNORE_FILES.includes(basename(file)),
@@ -178,12 +179,14 @@ export async function buildAssetsDirectory(
       if (file.includes('/routes/')) {
         const { url, code, name, jsName } = templatize(changedFiles[file], file)
         info.routes ||= []
-        info.routes.push({
-          url,
-          name,
-          jsName,
-          path: file,
-        })
+        if (!info.routes.find((r) => r.url === url)) {
+          info.routes.push({
+            url,
+            name,
+            jsName,
+            path: file,
+          })
+        }
         writeFileSync(resolve(assetsDir, `${file}.ejs`), code)
       } else {
         writeFileSync(resolve(assetsDir, file), changedFiles[file])
@@ -228,4 +231,24 @@ export async function initAddOn(environment: Environment) {
   await validateAddOnSetup(environment)
   await updateAddOnInfo(environment)
   await compileAddOn(environment)
+}
+
+export async function loadRemoteAddOn(url: string): Promise<AddOn> {
+  const response = await fetch(url)
+  const jsonContent = await response.json()
+
+  const checked = AddOnCompiledSchema.safeParse(jsonContent)
+  if (!checked.success) {
+    throw new Error(`Invalid add-on: ${url}`)
+  }
+
+  const addOn = checked.data
+  addOn.id = url
+  const out = {
+    ...addOn,
+    getFiles: () => Promise.resolve(Object.keys(addOn.files)),
+    getFileContents: (path: string) => Promise.resolve(addOn.files[path]),
+    getDeletedFiles: () => Promise.resolve(addOn.deletedFiles),
+  }
+  return out
 }

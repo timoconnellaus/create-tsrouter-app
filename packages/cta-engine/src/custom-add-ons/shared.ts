@@ -166,7 +166,7 @@ export async function runCreateApp(options: Required<Options>) {
   return output
 }
 
-export async function compareFiles(
+export async function compareFilesRecursively(
   path: string,
   ignore: (filePath: string) => boolean,
   original: Record<string, string>,
@@ -177,7 +177,7 @@ export async function compareFiles(
     const filePath = `${path}/${file.name}`
     if (!ignore(file.name)) {
       if (file.isDirectory()) {
-        await compareFiles(filePath, ignore, original, changedFiles)
+        await compareFilesRecursively(filePath, ignore, original, changedFiles)
       } else {
         const contents = await readFileHelper(filePath)
         if (!original[filePath] || original[filePath] !== contents) {

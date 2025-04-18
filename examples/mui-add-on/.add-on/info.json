@@ -1,26 +1,33 @@
 {
-  "name": "mui-add-on",
+  "id": "mui-add-on-add-on",
+  "name": "mui-add-on-add-on",
   "version": "0.0.1",
   "description": "Add-on",
   "author": "Jane Smith <jane.smith@example.com>",
   "license": "MIT",
   "link": "https://github.com/jane-smith/mui-add-on-add-on",
-  "command": {},
   "shadcnComponents": [],
-  "modes": ["file-router", "code-router"],
+  "framework": "react-cra",
+  "modes": ["file-router"],
   "routes": [
     {
       "url": "/demo/mui",
-      "name": "mui"
+      "name": "mui",
+      "jsName": "Mui",
+      "path": "./src/routes/demo.mui.tsx"
+    }
+  ],
+  "integrations": [
+    {
+      "type": "provider",
+      "jsName": "MuiProvider",
+      "path": "./src/components/mui-provider.tsx"
     }
   ],
   "warning": "",
-  "variables": {},
   "phase": "add-on",
   "type": "add-on",
-  "framework": "react-cra",
   "packageAdditions": {
-    "scripts": {},
     "dependencies": {
       "@emotion/styled": "^11.14.0",
       "@fontsource/roboto": "^5.2.5",
@@ -28,7 +35,7 @@
       "@mui/material": "^7.0.1",
       "@mui/styled-engine-sc": "^7.0.1",
       "styled-components": "^6.1.16"
-    },
-    "devDependencies": {}
-  }
+    }
+  },
+  "dependsOn": []
 }

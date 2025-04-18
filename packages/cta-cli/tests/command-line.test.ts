@@ -62,13 +62,21 @@ describe('normalizeOptions', () => {
     __testRegisterFramework({
       id: 'solid',
       name: 'Solid',
+      getAddOns: () => [],
     })
     fetch.mockResponseOnce(
       JSON.stringify({
+        id: 'https://github.com/cta-dev/cta-starter-solid',
         tailwind: true,
         typescript: false,
         framework: 'solid',
         mode: 'file-router',
+        type: 'starter',
+        description: 'A starter for Solid',
+        name: 'My Solid Starter',
+        dependsOn: [],
+        files: {},
+        deletedFiles: [],
       }),
     )
 
@@ -108,6 +116,7 @@ describe('normalizeOptions', () => {
     const options = await normalizeOptions(
       {
         projectName: 'test',
+        framework: 'react-cra',
       },
       'file-router',
       ['foo'],
@@ -136,6 +145,8 @@ describe('normalizeOptions', () => {
       {
         projectName: 'test',
         addOns: ['baz'],
+        framework: 'react-cra',
+        template: 'file-router',
       },
       'file-router',
       ['foo'],

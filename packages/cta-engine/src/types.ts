@@ -1,7 +1,88 @@
+import z from 'zod'
+
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
 
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
+
+export const AddOnBaseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  author: z.string().optional(),
+  version: z.string().optional(),
+  link: z.string().optional(),
+  license: z.string().optional(),
+  warning: z.string().optional(),
+  type: z.enum(['add-on', 'example', 'starter', 'toolchain']),
+  command: z
+    .object({
+      command: z.string(),
+      args: z.array(z.string()).optional(),
+    })
+    .optional(),
+  routes: z
+    .array(
+      z.object({
+        url: z.string().optional(),
+        name: z.string().optional(),
+        path: z.string(),
+        jsName: z.string(),
+      }),
+    )
+    .optional(),
+  packageAdditions: z
+    .object({
+      dependencies: z.record(z.string(), z.string()).optional(),
+      devDependencies: z.record(z.string(), z.string()).optional(),
+      scripts: z.record(z.string(), z.string()).optional(),
+    })
+    .optional(),
+  shadcnComponents: z.array(z.string()).optional(),
+  dependsOn: z.array(z.string()).optional(),
+})
+
+export const StarterSchema = AddOnBaseSchema.extend({
+  framework: z.string(),
+  mode: z.string(),
+  typescript: z.boolean(),
+  tailwind: z.boolean(),
+})
+
+export const StarterCompiledSchema = StarterSchema.extend({
+  files: z.record(z.string(), z.string()),
+  deletedFiles: z.array(z.string()),
+})
+
+export const IntegrationSchema = z.object({
+  type: z.string(),
+  path: z.string(),
+  jsName: z.string(),
+})
+
+export const AddOnInfoSchema = AddOnBaseSchema.extend({
+  modes: z.array(z.string()),
+  integrations: z.array(IntegrationSchema).optional(),
+  phase: z.enum(['setup', 'add-on']),
+  readme: z.string().optional(),
+})
+
+export const AddOnCompiledSchema = AddOnInfoSchema.extend({
+  files: z.record(z.string(), z.string()),
+  deletedFiles: z.array(z.string()),
+})
+
+export type Integration = z.infer<typeof IntegrationSchema>
+
+export type AddOnBase = z.infer<typeof AddOnBaseSchema>
+
+export type StarterInfo = z.infer<typeof StarterSchema>
+
+export type StarterCompiled = z.infer<typeof StarterCompiledSchema>
+
+export type AddOnInfo = z.infer<typeof AddOnInfoSchema>
+
+export type AddOnCompiled = z.infer<typeof AddOnCompiledSchema>
 
 export type FileBundleHandler = {
   getFiles: () => Promise<Array<string>>
@@ -9,71 +90,9 @@ export type FileBundleHandler = {
   getDeletedFiles: () => Promise<Array<string>>
 }
 
-export type Integration = {
-  type: 'provider' | 'root-provider' | 'layout' | 'header-user'
-  path: string
-  jsName: string
-}
-
-export type AddOnBase = {
-  id: string
-  name: string
-  description: string
-
-  author?: string
-  version?: string
-  link?: string
-  license?: string
-
-  warning?: string
-
-  type: 'add-on' | 'example' | 'starter' | 'toolchain'
-
-  command?: {
-    command: string
-    args?: Array<string>
-  }
-  routes?: Array<{
-    url: string
-    name: string
-    path: string
-    jsName: string
-  }>
-  packageAdditions: {
-    dependencies?: Record<string, string>
-    devDependencies?: Record<string, string>
-    scripts?: Record<string, string>
-  }
-  shadcnComponents?: Array<string>
-  dependsOn?: Array<string>
-}
-
-export type StarterInfo = AddOnBase & {
-  framework: string
-  mode: Mode
-  typescript: boolean
-  tailwind: boolean
-}
-
-export type StarterCompiled = StarterInfo & {
-  files?: Record<string, string>
-  deletedFiles?: Array<string>
-}
-
-export type AddOnInfo = AddOnBase & {
-  modes: Array<Mode>
-  integrations?: Array<Integration>
-  phase: 'setup' | 'add-on'
-
-  readme?: string
-}
-
-export type AddOnCompiled = AddOnInfo & {
-  files?: Record<string, string>
-  deletedFiles?: Array<string>
-}
-
 export type AddOn = AddOnInfo & FileBundleHandler
+
+export type Starter = StarterCompiled & FileBundleHandler
 
 export type FrameworkDefinition = {
   id: string
@@ -108,7 +127,7 @@ export interface Options {
   git: boolean
 
   chosenAddOns: Array<AddOn>
-  starter?: AddOn | undefined
+  starter?: Starter | undefined
 }
 
 type ProjectEnvironment = {

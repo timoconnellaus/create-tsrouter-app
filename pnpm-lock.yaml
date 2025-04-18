@@ -199,6 +199,9 @@ importers:
       prettier:
         specifier: ^3.5.0
         version: 3.5.3
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@tanstack/config':
         specifier: ^0.16.2

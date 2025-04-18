@@ -2,18 +2,23 @@ import { readFile } from 'node:fs/promises'
 import { existsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+import { StarterCompiledSchema } from '../types.js'
 import {
-  compareFiles,
+  compareFilesRecursively,
   createAppOptionsFromPersisted,
   createIgnore,
   createPackageAdditions,
   readCurrentProjectOptions,
-  recursivelyGatherFiles,
   runCreateApp,
 } from './shared.js'
 
 import type { PersistedOptions } from '../config-file'
-import type { Environment, StarterCompiled, StarterInfo } from '../types'
+import type {
+  Environment,
+  Starter,
+  StarterCompiled,
+  StarterInfo,
+} from '../types'
 
 const INFO_FILE = 'starter-info.json'
 const COMPILED_FILE = 'starter.json'
@@ -73,12 +78,9 @@ export async function updateStarterInfo(environment: Environment) {
 export async function compileStarter(environment: Environment) {
   const { info, output } = await loadCurrentStarterInfo(environment)
 
-  const files: Record<string, string> = await recursivelyGatherFiles(
-    resolve(process.cwd()),
-  )
   const ignore = createIgnore(process.cwd())
   const changedFiles: Record<string, string> = {}
-  await compareFiles('.', ignore, output.files, changedFiles)
+  await compareFilesRecursively('.', ignore, output.files, changedFiles)
 
   const deletedFiles: Array<string> = []
   for (const file of Object.keys(output.files)) {
@@ -99,4 +101,23 @@ export async function compileStarter(environment: Environment) {
 export async function initStarter(environment: Environment) {
   await updateStarterInfo(environment)
   await compileStarter(environment)
+}
+
+export async function loadStarter(url: string): Promise<Starter> {
+  const response = await fetch(url)
+  const jsonContent = await response.json()
+
+  const checked = StarterCompiledSchema.safeParse(jsonContent)
+  if (!checked.success) {
+    throw new Error(`Invalid starter: ${url}`)
+  }
+
+  const starter = checked.data
+  starter.id = url
+  return {
+    ...starter,
+    getFiles: () => Promise.resolve(Object.keys(starter.files)),
+    getFileContents: (path: string) => Promise.resolve(starter.files[path]),
+    getDeletedFiles: () => Promise.resolve(starter.deletedFiles),
+  }
 }

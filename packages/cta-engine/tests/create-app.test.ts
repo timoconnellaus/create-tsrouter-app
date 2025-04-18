@@ -37,6 +37,7 @@ const simpleOptions = {
     },
     getFiles: () => ['./src/test.txt'],
     getFileContents: () => 'Hello',
+    getDeletedFiles: () => [],
   },
   chosenAddOns: [],
   packageManager: 'pnpm',
@@ -79,6 +80,7 @@ describe('createApp', () => {
         },
         getFiles: () => ['./src/test2.txt'],
         getFileContents: () => 'Hello-2',
+        getDeletedFiles: () => [],
       } as unknown as AddOn,
     })
 
@@ -106,6 +108,7 @@ describe('createApp', () => {
           },
           getFiles: () => ['./src/test2.txt', './public/foo.jpg'],
           getFileContents: () => 'base64::aGVsbG8=',
+          getDeletedFiles: () => [],
         } as unknown as AddOn,
       ],
     })

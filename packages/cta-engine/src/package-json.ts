@@ -5,21 +5,21 @@ import type { Options } from './types.js'
 
 function mergePackageJSON(
   packageJSON: Record<string, any>,
-  overlayPackageJSON: Record<string, any>,
+  overlayPackageJSON?: Record<string, any>,
 ) {
   return {
     ...packageJSON,
     dependencies: {
       ...packageJSON.dependencies,
-      ...overlayPackageJSON.dependencies,
+      ...(overlayPackageJSON?.dependencies || {}),
     },
     devDependencies: {
       ...packageJSON.devDependencies,
-      ...overlayPackageJSON.devDependencies,
+      ...(overlayPackageJSON?.devDependencies || {}),
     },
     scripts: {
       ...packageJSON.scripts,
-      ...overlayPackageJSON.scripts,
+      ...(overlayPackageJSON?.scripts || {}),
     },
   }
 }
@@ -42,7 +42,7 @@ export function createPackageJSON(options: Options) {
       : undefined,
   ]
   for (const addition of additions.filter(Boolean)) {
-    packageJSON = mergePackageJSON(packageJSON, addition!)
+    packageJSON = mergePackageJSON(packageJSON, addition)
   }
 
   for (const addOn of options.chosenAddOns.map(
