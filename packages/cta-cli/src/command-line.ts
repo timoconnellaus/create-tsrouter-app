@@ -10,7 +10,12 @@ import {
   loadRemoteAddOn,
 } from '@tanstack/cta-engine'
 
-import type { Mode, Options, Starter } from '@tanstack/cta-engine'
+import type {
+  AddOn,
+  Mode,
+  Options,
+  StarterCompiled,
+} from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
 
@@ -38,7 +43,9 @@ export async function normalizeOptions(
     cliOptions.template === 'file-router' ? FILE_ROUTER : CODE_ROUTER
 
   const starter = cliOptions.starter
-    ? ((await loadRemoteAddOn(cliOptions.starter)) as Starter)
+    ? ((await loadRemoteAddOn(
+        cliOptions.starter,
+      )) as unknown as StarterCompiled)
     : undefined
 
   if (starter) {
@@ -110,6 +117,6 @@ export async function normalizeOptions(
       DEFAULT_PACKAGE_MANAGER,
     git: !!cliOptions.git,
     chosenAddOns,
-    starter,
+    starter: starter as unknown as AddOn,
   }
 }

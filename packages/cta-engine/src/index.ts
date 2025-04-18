@@ -29,7 +29,9 @@ export { readFileHelper, getBinaryFile, relativePath } from './file-helpers.js'
 
 export { formatCommand } from './utils.js'
 
-export { initAddOn } from './custom-add-on.js'
+export { initStarter, compileStarter } from './custom-add-ons/starter.js'
+export { initAddOn, compileAddOn } from './custom-add-ons/add-on.js'
+export { createAppOptionsFromPersisted } from './custom-add-ons/shared.js'
 
 export type {
   AddOn,
@@ -39,7 +41,7 @@ export type {
   FrameworkDefinition,
   Mode,
   Options,
-  Starter,
+  StarterCompiled,
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'
 export type { PackageManager } from './package-manager.js'

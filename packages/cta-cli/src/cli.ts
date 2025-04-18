@@ -6,12 +6,15 @@ import chalk from 'chalk'
 import {
   SUPPORTED_PACKAGE_MANAGERS,
   addToApp,
+  compileAddOn,
+  compileStarter,
   createApp,
   getAllAddOns,
   getFrameworkById,
   getFrameworkByName,
   getFrameworks,
   initAddOn,
+  initStarter,
 } from '@tanstack/cta-engine'
 
 import { launchUI } from '@tanstack/cta-ui'
@@ -37,12 +40,15 @@ async function listAddOns(
   }: {
     forcedMode?: Mode
     forcedAddOns: Array<string>
-    defaultTemplate: TemplateOptions
+    defaultTemplate?: TemplateOptions
   },
 ) {
   const addOns = await getAllAddOns(
     getFrameworkById(options.framework || 'react-cra')!,
-    forcedMode || convertTemplateToMode(options.template || defaultTemplate),
+    forcedMode ||
+      convertTemplateToMode(
+        options.template || defaultTemplate || 'javascript',
+      ),
   )
   for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
     console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
@@ -93,25 +99,43 @@ export function cli({
     })
 
   const addOnCommand = program.command('add-on')
-
   addOnCommand
-    .command('update')
-    .description('Create or update an add-on from the current project')
+    .command('init')
+    .description('Initialize an add-on from the current project')
     .action(async () => {
-      await initAddOn('add-on', environment)
+      await initAddOn(environment)
+    })
+  addOnCommand
+    .command('compile')
+    .description('Update add-on from the current project')
+    .action(async () => {
+      await compileAddOn(environment)
     })
   addOnCommand
     .command('ui')
     .description('Show the add-on developer UI')
-    .action(async () => {
+    .action(() => {
       launchUI()
     })
 
-  program
-    .command('update-starter')
-    .description('Create or update a project starter from the current project')
+  const starterCommand = program.command('starter')
+  starterCommand
+    .command('update')
+    .description('Initialize a project starter from the current project')
     .action(async () => {
-      await initAddOn('starter', environment)
+      await initStarter(environment)
+    })
+  starterCommand
+    .command('compile')
+    .description('Compile the starter JSON file for the current project')
+    .action(async () => {
+      await compileStarter(environment)
+    })
+  starterCommand
+    .command('ui')
+    .description('Show the starter developer UI')
+    .action(() => {
+      launchUI()
     })
 
   program.argument('[project-name]', 'name of the project')
@@ -132,7 +156,6 @@ export function cli({
         }
         return value
       },
-      defaultTemplate,
     )
   }
 

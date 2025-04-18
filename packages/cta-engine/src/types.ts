@@ -14,13 +14,24 @@ export type Integration = {
   jsName: string
 }
 
-export type AddOnDefinition = {
+export type AddOnBase = {
   id: string
   name: string
   description: string
+
+  author?: string
+  version?: string
+  link?: string
+  license?: string
+
+  warning?: string
+
   type: 'add-on' | 'example' | 'starter' | 'toolchain'
-  link: string
-  modes: Array<Mode>
+
+  command?: {
+    command: string
+    args?: Array<string>
+  }
   routes?: Array<{
     url: string
     name: string
@@ -32,35 +43,36 @@ export type AddOnDefinition = {
     devDependencies?: Record<string, string>
     scripts?: Record<string, string>
   }
-  command?: {
-    command: string
-    args?: Array<string>
-  }
-  readme?: string
-  phase: 'setup' | 'add-on'
   shadcnComponents?: Array<string>
-  warning?: string
   dependsOn?: Array<string>
-  integrations?: Array<Integration>
-
-  files?: Record<string, string>
-  deletedFiles?: Array<string>
 }
 
-export type StarterDefinition = AddOnDefinition & {
-  type: 'starter'
-  version: string
-  author: string
-  link: string
-  license: string
-  mode: Mode
+export type StarterInfo = AddOnBase & {
   framework: string
+  mode: Mode
   typescript: boolean
   tailwind: boolean
 }
 
-export type AddOn = AddOnDefinition & FileBundleHandler
-export type Starter = StarterDefinition & FileBundleHandler
+export type StarterCompiled = StarterInfo & {
+  files?: Record<string, string>
+  deletedFiles?: Array<string>
+}
+
+export type AddOnInfo = AddOnBase & {
+  modes: Array<Mode>
+  integrations?: Array<Integration>
+  phase: 'setup' | 'add-on'
+
+  readme?: string
+}
+
+export type AddOnCompiled = AddOnInfo & {
+  files?: Record<string, string>
+  deletedFiles?: Array<string>
+}
+
+export type AddOn = AddOnInfo & FileBundleHandler
 
 export type FrameworkDefinition = {
   id: string

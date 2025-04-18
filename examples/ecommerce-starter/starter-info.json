@@ -7,16 +7,12 @@
   "link": "https://github.com/jane-smith/ecommerce-starter-starter",
   "command": {},
   "shadcnComponents": [],
-  "framework": "react",
-  "templates": ["file-router"],
+  "framework": "react-cra",
+  "mode": "file-router",
   "routes": [],
   "warning": "",
   "variables": {},
   "phase": "add-on",
   "type": "starter",
-  "packageAdditions": {
-    "scripts": {},
-    "dependencies": {},
-    "devDependencies": {}
-  }
+  "packageAdditions": {}
 }

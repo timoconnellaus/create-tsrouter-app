@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 import { getAllAddOns, createMemoryEnvironment } from '@tanstack/cta-engine'
-import { createAppOptionsFromPersisted } from '@tanstack/cta-custom-add-on'
+import { createAppOptionsFromPersisted } from '@tanstack/cta-engine'
 
 import { createApp } from '@tanstack/cta-engine'
 
