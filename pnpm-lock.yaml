@@ -9,9 +9,7 @@ overrides:
   create-tanstack: workspace:*
   create-tsrouter-app: workspace:*
   '@tanstack/cta-cli': workspace:*
-  '@tanstack/cta-custom-add-on': workspace:*
   '@tanstack/cta-engine': workspace:*
-  '@tanstack/cta-mcp': workspace:*
   '@tanstack/cta-ui': workspace:*
   '@tanstack/cta-framework-react-cra': workspace:*
   '@tanstack/cta-framework-solid': workspace:*
@@ -134,15 +132,12 @@ importers:
       '@clack/prompts':
         specifier: ^0.10.0
         version: 0.10.0
-      '@tanstack/cta-custom-add-on':
-        specifier: workspace:*
-        version: link:../cta-custom-add-on
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.6.0
+        version: 1.8.0
       '@tanstack/cta-engine':
         specifier: workspace:*
         version: link:../cta-engine
-      '@tanstack/cta-mcp':
-        specifier: workspace:*
-        version: link:../cta-mcp
       '@tanstack/cta-ui':
         specifier: workspace:*
         version: link:../cta-ui
@@ -152,10 +147,19 @@ importers:
       commander:
         specifier: ^13.1.0
         version: 13.1.0
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
     devDependencies:
       '@tanstack/config':
         specifier: ^0.16.2
         version: 0.16.3(@types/node@22.13.17)(esbuild@0.25.2)(eslint@9.23.0(jiti@2.4.2))(rollup@4.38.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
+      '@types/express':
+        specifier: ^5.0.1
+        version: 5.0.1
       '@types/node':
         specifier: ^22.13.4
         version: 22.13.17
@@ -174,25 +178,6 @@ importers:
       vitest-fetch-mock:
         specifier: ^0.4.5
         version: 0.4.5(vitest@3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
-
-  packages/cta-custom-add-on:
-    dependencies:
-      '@tanstack/cta-engine':
-        specifier: workspace:*
-        version: link:../cta-engine
-    devDependencies:
-      '@tanstack/config':
-        specifier: ^0.16.2
-        version: 0.16.3(@types/node@22.13.17)(esbuild@0.25.2)(eslint@9.23.0(jiti@2.4.2))(rollup@4.38.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
-      '@types/node':
-        specifier: ^22.13.4
-        version: 22.13.17
-      eslint:
-        specifier: ^9.20.0
-        version: 9.23.0(jiti@2.4.2)
-      typescript:
-        specifier: ^5.6.3
-        version: 5.8.2
 
   packages/cta-engine:
     dependencies:
@@ -230,40 +215,6 @@ importers:
       vitest:
         specifier: ^3.0.8
         version: 3.1.1(@types/node@22.13.14)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
-
-  packages/cta-mcp:
-    dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.6.0
-        version: 1.8.0
-      '@tanstack/cta-engine':
-        specifier: workspace:*
-        version: link:../cta-engine
-      express:
-        specifier: ^4.21.2
-        version: 4.21.2
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
-    devDependencies:
-      '@tanstack/config':
-        specifier: ^0.16.2
-        version: 0.16.3(@types/node@22.13.17)(esbuild@0.25.2)(eslint@9.23.0(jiti@2.4.2))(rollup@4.38.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
-      '@types/express':
-        specifier: ^5.0.0
-        version: 5.0.1
-      '@types/node':
-        specifier: ^22.13.4
-        version: 22.13.17
-      eslint:
-        specifier: ^9.20.0
-        version: 9.23.0(jiti@2.4.2)
-      typescript:
-        specifier: ^5.6.3
-        version: 5.8.2
-      vitest:
-        specifier: ^3.0.8
-        version: 3.1.1(@types/node@22.13.17)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1)
 
   packages/cta-ui:
     dependencies:
@@ -303,9 +254,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.0.17(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))
-      '@tanstack/cta-custom-add-on':
-        specifier: workspace:*
-        version: link:../cta-custom-add-on
       '@tanstack/cta-engine':
         specifier: workspace:*
         version: link:../cta-engine

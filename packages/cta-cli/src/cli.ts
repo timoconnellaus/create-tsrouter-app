@@ -11,12 +11,12 @@ import {
   getFrameworkById,
   getFrameworkByName,
   getFrameworks,
+  initAddOn,
 } from '@tanstack/cta-engine'
-import { initAddOn } from '@tanstack/cta-custom-add-on'
-
-import { runMCPServer } from '@tanstack/cta-mcp'
 
 import { launchUI } from '@tanstack/cta-ui'
+
+import { runMCPServer } from './mcp.js'
 
 import { promptForOptions } from './options.js'
 import { normalizeOptions } from './command-line.js'

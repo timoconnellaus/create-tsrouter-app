@@ -29,6 +29,8 @@ export { readFileHelper, getBinaryFile, relativePath } from './file-helpers.js'
 
 export { formatCommand } from './utils.js'
 
+export { initAddOn } from './custom-add-on.js'
+
 export type {
   AddOn,
   Environment,

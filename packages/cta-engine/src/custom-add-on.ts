@@ -2,21 +2,15 @@ import { readFile, readdir } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
-import {
-  createApp,
-  createMemoryEnvironment,
-  finalizeAddOns,
-  getFrameworkById,
-  readConfigFile,
-  readFileHelper,
-} from '@tanstack/cta-engine'
+import { createApp } from './create-app'
+import { createMemoryEnvironment } from './environment'
+import { finalizeAddOns } from './add-ons'
+import { getFrameworkById } from './frameworks'
+import { readConfigFile } from './config-file'
+import { readFileHelper } from './file-helpers'
 
-import type {
-  Environment,
-  Mode,
-  Options,
-  PersistedOptions,
-} from '@tanstack/cta-engine'
+import type { Environment, Mode, Options } from './types'
+import type { PersistedOptions } from './config-file'
 
 type AddOnMode = 'add-on' | 'starter'
 
