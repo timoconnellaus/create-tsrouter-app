@@ -6,6 +6,7 @@ export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 export type FileBundleHandler = {
   getFiles: () => Promise<Array<string>>
   getFileContents: (path: string) => Promise<string>
+  getDeletedFiles: () => Promise<Array<string>>
 }
 
 export type Integration = {

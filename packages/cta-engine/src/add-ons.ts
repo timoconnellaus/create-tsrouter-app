@@ -54,5 +54,6 @@ export async function loadRemoteAddOn(url: string): Promise<AddOn> {
     ...fileContent,
     getFiles: () => Promise.resolve(Object.keys(fileContent.files)),
     getFileContents: (path: string) => Promise.resolve(fileContent.files[path]),
+    getDeletedFiles: () => Promise.resolve(fileContent.deletedFiles),
   }
 }

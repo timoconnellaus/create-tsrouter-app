@@ -60,6 +60,7 @@ function getAddOns(framework: FrameworkDefinition) {
         deletedFiles: [],
         getFiles,
         getFileContents,
+        getDeletedFiles: () => Promise.resolve([]),
       })
     }
   }
@@ -100,6 +101,9 @@ export function registerFramework(framework: FrameworkDefinition) {
     },
     getFileContents: (path: string) => {
       return Promise.resolve(readFileHelper(resolve(baseAssetsDirectory, path)))
+    },
+    getDeletedFiles: () => {
+      return Promise.resolve([])
     },
     basePackageJSON,
     optionalPackages,

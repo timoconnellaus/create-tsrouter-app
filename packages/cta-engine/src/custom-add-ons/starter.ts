@@ -81,9 +81,9 @@ export async function compileStarter(environment: Environment) {
   await compareFiles('.', ignore, output.files, changedFiles)
 
   const deletedFiles: Array<string> = []
-  for (const file of Object.keys(files)) {
-    if (!existsSync(file)) {
-      deletedFiles.push(file.replace(process.cwd(), '.'))
+  for (const file of Object.keys(output.files)) {
+    if (!existsSync(resolve(process.cwd(), file))) {
+      deletedFiles.push(file)
     }
   }
 

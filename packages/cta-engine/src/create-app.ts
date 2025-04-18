@@ -31,6 +31,11 @@ async function writeFiles(environment: Environment, options: Options) {
         await templateFileFromContent(file, contents)
       }
     }
+
+    const deletedFiles = await bundle.getDeletedFiles()
+    for (const file of deletedFiles) {
+      await environment.deleteFile(resolve(options.targetDir, file))
+    }
   }
 
   await writeFileBundle(options.framework)
