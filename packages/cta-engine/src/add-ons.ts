@@ -133,9 +133,20 @@ export async function listAddOns(
     forcedAddOns?: Array<string>
   },
 ) {
+  let mode = forcedMode
+  if (!mode) {
+    if (options.template) {
+      mode =
+        options.template === 'file-router'
+          ? 'file-router'
+          : ('code-router' as TemplateOptions)
+    } else {
+      mode = 'code-router' as TemplateOptions
+    }
+  }
   const addOns = await getAllAddOns(
     options.framework || DEFAULT_FRAMEWORK,
-    forcedMode || options.template || 'typescript',
+    mode,
   )
   for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
     console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
