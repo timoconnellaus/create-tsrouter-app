@@ -2,12 +2,27 @@ import { createServerFn } from '@tanstack/react-start'
 import { readFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
-import { getAllAddOns, createMemoryEnvironment } from '@tanstack/cta-engine'
-import { createAppOptionsFromPersisted } from '@tanstack/cta-engine'
+import { register as registerReactCra } from '@tanstack/cta-framework-react-cra'
+import { register as registerSolid } from '@tanstack/cta-framework-solid'
 
-import { createApp } from '@tanstack/cta-engine'
+import {
+  createApp,
+  createAppOptionsFromPersisted,
+  createMemoryEnvironment,
+  getAllAddOns,
+  getFrameworkById,
+} from '@tanstack/cta-engine'
 
-import type { AddOn, Mode, PersistedOptions } from '@tanstack/cta-engine'
+import type { Mode, PersistedOptions } from '@tanstack/cta-engine'
+
+let registered = false
+function register() {
+  if (!registered) {
+    registerReactCra()
+    registerSolid()
+    registered = true
+  }
+}
 
 export const getAddons = createServerFn({
   method: 'GET',
@@ -15,15 +30,23 @@ export const getAddons = createServerFn({
   .validator((data: unknown) => {
     return data as { platform: string; mode: Mode }
   })
-  .handler(({ data: { platform, mode } }) => {
-    return getAllAddOns(platform, mode)
+  .handler(async ({ data: { platform, mode } }) => {
+    register()
+    const framework = await getFrameworkById(platform)
+    return getAllAddOns(framework!, mode).map((addOn) => ({
+      id: addOn.id,
+      name: addOn.name,
+      description: addOn.description,
+      type: addOn.type,
+    }))
   })
 
 export const getAddonInfo = createServerFn({
   method: 'GET',
 }).handler(async () => {
+  register()
   const addOnInfo = readFileSync(
-    resolve(process.env.PROJECT_PATH, 'add-on.json'),
+    resolve(process.env.CTA_PROJECT_PATH!, 'add-on.json'),
   )
   return JSON.parse(addOnInfo.toString())
 })
@@ -31,7 +54,10 @@ export const getAddonInfo = createServerFn({
 export const getOriginalOptions = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  const addOnInfo = readFileSync(resolve(process.env.PROJECT_PATH, '.cta.json'))
+  register()
+  const addOnInfo = readFileSync(
+    resolve(process.env.CTA_PROJECT_PATH!, '.cta.json'),
+  )
   return JSON.parse(addOnInfo.toString()) as PersistedOptions
 })
 
@@ -39,40 +65,46 @@ export const runCreateApp = createServerFn({
   method: 'POST',
 })
   .validator((data: unknown) => {
-    return data as { withAddOn: boolean; options: PersistedOptions }
+    return data as { options: PersistedOptions }
   })
   .handler(
     async ({
-      data: { withAddOn, options: persistedOptions },
+      data: { options: persistedOptions },
     }: {
-      data: { withAddOn: boolean; options: PersistedOptions }
+      data: { options: PersistedOptions }
     }) => {
-      const { output, environment } = createMemoryEnvironment()
-      const options = await createAppOptionsFromPersisted(persistedOptions)
-      options.chosenAddOns = withAddOn
-        ? [...options.chosenAddOns, (await getAddonInfo()) as AddOn]
-        : [...options.chosenAddOns]
-      await createApp(
-        {
+      register()
+
+      try {
+        const targetDir = process.env.CTA_PROJECT_PATH!
+        const { output, environment } = createMemoryEnvironment()
+        const options = await createAppOptionsFromPersisted(persistedOptions)
+        await createApp(environment, {
           ...options,
-        },
-        {
-          silent: true,
-          environment,
-          cwd: process.env.PROJECT_PATH,
-        },
-      )
+          targetDir,
+        })
 
-      output.files = Object.keys(output.files).reduce<Record<string, string>>(
-        (acc, file) => {
-          if (basename(file) !== '.cta.json') {
-            acc[file] = output.files[file]
-          }
-          return acc
-        },
-        {},
-      )
+        output.files = Object.keys(output.files).reduce<Record<string, string>>(
+          (acc, file) => {
+            let content = output.files[file]
+            if (content.startsWith('base64::')) {
+              content = '<binary file>'
+            }
+            if (basename(file) !== '.cta.json') {
+              acc[file.replace(targetDir, '.')] = content
+            }
+            return acc
+          },
+          {},
+        )
 
-      return output
+        return output
+      } catch (e) {
+        console.error(e)
+        return {
+          files: {},
+          commands: [],
+        }
+      }
     },
   )

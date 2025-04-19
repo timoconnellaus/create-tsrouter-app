@@ -1,25 +1,30 @@
 import { useMemo } from 'react'
 import { FileText, Folder } from 'lucide-react'
 
-import { TreeView } from '@/components/ui/tree-view'
-
 import type { TreeDataItem } from '@/components/ui/tree-view'
+
+import { TreeView } from '@/components/ui/tree-view'
 
 export default function FileTree({
   prefix,
   tree,
   originalTree,
   onFileSelected,
-  extraTreeItems = [],
 }: {
   prefix: string
   tree: Record<string, string>
   originalTree: Record<string, string>
   onFileSelected: (file: string) => void
-  extraTreeItems?: Array<TreeDataItem>
 }) {
   const computedTree = useMemo(() => {
-    const treeData: Array<TreeDataItem> = []
+    const treeData: Array<TreeDataItem> = [
+      {
+        id: 'root',
+        name: '.',
+        children: [],
+        icon: () => <Folder className="w-4 h-4 mr-2" />,
+      },
+    ]
 
     function changed(file: string) {
       if (!originalTree[file]) {
@@ -31,7 +36,7 @@ export default function FileTree({
     Object.keys(tree)
       .sort()
       .forEach((file) => {
-        const parts = file.replace(`${prefix}/`, '').split('/')
+        const parts = file.split('/')
 
         let currentLevel = treeData
         parts.forEach((part, index) => {
@@ -63,8 +68,8 @@ export default function FileTree({
           }
         })
       })
-    return [...extraTreeItems, ...treeData]
-  }, [prefix, tree, originalTree, extraTreeItems])
+    return treeData
+  }, [prefix, tree, originalTree])
 
   return (
     <TreeView

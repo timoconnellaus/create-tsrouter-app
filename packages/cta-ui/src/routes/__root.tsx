@@ -1,6 +1,6 @@
 import {
-  Outlet,
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
@@ -8,6 +8,10 @@ import {
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+
+import { AppSidebar } from '@/components/cta-sidebar'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -24,7 +28,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Add-On Debugger',
+        title: 'TanStack CTA',
       },
     ],
     links: [
@@ -37,7 +41,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
   component: () => (
     <RootDocument>
-      <Outlet />
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="w-[calc(100vw-200px)]">
+          <SidebarTrigger />
+          <Outlet />
+        </main>
+      </SidebarProvider>
     </RootDocument>
   ),
 })

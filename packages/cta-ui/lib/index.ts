@@ -1,17 +1,21 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export function launchUI() {
+export function launchUI({
+  mode,
+  addOns,
+}: {
+  mode: 'add' | 'add-on' | 'starter'
+  addOns: Array<string>
+}) {
   const projectPath = process.cwd()
 
-  process.env.PROJECT_PATH = projectPath
-
-  const configPath = resolve(
-    dirname(fileURLToPath(import.meta.url)),
-    '../app.config.js',
-  )
+  process.env.CTA_PROJECT_PATH = projectPath
+  process.env.CTA_ADD_ONS = addOns.join(',')
+  process.env.CTA_MODE = mode
 
   const developerPath = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+  const configPath = resolve(developerPath, './app.config.js')
 
   process.chdir(developerPath)
 

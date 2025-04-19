@@ -22,7 +22,7 @@ interface TreeDataItem {
   icon?: any
   selectedIcon?: any
   openIcon?: any
-  children?: TreeDataItem[]
+  children?: Array<TreeDataItem>
   actions?: React.ReactNode
   onClick?: () => void
   draggable?: boolean
@@ -31,7 +31,7 @@ interface TreeDataItem {
 }
 
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
-  data: TreeDataItem[] | TreeDataItem
+  data: Array<TreeDataItem> | TreeDataItem
   initialSelectedItemId?: string
   onSelectChange?: (item: TreeDataItem | undefined) => void
   expandAll?: boolean
@@ -89,13 +89,13 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
 
     const expandedItemIds = React.useMemo(() => {
       if (!initialSelectedItemId) {
-        return [] as string[]
+        return [] as Array<string>
       }
 
-      const ids: string[] = []
+      const ids: Array<string> = []
 
       function walkTreeItems(
-        items: TreeDataItem[] | TreeDataItem,
+        items: Array<TreeDataItem> | TreeDataItem,
         targetId: string,
       ) {
         if (items instanceof Array) {
@@ -147,7 +147,7 @@ TreeView.displayName = 'TreeView'
 type TreeItemProps = TreeProps & {
   selectedItemId?: string
   handleSelectChange: (item: TreeDataItem | undefined) => void
-  expandedItemIds: string[]
+  expandedItemIds: Array<string>
   defaultNodeIcon?: any
   defaultLeafIcon?: any
   handleDragStart?: (item: TreeDataItem) => void
@@ -226,7 +226,7 @@ const TreeNode = ({
 }: {
   item: TreeDataItem
   handleSelectChange: (item: TreeDataItem | undefined) => void
-  expandedItemIds: string[]
+  expandedItemIds: Array<string>
   selectedItemId?: string
   defaultNodeIcon?: any
   defaultLeafIcon?: any

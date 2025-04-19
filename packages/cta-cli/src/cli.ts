@@ -87,15 +87,27 @@ export function cli({
 
   program
     .command('add')
-    .argument('add-on', 'Name of the add-on (or add-ons separated by commas)')
-    .action(async (addOn: string) => {
-      await addToApp(
-        addOn.split(',').map((addon) => addon.trim()),
-        {
-          silent: false,
-        },
-        environment,
-      )
+    .argument(
+      '[add-on]',
+      'Name of the add-ons (or add-ons separated by spaces or commas)',
+    )
+    .option('--ui', 'Add with the UI')
+    .action(async (addOn: string, options: { ui: boolean }) => {
+      const addOns = (addOn || '').split(',').map((addon) => addon.trim())
+      if (options.ui) {
+        launchUI({
+          mode: 'add',
+          addOns,
+        })
+      } else {
+        await addToApp(
+          addOns,
+          {
+            silent: false,
+          },
+          environment,
+        )
+      }
     })
 
   const addOnCommand = program.command('add-on')
@@ -115,7 +127,10 @@ export function cli({
     .command('ui')
     .description('Show the add-on developer UI')
     .action(() => {
-      launchUI()
+      launchUI({
+        mode: 'add',
+        addOns: [],
+      })
     })
 
   const starterCommand = program.command('starter')
@@ -135,7 +150,10 @@ export function cli({
     .command('ui')
     .description('Show the starter developer UI')
     .action(() => {
-      launchUI()
+      launchUI({
+        mode: 'starter',
+        addOns: [],
+      })
     })
 
   program.argument('[project-name]', 'name of the project')
