@@ -47,6 +47,7 @@ export type {
   FrameworkDefinition,
   Mode,
   Options,
+  SerializedOptions,
   StarterCompiled,
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'

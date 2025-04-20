@@ -1,8 +1,6 @@
 import { Effect, Store } from '@tanstack/react-store'
 
-import type { PersistedOptions } from '@tanstack/cta-engine'
-
-import { runCreateApp } from '@/lib/server-fns'
+import type { SerializedOptions } from '@tanstack/cta-engine'
 
 // Files
 
@@ -45,11 +43,7 @@ export const projectLocalFiles = new Store<Record<string, string>>({})
 
 // Options
 
-export const projectOptions = new Store<PersistedOptions>({
-  framework: 'react-cra',
-  version: 1,
-  existingAddOns: [],
-})
+export const projectOptions = new Store<SerializedOptions>({})
 
 // Addons
 
@@ -60,10 +54,17 @@ export const selectedAddOns = new Store<Array<AddOnInfo>>([])
 const onChangeAddOns = new Effect({
   fn: async () => {
     const options = { ...projectOptions.state }
-    options.existingAddOns = selectedAddOns.state.map((addOn) => addOn.id)
-    const output = await runCreateApp({
-      data: { options },
+    options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
+    const outputReq = await fetch('/api/run-create-app', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        options,
+      }),
     })
+    const output = await outputReq.json()
     projectFiles.setState((state) => ({
       ...state,
       output,

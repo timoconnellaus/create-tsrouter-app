@@ -294,7 +294,7 @@ const TreeNode = ({
             isOpen={value.includes(item.id)}
             default={defaultNodeIcon}
           />
-          <span className="text-sm truncate">{item.name}</span>
+          <span className="text-md truncate">{item.name}</span>
           <TreeActions isSelected={selectedItemId === item.id}>
             {item.actions}
           </TreeActions>
@@ -401,7 +401,7 @@ const TreeLeaf = React.forwardRef<
           isSelected={selectedItemId === item.id}
           default={defaultLeafIcon}
         />
-        <span className="flex-grow text-sm truncate">{item.name}</span>
+        <span className="flex-grow text-md truncate">{item.name}</span>
         <TreeActions isSelected={selectedItemId === item.id}>
           {item.actions}
         </TreeActions>
@@ -438,7 +438,7 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className={cn(
-      'overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
+      'overflow-hidden text-md transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
       className,
     )}
     {...props}

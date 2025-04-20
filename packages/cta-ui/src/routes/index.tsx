@@ -1,13 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { createFileRoute } from '@tanstack/react-router'
-
-import {
-  getAddons,
-  getLocalFiles,
-  getOriginalOptions,
-  runCreateApp,
-} from '@/lib/server-fns'
 
 import FileNavigator from '@/components/file-navigator'
 import {
@@ -22,35 +15,30 @@ export const Route = createFileRoute('/')({
 })
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true)
+
   useEffect(() => {
     async function loadInitialSetup() {
-      const fileRouterAddons = await getAddons({
-        data: { platform: 'react-cra', mode: 'file-router' },
-      })
-      const codeRouterAddons = await getAddons({
-        data: { platform: 'react-cra', mode: 'code-router' },
-      })
-      availableAddOns.setState(() => fileRouterAddons)
+      const payloadReq = await fetch('/api/initial-payload')
+      const { addOns, localFiles, options, appBuildOptions, output } =
+        await payloadReq.json()
 
-      const output = await runCreateApp({
-        data: { options: projectOptions.state },
-      })
-      const originalOutput = await runCreateApp({
-        data: { options: projectOptions.state },
-      })
+      availableAddOns.setState(() => addOns['file-router'])
       projectFiles.setState(() => ({
-        originalOutput,
+        originalOutput: output,
         output,
       }))
+      projectOptions.setState(() => options)
+      projectLocalFiles.setState(() => localFiles)
 
-      const originalOptions = await getOriginalOptions()
-      projectOptions.setState(() => originalOptions)
-
-      const files = await getLocalFiles()
-      projectLocalFiles.setState(() => files)
+      setIsLoading(false)
     }
     loadInitialSetup()
   }, [])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="pl-3">

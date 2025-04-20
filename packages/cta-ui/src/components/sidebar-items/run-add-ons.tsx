@@ -1,14 +1,17 @@
+import { useStore } from '@tanstack/react-store'
+
 import { Button } from '@/components/ui/button'
-import { closeApp } from '@/lib/add-to-app-server-fn'
 import { selectedAddOns } from '@/store/project'
 
 export default function RunAddOns() {
+  const currentlySelectedAddOns = useStore(selectedAddOns)
+
   return (
     <div>
       <Button
-        variant="outline"
+        variant="default"
         onClick={async () => {
-          await fetch('/api/add-add-ons', {
+          await fetch('/api/add-to-app', {
             method: 'POST',
             body: JSON.stringify({
               addOns: selectedAddOns.state.map((addOn) => addOn.id),
@@ -20,6 +23,8 @@ export default function RunAddOns() {
           // await closeApp()
           // window.close()
         }}
+        disabled={currentlySelectedAddOns.length === 0}
+        className="w-full"
       >
         Run Add-Ons
       </Button>

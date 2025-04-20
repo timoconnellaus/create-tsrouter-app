@@ -9,17 +9,19 @@ import { register as registerSolid } from '@tanstack/cta-framework-solid'
 registerReactCra()
 registerSolid()
 
-export const APIRoute = createAPIFileRoute('/api/add-add-ons')({
+export const APIRoute = createAPIFileRoute('/api/add-to-app')({
   POST: async ({ request }) => {
     const { addOns } = await request.json()
     console.log(process.env.CTA_PROJECT_PATH)
     process.chdir(process.env.CTA_PROJECT_PATH!)
-    console.log(process.cwd())
+
     const environment = createDefaultEnvironment()
     environment.error = console.error
     environment.warn = console.warn
     environment.info = console.log
+
     await addToApp(addOns, { silent: true }, environment)
+
     return json({ message: 'Hello "/api/add-add-ons"!' })
   },
 })

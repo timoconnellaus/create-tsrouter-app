@@ -108,7 +108,6 @@ export default function FileTree({
       data={computedTree}
       defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
       defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}
-      className="max-w-1/4 w-1/4 pr-2"
     />
   )
 }

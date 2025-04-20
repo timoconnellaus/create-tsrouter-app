@@ -130,6 +130,15 @@ export interface Options {
   starter?: Starter | undefined
 }
 
+export type SerializedOptions = Omit<
+  Options,
+  'chosenAddOns' | 'starter' | 'framework'
+> & {
+  chosenAddOns: Array<string>
+  starter?: string | undefined
+  framework?: string | undefined
+}
+
 type ProjectEnvironment = {
   startRun: () => void
   finishRun: () => void
