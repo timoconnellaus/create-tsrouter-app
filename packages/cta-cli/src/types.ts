@@ -17,4 +17,5 @@ export interface CliOptions {
   starter?: string
   targetDir?: string
   interactive?: boolean
+  ui?: boolean
 }

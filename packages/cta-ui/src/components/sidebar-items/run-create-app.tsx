@@ -10,17 +10,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { applicationMode, selectedAddOns } from '@/store/project'
+import {
+  applicationMode,
+  projectOptions,
+  selectedAddOns,
+} from '@/store/project'
 
-export default function RunAddOns() {
+export default function RunCreateApp() {
   const currentlySelectedAddOns = useStore(selectedAddOns)
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
 
   const mode = useStore(applicationMode)
+  const options = useStore(projectOptions)
 
-  if (mode !== 'add') {
+  if (mode !== 'setup') {
     return null
   }
 
@@ -28,10 +33,13 @@ export default function RunAddOns() {
     setIsRunning(true)
     setOutput('')
 
-    const streamingReq = await fetch('/api/add-to-app', {
+    const streamingReq = await fetch('/api/create-app', {
       method: 'POST',
       body: JSON.stringify({
-        addOns: selectedAddOns.state.map((addOn) => addOn.id),
+        options: {
+          ...options,
+          chosenAddOns: selectedAddOns.state.map((addOn) => addOn.id),
+        },
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +64,7 @@ export default function RunAddOns() {
           hideCloseButton
         >
           <DialogHeader>
-            <DialogTitle>Adding Add-Ons</DialogTitle>
+            <DialogTitle>Creating Your Application</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <pre>{output}</pre>
@@ -85,7 +93,7 @@ export default function RunAddOns() {
           disabled={currentlySelectedAddOns.length === 0 || isRunning}
           className="w-full"
         >
-          Run Add-Ons
+          Run Create App
         </Button>
       </div>
     </div>

@@ -53,27 +53,29 @@ export const selectedAddOns = new Store<Array<AddOnInfo>>([])
 
 const onChangeAddOns = new Effect({
   fn: async () => {
-    const options = { ...projectOptions.state }
-    options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
-    const outputReq = await fetch('/api/run-create-app', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        options,
-      }),
-    })
-    const output = await outputReq.json()
-    projectFiles.setState((state) => ({
-      ...state,
-      output,
-    }))
+    if (projectOptions.state.framework) {
+      const options = { ...projectOptions.state }
+      options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
+      const outputReq = await fetch('/api/run-create-app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          options,
+        }),
+      })
+      const output = await outputReq.json()
+      projectFiles.setState((state) => ({
+        ...state,
+        output,
+      }))
+    }
   },
-  deps: [selectedAddOns, availableAddOns],
+  deps: [selectedAddOns, availableAddOns, projectOptions],
 })
 onChangeAddOns.mount()
 
 // Application setup
 
-export const applicationModel = new Store<'add' | 'setup'>('add')
+export const applicationMode = new Store<'add' | 'setup'>('add')

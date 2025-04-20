@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+
 import { json } from '@tanstack/react-start'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
@@ -40,7 +42,7 @@ export const APIRoute = createAPIFileRoute('/api/run-create-app')({
     const { output, environment } = createMemoryEnvironment()
     await createApp(environment, {
       ...options,
-      targetDir: projectPath,
+      targetDir: resolve(projectPath, options.projectName),
     })
 
     output.files = cleanUpFiles(output.files, projectPath)

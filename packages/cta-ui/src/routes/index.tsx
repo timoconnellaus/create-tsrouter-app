@@ -4,6 +4,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import FileNavigator from '@/components/file-navigator'
 import {
+  applicationMode,
   availableAddOns,
   projectFiles,
   projectLocalFiles,
@@ -20,9 +21,15 @@ function App() {
   useEffect(() => {
     async function loadInitialSetup() {
       const payloadReq = await fetch('/api/initial-payload')
-      const { addOns, localFiles, options, appBuildOptions, output } =
-        await payloadReq.json()
+      const {
+        addOns,
+        localFiles,
+        options,
+        output,
+        applicationMode: appMode,
+      } = await payloadReq.json()
 
+      applicationMode.setState(() => appMode)
       availableAddOns.setState(() => addOns['file-router'])
       projectFiles.setState(() => ({
         originalOutput: output,

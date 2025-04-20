@@ -9,6 +9,7 @@ import {
   compileAddOn,
   compileStarter,
   createApp,
+  createSerializedOptions,
   getAllAddOns,
   getFrameworkById,
   getFrameworkByName,
@@ -123,15 +124,6 @@ export function cli({
     .action(async () => {
       await compileAddOn(environment)
     })
-  addOnCommand
-    .command('ui')
-    .description('Show the add-on developer UI')
-    .action(() => {
-      launchUI({
-        mode: 'add',
-        addOns: [],
-      })
-    })
 
   const starterCommand = program.command('starter')
   starterCommand
@@ -145,15 +137,6 @@ export function cli({
     .description('Compile the starter JSON file for the current project')
     .action(async () => {
       await compileStarter(environment)
-    })
-  starterCommand
-    .command('ui')
-    .description('Show the starter developer UI')
-    .action(() => {
-      launchUI({
-        mode: 'starter',
-        addOns: [],
-      })
     })
 
   program.argument('[project-name]', 'name of the project')
@@ -245,6 +228,7 @@ export function cli({
     )
     .option('--mcp', 'run the MCP server', false)
     .option('--mcp-sse', 'run the MCP server in SSE mode', false)
+    .option('--ui', 'Add with the UI')
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
@@ -302,7 +286,14 @@ export function cli({
         finalOptions.targetDir =
           options.targetDir || resolve(process.cwd(), finalOptions.projectName)
 
-        await createApp(environment, finalOptions)
+        if (options.ui) {
+          launchUI({
+            mode: 'setup',
+            options: createSerializedOptions(finalOptions),
+          })
+        } else {
+          await createApp(environment, finalOptions)
+        }
       } catch (error) {
         log.error(
           error instanceof Error ? error.message : 'An unknown error occurred',

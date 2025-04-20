@@ -39,6 +39,8 @@ export {
   recursivelyGatherFiles,
 } from './custom-add-ons/shared.js'
 
+export { createSerializedOptions } from './options.js'
+
 export type {
   AddOn,
   Environment,

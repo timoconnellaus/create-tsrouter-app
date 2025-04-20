@@ -8,6 +8,7 @@ import {
 
 import { SelectedAddOns } from '@/components/sidebar-items/add-ons'
 import RunAddOns from '@/components/sidebar-items/run-add-ons'
+import RunCreateApp from '@/components/sidebar-items/run-create-app'
 
 export function AppSidebar() {
   return (
@@ -21,6 +22,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <RunAddOns />
+        <RunCreateApp />
       </SidebarFooter>
     </Sidebar>
   )

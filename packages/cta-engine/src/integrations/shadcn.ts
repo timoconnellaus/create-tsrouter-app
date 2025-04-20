@@ -30,6 +30,10 @@ export async function installShadcnComponents(
       s.start(
         `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
       )
+      environment.startStep(
+        `Installing shadcn components (${Array.from(shadcnComponents).join(', ')})...`,
+      )
+
       await packageManagerExecute(
         environment,
         resolve(targetDir),
@@ -37,6 +41,8 @@ export async function installShadcnComponents(
         'shadcn@latest',
         ['add', '--silent', '--yes', ...Array.from(shadcnComponents)],
       )
+
+      environment.finishStep(`Installed additional shadcn components`)
       s.stop(`Installed additional shadcn components`)
     }
   }
