@@ -1,4 +1,3 @@
-import { json } from '@tanstack/react-start'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
 import { addToApp, createDefaultEnvironment } from '@tanstack/cta-engine'
@@ -12,7 +11,7 @@ registerSolid()
 export const APIRoute = createAPIFileRoute('/api/add-to-app')({
   POST: async ({ request }) => {
     const { addOns } = await request.json()
-    console.log(process.env.CTA_PROJECT_PATH)
+
     process.chdir(process.env.CTA_PROJECT_PATH!)
 
     const environment = createDefaultEnvironment()
@@ -20,8 +19,29 @@ export const APIRoute = createAPIFileRoute('/api/add-to-app')({
     environment.warn = console.warn
     environment.info = console.log
 
-    await addToApp(addOns, { silent: true }, environment)
+    const stream = new ReadableStream({
+      start(controller) {
+        environment.startStep = (message) => {
+          console.log(message)
+          controller.enqueue(new TextEncoder().encode(`${message}\n`))
+        }
+        environment.finishStep = (message) => {
+          console.log(message)
+          controller.enqueue(new TextEncoder().encode(`${message}\n`))
+        }
 
-    return json({ message: 'Hello "/api/add-add-ons"!' })
+        addToApp(addOns, { silent: true }, environment).then(() => {
+          controller.close()
+        })
+      },
+    })
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
   },
 })

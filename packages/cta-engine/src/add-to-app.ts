@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
-import { execa, execaSync } from 'execa'
+import { execaSync } from 'execa'
 
 import { CONFIG_FILE } from './constants.js'
 import { finalizeAddOns } from './add-ons.js'
@@ -12,7 +12,8 @@ import {
 } from './environment.js'
 import { createApp } from './create-app.js'
 import { readConfigFile, writeConfigFile } from './config-file.js'
-import { sortObject } from './utils.js'
+import { formatCommand, sortObject } from './utils.js'
+import { packageManagerInstall } from './package-manager.js'
 
 import type { Environment, Mode, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
@@ -73,7 +74,6 @@ export async function addToApp(
   if (!silent) {
     environment.intro(`Adding ${addOns.join(', ')} to the project...`)
   }
-  console.log('>>hasPendingGitChanges')
   if (await hasPendingGitChanges()) {
     environment.error(
       'You have pending git changes.',
@@ -81,13 +81,15 @@ export async function addToApp(
     )
     return
   }
-  console.log('>>hasPendingGitChanges')
+
+  environment.startStep('Processing new app setup...')
+
   const newOptions = await createOptions(persistedOptions, addOns)
   const output = await runCreateApp(newOptions)
   const overwrittenFiles: Array<string> = []
   const changedFiles: Array<string> = []
   const contentMap = new Map<string, string>()
-  console.log('>>hasPendingGitChanges')
+
   for (const file of Object.keys(output.files)) {
     const relativeFile = file.replace(process.cwd(), '')
     if (existsSync(file)) {
@@ -106,6 +108,9 @@ export async function addToApp(
       contentMap.set(relativeFile, output.files[file])
     }
   }
+
+  environment.finishStep('App setup processed')
+
   if (overwrittenFiles.length > 0 && !silent) {
     environment.warn(
       'The following will be overwritten:',
@@ -116,6 +121,9 @@ export async function addToApp(
       process.exit(0)
     }
   }
+
+  environment.startStep('Writing files...')
+
   for (const file of [...changedFiles, ...overwrittenFiles]) {
     const targetFile = `.${file}`
     const fName = basename(file)
@@ -140,29 +148,52 @@ export async function addToApp(
       await writeFile(resolve(targetFile), contents)
     }
   }
+
+  environment.finishStep('Files written')
+
   // Handle commands
+
   const originalOutput = await runCreateApp(
     await createOptions(persistedOptions, []),
   )
+
   const originalCommands = new Set(
     originalOutput.commands.map((c) => [c.command, ...c.args].join(' ')),
   )
+
   for (const command of output.commands) {
     const commandString = [command.command, ...command.args].join(' ')
     if (!originalCommands.has(commandString)) {
-      await execa(command.command, command.args)
+      environment.startStep(
+        `Running ${formatCommand({ command: command.command, args: command.args })}...`,
+      )
+      await environment.execute(
+        command.command,
+        command.args,
+        newOptions.targetDir,
+      )
+      environment.finishStep(`${command.command} complete`)
     }
   }
+
+  environment.startStep('Writing config file...')
   const realEnvironment = createDefaultEnvironment()
   writeConfigFile(realEnvironment, process.cwd(), newOptions)
+  environment.finishStep('Config file written')
+
+  environment.startStep(
+    `Installing dependencies via ${newOptions.packageManager}...`,
+  )
   const s = silent ? null : environment.spinner()
   s?.start(`Installing dependencies via ${newOptions.packageManager}...`)
-  await realEnvironment.execute(
+  await packageManagerInstall(
+    realEnvironment,
+    newOptions.targetDir,
     newOptions.packageManager,
-    ['install'],
-    resolve(process.cwd()),
   )
   s?.stop(`Installed dependencies`)
+  environment.finishStep('Installed dependencies')
+
   if (!silent) {
     environment.outro('Add-ons added successfully!')
   }

@@ -43,8 +43,6 @@ export const APIRoute = createAPIFileRoute('/api/run-create-app')({
       targetDir: projectPath,
     })
 
-    console.log(Object.keys(output.files))
-
     output.files = cleanUpFiles(output.files, projectPath)
 
     return json(output)

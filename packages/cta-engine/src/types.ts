@@ -158,6 +158,9 @@ type FileEnvironment = {
 type UIEnvironment = {
   appName: string
 
+  startStep: (message: string) => void
+  finishStep: (message: string) => void
+
   intro: (message: string) => void
   outro: (message: string) => void
 
