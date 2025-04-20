@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/sidebar'
 
 import { SelectedAddOns } from '@/components/sidebar-items/add-ons'
+import RunAddOns from '@/components/sidebar-items/run-add-ons'
 
 export function AppSidebar() {
   return (
@@ -18,7 +19,9 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <RunAddOns />
+      </SidebarFooter>
     </Sidebar>
   )
 }

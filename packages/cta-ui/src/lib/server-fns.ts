@@ -6,10 +6,8 @@ import { register as registerReactCra } from '@tanstack/cta-framework-react-cra'
 import { register as registerSolid } from '@tanstack/cta-framework-solid'
 
 import {
-  // addToApp,
   createApp,
   createAppOptionsFromPersisted,
-  createDefaultEnvironment,
   createMemoryEnvironment,
   getAllAddOns,
   getFrameworkById,
@@ -19,13 +17,16 @@ import {
 import type { Mode, PersistedOptions } from '@tanstack/cta-engine'
 
 let registered = false
-function register() {
+
+export const register = createServerFn({
+  method: 'POST',
+}).handler(() => {
   if (!registered) {
     registerReactCra()
     registerSolid()
     registered = true
   }
-}
+})
 
 function cleanUpFiles(files: Record<string, string>, targetDir?: string) {
   return Object.keys(files).reduce<Record<string, string>>((acc, file) => {
@@ -43,7 +44,9 @@ function cleanUpFiles(files: Record<string, string>, targetDir?: string) {
 export const getLocalFiles = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  register()
+  if (!registered) {
+    await register()
+  }
   return cleanUpFiles(
     await recursivelyGatherFiles(process.env.CTA_PROJECT_PATH!),
   )
@@ -56,7 +59,9 @@ export const getAddons = createServerFn({
     return data as { platform: string; mode: Mode }
   })
   .handler(async ({ data: { platform, mode } }) => {
-    register()
+    if (!registered) {
+      await register()
+    }
     const framework = await getFrameworkById(platform)
     return getAllAddOns(framework!, mode).map((addOn) => ({
       id: addOn.id,
@@ -69,7 +74,9 @@ export const getAddons = createServerFn({
 export const getAddonInfo = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  register()
+  if (!registered) {
+    await register()
+  }
   const addOnInfo = readFileSync(
     resolve(process.env.CTA_PROJECT_PATH!, 'add-on.json'),
   )
@@ -79,7 +86,9 @@ export const getAddonInfo = createServerFn({
 export const getOriginalOptions = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  register()
+  if (!registered) {
+    await register()
+  }
   const addOnInfo = readFileSync(
     resolve(process.env.CTA_PROJECT_PATH!, '.cta.json'),
   )
@@ -98,7 +107,9 @@ export const runCreateApp = createServerFn({
     }: {
       data: { options: PersistedOptions }
     }) => {
-      register()
+      if (!registered) {
+        await register()
+      }
 
       try {
         const targetDir = process.env.CTA_PROJECT_PATH!
@@ -133,23 +144,3 @@ export const runCreateApp = createServerFn({
       }
     },
   )
-
-export const executeAddToApp = createServerFn({
-  method: 'POST',
-})
-  .validator((data: unknown) => {
-    return data as { addOns: Array<string> }
-  })
-  .handler(async ({ data: { addOns } }) => {
-    register()
-    const environment = createDefaultEnvironment()
-    // await addToApp(addOns, { silent: true }, environment)
-    return true
-  })
-
-export const closeApp = createServerFn({
-  method: 'POST',
-}).handler(async () => {
-  process.exit(0)
-  return true
-})

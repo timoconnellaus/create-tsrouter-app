@@ -70,11 +70,10 @@ export async function addToApp(
     )
     return
   }
-
   if (!silent) {
     environment.intro(`Adding ${addOns.join(', ')} to the project...`)
   }
-
+  console.log('>>hasPendingGitChanges')
   if (await hasPendingGitChanges()) {
     environment.error(
       'You have pending git changes.',
@@ -82,14 +81,13 @@ export async function addToApp(
     )
     return
   }
-
+  console.log('>>hasPendingGitChanges')
   const newOptions = await createOptions(persistedOptions, addOns)
-
   const output = await runCreateApp(newOptions)
-
   const overwrittenFiles: Array<string> = []
   const changedFiles: Array<string> = []
   const contentMap = new Map<string, string>()
+  console.log('>>hasPendingGitChanges')
   for (const file of Object.keys(output.files)) {
     const relativeFile = file.replace(process.cwd(), '')
     if (existsSync(file)) {
@@ -108,7 +106,6 @@ export async function addToApp(
       contentMap.set(relativeFile, output.files[file])
     }
   }
-
   if (overwrittenFiles.length > 0 && !silent) {
     environment.warn(
       'The following will be overwritten:',
@@ -119,7 +116,6 @@ export async function addToApp(
       process.exit(0)
     }
   }
-
   for (const file of [...changedFiles, ...overwrittenFiles]) {
     const targetFile = `.${file}`
     const fName = basename(file)
@@ -129,7 +125,6 @@ export async function addToApp(
         (await readFile(resolve(fName), 'utf-8')).toString(),
       )
       const newJson = JSON.parse(contents)
-
       currentJson.scripts = newJson.scripts
       currentJson.dependencies = sortObject({
         ...currentJson.dependencies,
@@ -139,14 +134,12 @@ export async function addToApp(
         ...currentJson.devDependencies,
         ...newJson.devDependencies,
       })
-
       await writeFile(targetFile, JSON.stringify(currentJson, null, 2))
     } else if (fName !== CONFIG_FILE) {
       await mkdir(resolve(dirname(targetFile)), { recursive: true })
       await writeFile(resolve(targetFile), contents)
     }
   }
-
   // Handle commands
   const originalOutput = await runCreateApp(
     await createOptions(persistedOptions, []),
@@ -162,7 +155,6 @@ export async function addToApp(
   }
   const realEnvironment = createDefaultEnvironment()
   writeConfigFile(realEnvironment, process.cwd(), newOptions)
-
   const s = silent ? null : environment.spinner()
   s?.start(`Installing dependencies via ${newOptions.packageManager}...`)
   await realEnvironment.execute(
@@ -171,7 +163,6 @@ export async function addToApp(
     resolve(process.cwd()),
   )
   s?.stop(`Installed dependencies`)
-
   if (!silent) {
     environment.outro('Add-ons added successfully!')
   }

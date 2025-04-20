@@ -17,8 +17,6 @@ import {
   projectOptions,
 } from '@/store/project'
 
-// import type { AddOn } from '@tanstack/cta-engine'
-
 export const Route = createFileRoute('/')({
   component: App,
 })

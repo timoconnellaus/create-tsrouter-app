@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-// import { closeApp, executeAddToApp } from '@/lib/server-fns'
+import { closeApp } from '@/lib/add-to-app-server-fn'
 import { selectedAddOns } from '@/store/project'
 
 export default function RunAddOns() {
@@ -8,11 +8,15 @@ export default function RunAddOns() {
       <Button
         variant="outline"
         onClick={async () => {
-          // await executeAddToApp({
-          //   data: {
-          //     addOns: selectedAddOns.state.map((addOn) => addOn.id),
-          //   },
-          // })
+          await fetch('/api/add-add-ons', {
+            method: 'POST',
+            body: JSON.stringify({
+              addOns: selectedAddOns.state.map((addOn) => addOn.id),
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
           // await closeApp()
           // window.close()
         }}
