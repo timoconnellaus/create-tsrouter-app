@@ -358,7 +358,7 @@ importers:
         specifier: ^16.2.0
         version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@types/node':
-        specifier: ^22.13.14
+        specifier: ^22.14.1
         version: 22.14.1
       '@types/react':
         specifier: ^19.0.8

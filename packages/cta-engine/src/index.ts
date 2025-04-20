@@ -34,7 +34,10 @@ export { formatCommand } from './utils.js'
 
 export { initStarter, compileStarter } from './custom-add-ons/starter.js'
 export { initAddOn, compileAddOn } from './custom-add-ons/add-on.js'
-export { createAppOptionsFromPersisted } from './custom-add-ons/shared.js'
+export {
+  createAppOptionsFromPersisted,
+  recursivelyGatherFiles,
+} from './custom-add-ons/shared.js'
 
 export type {
   AddOn,

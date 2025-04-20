@@ -4,6 +4,8 @@ import type { PersistedOptions } from '@tanstack/cta-engine'
 
 import { runCreateApp } from '@/lib/server-fns'
 
+// Files
+
 type ProjectFiles = {
   originalOutput: {
     files: Record<string, string>
@@ -39,11 +41,17 @@ export const projectFiles = new Store<ProjectFiles>({
   },
 })
 
+export const projectLocalFiles = new Store<Record<string, string>>({})
+
+// Options
+
 export const projectOptions = new Store<PersistedOptions>({
   framework: 'react-cra',
   version: 1,
   existingAddOns: [],
 })
+
+// Addons
 
 export const availableAddOns = new Store<Array<AddOnInfo>>([])
 
@@ -64,3 +72,7 @@ const onChangeAddOns = new Effect({
   deps: [selectedAddOns, availableAddOns],
 })
 onChangeAddOns.mount()
+
+// Application setup
+
+export const applicationModel = new Store<'add' | 'setup'>('add')
