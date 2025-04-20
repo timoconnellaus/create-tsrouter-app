@@ -21,10 +21,10 @@ function isDirectory(path: string) {
   return statSync(path).isDirectory()
 }
 
-// async function hasPendingGitChanges() {
-//   const status = await execaSync('git', ['status', '--porcelain'])
-//   return status.stdout.length > 0
-// }
+async function hasPendingGitChanges() {
+  const status = await execaSync('git', ['status', '--porcelain'])
+  return status.stdout.length > 0
+}
 
 async function createOptions(
   json: PersistedOptions,
@@ -75,13 +75,13 @@ export async function addToApp(
     environment.intro(`Adding ${addOns.join(', ')} to the project...`)
   }
 
-  // if (await hasPendingGitChanges()) {
-  //   environment.error(
-  //     'You have pending git changes.',
-  //     'Please commit or stash them before adding add-ons.',
-  //   )
-  //   return
-  // }
+  if (await hasPendingGitChanges()) {
+    environment.error(
+      'You have pending git changes.',
+      'Please commit or stash them before adding add-ons.',
+    )
+    return
+  }
 
   const newOptions = await createOptions(persistedOptions, addOns)
 
