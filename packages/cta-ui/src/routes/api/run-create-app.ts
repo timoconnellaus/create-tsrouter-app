@@ -15,7 +15,7 @@ import {
 
 import type { Starter } from '@tanstack/cta-engine'
 
-import { cleanUpFiles } from '@/lib/file-helpers'
+import { cleanUpFileArray, cleanUpFiles } from '@/lib/file-helpers'
 
 let registered = false
 
@@ -60,6 +60,7 @@ export const APIRoute = createAPIFileRoute('/api/run-create-app')({
     })
 
     output.files = cleanUpFiles(output.files, targetDir)
+    output.deletedFiles = cleanUpFileArray(output.deletedFiles, targetDir)
 
     return json(output)
   },

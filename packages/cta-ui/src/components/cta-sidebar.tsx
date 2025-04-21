@@ -1,3 +1,4 @@
+import { useStore } from '@tanstack/react-store'
 import {
   Sidebar,
   SidebarContent,
@@ -15,25 +16,33 @@ import ModeSelector from '@/components/sidebar-items/mode-selector'
 import TypescriptSwitch from '@/components/sidebar-items/typescript-switch'
 import StarterDialog from '@/components/sidebar-items/starter'
 
+import { isInitialized } from '@/store/project'
+
 export function AppSidebar() {
+  const ready = useStore(isInitialized)
+
   return (
     <Sidebar>
       <SidebarHeader className="flex justify-center items-center">
         <img src="/tanstack.png" className="w-3/5" />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <ProjectName />
-          <ModeSelector />
-          <TypescriptSwitch />
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Add-ons</SidebarGroupLabel>
-          <SelectedAddOns />
-        </SidebarGroup>
-        <SidebarGroup>
-          <StarterDialog />
-        </SidebarGroup>
+        {ready && (
+          <>
+            <SidebarGroup>
+              <ProjectName />
+              <ModeSelector />
+              <TypescriptSwitch />
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Add-ons</SidebarGroupLabel>
+              <SelectedAddOns />
+            </SidebarGroup>
+            <SidebarGroup>
+              <StarterDialog />
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <RunAddOns />

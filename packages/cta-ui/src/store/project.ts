@@ -1,46 +1,9 @@
 import { Derived, Effect, Store } from '@tanstack/react-store'
 
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
+import type { AddOnInfo, ProjectFiles, StarterInfo } from '@/types.js'
 
-type StarterInfo = {
-  url: string
-  id: string
-  name: string
-  description: string
-  version: string
-  author: string
-  license: string
-  mode: Mode
-  typescript: boolean
-  tailwind: boolean
-}
-
-// Files
-
-type ProjectFiles = {
-  originalOutput: {
-    files: Record<string, string>
-    commands: Array<{
-      command: string
-      args: Array<string>
-    }>
-  }
-  output: {
-    files: Record<string, string>
-    commands: Array<{
-      command: string
-      args: Array<string>
-    }>
-  }
-}
-
-type AddOnInfo = {
-  id: string
-  name: string
-  description: string
-  type: 'add-on' | 'example' | 'starter' | 'toolchain'
-  modes: Array<'code-router' | 'file-router'>
-}
+export const isInitialized = new Store<boolean>(false)
 
 export const projectFiles = new Store<ProjectFiles>({
   originalOutput: {
@@ -151,6 +114,14 @@ onProjectChange.mount()
 
 // Application setup
 
+export const includeFiles = new Store<Array<string>>([
+  'unchanged',
+  'added',
+  'modified',
+  'deleted',
+  'overwritten',
+])
+
 export const applicationMode = new Store<'add' | 'setup'>('add')
 
 export function setMode(mode: Mode) {
@@ -176,4 +147,31 @@ export function setStarter(starter: StarterInfo) {
 
 export function removeStarter() {
   projectStarter.setState(() => undefined)
+}
+
+export async function loadInitialSetup() {
+  const payloadReq = await fetch('/api/initial-payload')
+  const {
+    addOns,
+    localFiles,
+    options,
+    output,
+    applicationMode: appMode,
+  } = await payloadReq.json()
+
+  applicationMode.setState(() => appMode)
+  codeRouterAddOns.setState(() => addOns['code-router'])
+  fileRouterAddOns.setState(() => addOns['file-router'])
+  projectFiles.setState(() => ({
+    originalOutput: output,
+    output,
+  }))
+  projectOptions.setState(() => options)
+  projectLocalFiles.setState(() => localFiles)
+
+  isInitialized.setState(() => true)
+}
+
+if (typeof window !== 'undefined') {
+  loadInitialSetup()
 }

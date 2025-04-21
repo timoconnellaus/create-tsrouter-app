@@ -27,14 +27,15 @@ export const IGNORE_FILES = [
   'dist',
   'node_modules',
   'package-lock.json',
-  'package.json',
   'pnpm-lock.yaml',
   'starter.json',
   'starter-info.json',
   'yarn.lock',
 ]
 
-export function createIgnore(path: string) {
+const PROJECT_FILES = ['package.json']
+
+export function createIgnore(path: string, includeProjectFiles = true) {
   const ignoreList = existsSync(resolve(path, '.gitignore'))
     ? (
         parseGitignore(
@@ -45,7 +46,10 @@ export function createIgnore(path: string) {
   const ig = ignore().add(ignoreList)
   return (filePath: string) => {
     const fileName = basename(filePath)
-    if (IGNORE_FILES.includes(fileName)) {
+    if (
+      IGNORE_FILES.includes(fileName) ||
+      (includeProjectFiles && PROJECT_FILES.includes(fileName))
+    ) {
       return true
     }
     const nameWithoutDotSlash = fileName.replace(/^\.\//, '')
@@ -78,8 +82,11 @@ async function recursivelyGatherFilesHelper(
   }
 }
 
-export async function recursivelyGatherFiles(path: string) {
-  const ignore = createIgnore(path)
+export async function recursivelyGatherFiles(
+  path: string,
+  includeProjectFiles = true,
+) {
+  const ignore = createIgnore(path, includeProjectFiles)
   const files: Record<string, string> = {}
   await recursivelyGatherFilesHelper(path, path, files, ignore)
   return files

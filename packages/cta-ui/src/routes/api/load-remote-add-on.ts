@@ -23,7 +23,7 @@ export const APIRoute = createAPIFileRoute('/api/load-remote-add-on')({
       }
 
       return json({
-        id: parsed.data.id,
+        id: url,
         name: parsed.data.name,
         description: parsed.data.description,
         version: parsed.data.version,

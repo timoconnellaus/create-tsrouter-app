@@ -37,7 +37,7 @@ export const APIRoute = createAPIFileRoute('/api/initial-payload')({
 
     const localFiles =
       applicationMode === 'add'
-        ? await cleanUpFiles(await recursivelyGatherFiles(projectPath))
+        ? await cleanUpFiles(await recursivelyGatherFiles(projectPath, false))
         : {}
 
     const framework = await getFrameworkById('react-cra')

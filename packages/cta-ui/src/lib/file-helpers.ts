@@ -15,3 +15,12 @@ export function cleanUpFiles(
     return acc
   }, {})
 }
+
+export function cleanUpFileArray(files: Array<string>, targetDir?: string) {
+  return files.reduce<Array<string>>((acc, file) => {
+    if (basename(file) !== '.cta.json') {
+      acc.push(targetDir ? file.replace(targetDir, '.') : file)
+    }
+    return acc
+  }, [])
+}
