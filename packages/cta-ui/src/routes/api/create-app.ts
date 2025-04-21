@@ -23,7 +23,7 @@ export const APIRoute = createAPIFileRoute('/api/create-app')({
       registered = true
     }
 
-    const framework = getFrameworkById(serializedOptions.framework!)
+    const framework = getFrameworkById(serializedOptions.framework)
     const options = {
       ...serializedOptions,
       framework,

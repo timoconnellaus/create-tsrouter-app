@@ -1,6 +1,18 @@
-import { Effect, Store } from '@tanstack/react-store'
+import { Derived, Effect, Store } from '@tanstack/react-store'
 
-import type { SerializedOptions } from '@tanstack/cta-engine'
+import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
+
+type StarterInfo = {
+  id: string
+  name: string
+  description: string
+  version: string
+  author: string
+  license: string
+  mode: Mode
+  typescript: boolean
+  tailwind: boolean
+}
 
 // Files
 
@@ -26,6 +38,7 @@ type AddOnInfo = {
   name: string
   description: string
   type: 'add-on' | 'example' | 'starter' | 'toolchain'
+  modes: Array<'code-router' | 'file-router'>
 }
 
 export const projectFiles = new Store<ProjectFiles>({
@@ -43,15 +56,72 @@ export const projectLocalFiles = new Store<Record<string, string>>({})
 
 // Options
 
-export const projectOptions = new Store<SerializedOptions>({})
+export const projectOptions = new Store<SerializedOptions>({
+  framework: 'react-cra',
+  mode: 'file-router',
+  projectName: 'my-app',
+  targetDir: 'my-app',
+  typescript: true,
+  tailwind: true,
+  git: true,
+  chosenAddOns: [],
+  packageManager: 'pnpm',
+})
+
+export const projectStarter = new Store<StarterInfo | undefined>(undefined)
 
 // Addons
 
-export const availableAddOns = new Store<Array<AddOnInfo>>([])
+export const codeRouterAddOns = new Store<Array<AddOnInfo>>([])
+
+export const fileRouterAddOns = new Store<Array<AddOnInfo>>([])
+
+export const customAddOns = new Store<Array<AddOnInfo>>([])
+
+export const availableAddOns = new Derived<Array<AddOnInfo>>({
+  fn: () => {
+    const mode = projectOptions.state.mode
+    const baseAddOns =
+      mode === 'code-router' ? codeRouterAddOns.state : fileRouterAddOns.state
+    return [
+      ...baseAddOns,
+      ...customAddOns.state.filter((addOn) => addOn.modes.includes(mode)),
+    ]
+  },
+  deps: [codeRouterAddOns, fileRouterAddOns, projectOptions, customAddOns],
+})
+availableAddOns.mount()
 
 export const selectedAddOns = new Store<Array<AddOnInfo>>([])
 
-const onChangeAddOns = new Effect({
+export const modeEditable = new Derived<boolean>({
+  fn: () => {
+    return projectStarter.state === undefined
+  },
+  deps: [projectStarter],
+})
+modeEditable.mount()
+
+export const typeScriptEditable = new Derived<boolean>({
+  fn: () => {
+    return (
+      projectStarter.state === undefined &&
+      projectOptions.state.mode === 'code-router'
+    )
+  },
+  deps: [projectStarter, projectOptions],
+})
+typeScriptEditable.mount()
+
+export const tailwindEditable = new Derived<boolean>({
+  fn: () => {
+    return projectStarter.state === undefined
+  },
+  deps: [projectStarter],
+})
+tailwindEditable.mount()
+
+const onProjectChange = new Effect({
   fn: async () => {
     if (projectOptions.state.framework) {
       const options = { ...projectOptions.state }
@@ -74,8 +144,33 @@ const onChangeAddOns = new Effect({
   },
   deps: [selectedAddOns, availableAddOns, projectOptions],
 })
-onChangeAddOns.mount()
+onProjectChange.mount()
 
 // Application setup
 
 export const applicationMode = new Store<'add' | 'setup'>('add')
+
+export function setMode(mode: Mode) {
+  selectedAddOns.setState(() => [])
+  projectOptions.setState((state) => ({
+    ...state,
+    mode,
+    typescript: mode === 'file-router' ? true : state.typescript,
+  }))
+}
+
+export function setStarter(starter: StarterInfo) {
+  projectStarter.setState(() => ({
+    ...starter,
+  }))
+  projectOptions.setState((state) => ({
+    ...state,
+    mode: starter.mode,
+    typescript: starter.typescript,
+    tailwind: starter.tailwind,
+  }))
+}
+
+export function removeStarter() {
+  projectStarter.setState(() => undefined)
+}

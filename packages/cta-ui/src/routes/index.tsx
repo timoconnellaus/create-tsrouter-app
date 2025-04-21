@@ -5,7 +5,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import FileNavigator from '@/components/file-navigator'
 import {
   applicationMode,
-  availableAddOns,
+  codeRouterAddOns,
+  fileRouterAddOns,
   projectFiles,
   projectLocalFiles,
   projectOptions,
@@ -30,7 +31,8 @@ function App() {
       } = await payloadReq.json()
 
       applicationMode.setState(() => appMode)
-      availableAddOns.setState(() => addOns['file-router'])
+      codeRouterAddOns.setState(() => addOns['code-router'])
+      fileRouterAddOns.setState(() => addOns['file-router'])
       projectFiles.setState(() => ({
         originalOutput: output,
         output,

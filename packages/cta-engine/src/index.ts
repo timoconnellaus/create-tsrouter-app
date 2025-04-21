@@ -41,6 +41,13 @@ export {
 
 export { createSerializedOptions } from './options.js'
 
+export {
+  StarterCompiledSchema,
+  AddOnCompiledSchema,
+  AddOnInfoSchema,
+  IntegrationSchema,
+} from './types.js'
+
 export type {
   AddOn,
   Environment,

@@ -10,6 +10,7 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/toaster'
 
 import { AppSidebar } from '@/components/cta-sidebar'
 
@@ -46,6 +47,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <main className="w-[calc(100vw-200px)]">
           <SidebarTrigger />
           <Outlet />
+          <Toaster />
         </main>
       </SidebarProvider>
     </RootDocument>

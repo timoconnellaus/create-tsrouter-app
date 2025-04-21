@@ -269,6 +269,25 @@ export function cli({
           )
         }
 
+        if (options.ui) {
+          const defaultOptions: Options = {
+            framework: getFrameworkByName(cliOptions.framework || 'react')!,
+            mode: 'file-router',
+            chosenAddOns: [],
+            packageManager: 'pnpm',
+            projectName: projectName || 'my-app',
+            targetDir: resolve(process.cwd(), projectName || 'my-app'),
+            typescript: true,
+            tailwind: true,
+            git: true,
+          }
+          launchUI({
+            mode: 'setup',
+            options: createSerializedOptions(finalOptions || defaultOptions),
+          })
+          return
+        }
+
         if (finalOptions) {
           intro(`Creating a new ${appName} app in ${projectName}...`)
         } else {
@@ -286,14 +305,7 @@ export function cli({
         finalOptions.targetDir =
           options.targetDir || resolve(process.cwd(), finalOptions.projectName)
 
-        if (options.ui) {
-          launchUI({
-            mode: 'setup',
-            options: createSerializedOptions(finalOptions),
-          })
-        } else {
-          await createApp(environment, finalOptions)
-        }
+        await createApp(environment, finalOptions)
       } catch (error) {
         log.error(
           error instanceof Error ? error.message : 'An unknown error occurred',

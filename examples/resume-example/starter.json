@@ -1,6 +1,6 @@
 {
   "id": "resume-example-starter",
-  "name": "resume-example-starter",
+  "name": "Resume Starter",
   "version": "0.0.1",
   "description": "Project starter",
   "author": "Jane Smith <jane.smith@example.com>",
@@ -25,10 +25,7 @@
       "@content-collections/vinxi": "^0.1.0"
     }
   },
-  "dependsOn": [
-    "start",
-    "shadcn"
-  ],
+  "dependsOn": ["start", "shadcn"],
   "typescript": true,
   "tailwind": true,
   "files": {

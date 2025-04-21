@@ -33,9 +33,12 @@ export const APIRoute = createAPIFileRoute('/api/initial-payload')({
 
     const projectPath = process.env.CTA_PROJECT_PATH!
 
-    const localFiles = await cleanUpFiles(
-      await recursivelyGatherFiles(projectPath),
-    )
+    const applicationMode = process.env.CTA_MODE as 'add' | 'setup'
+
+    const localFiles =
+      applicationMode === 'add'
+        ? await cleanUpFiles(await recursivelyGatherFiles(projectPath))
+        : {}
 
     const framework = await getFrameworkById('react-cra')
 
@@ -52,8 +55,6 @@ export const APIRoute = createAPIFileRoute('/api/initial-payload')({
       description: addOn.description,
       type: addOn.type,
     }))
-
-    const applicationMode = process.env.CTA_MODE as 'add' | 'add-on' | 'setup'
 
     let options: Options | undefined
 

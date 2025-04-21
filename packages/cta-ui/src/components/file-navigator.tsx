@@ -14,8 +14,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 
-import { projectFiles, projectLocalFiles } from '@/store/project'
+import {
+  projectFiles,
+  projectLocalFiles,
+  applicationMode,
+} from '@/store/project'
 
+// TODO: Add file filters
 export function DropdownMenuDemo() {
   return (
     <Popover>
@@ -52,6 +57,8 @@ export default function FileNavigator() {
   const { output, originalOutput } = useStore(projectFiles)
   const localFiles = useStore(projectLocalFiles)
 
+  const mode = useStore(applicationMode)
+
   return (
     <div className="flex flex-row w-[calc(100vw-450px)]">
       <div className="w-1/4 max-w-1/4 pr-2">
@@ -59,20 +66,24 @@ export default function FileNavigator() {
         <FileTree
           prefix="./"
           tree={output.files}
-          originalTree={originalOutput.files}
+          originalTree={mode === 'setup' ? output.files : originalOutput.files}
           localTree={localFiles}
           onFileSelected={(file) => {
             setSelectedFile(file)
-            if (localFiles[file]) {
-              if (!output.files[file]) {
-                setOriginalFileContents(undefined)
-                setModifiedFileContents(localFiles[file])
+            if (mode === 'add') {
+              if (localFiles[file]) {
+                if (!output.files[file]) {
+                  setOriginalFileContents(undefined)
+                  setModifiedFileContents(localFiles[file])
+                } else {
+                  setOriginalFileContents(localFiles[file])
+                  setModifiedFileContents(output.files[file])
+                }
               } else {
-                setOriginalFileContents(localFiles[file])
+                setOriginalFileContents(originalOutput.files[file])
                 setModifiedFileContents(output.files[file])
               }
             } else {
-              setOriginalFileContents(originalOutput.files[file])
               setModifiedFileContents(output.files[file])
             }
           }}
