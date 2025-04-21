@@ -57,6 +57,7 @@ export type {
   Mode,
   Options,
   SerializedOptions,
+  Starter,
   StarterCompiled,
 } from './types.js'
 export type { PersistedOptions } from './config-file.js'

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
-import { TrashIcon } from 'lucide-react'
+import { TrashIcon, FileBoxIcon } from 'lucide-react'
 
 import { toast } from 'sonner'
 
@@ -74,12 +74,13 @@ export default function Starter() {
             setOpen(true)
           }}
         >
-          Set Starter
+          <FileBoxIcon className="w-4 h-4" />
+          Set Project Starter
         </Button>
         <Dialog modal open={open}>
           <DialogContent className="sm:min-w-[425px] sm:max-w-fit">
             <DialogHeader>
-              <DialogTitle>Set Starter</DialogTitle>
+              <DialogTitle>Project Starter URL</DialogTitle>
             </DialogHeader>
             <div>
               <Input
@@ -87,6 +88,11 @@ export default function Starter() {
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://github.com/myorg/myproject/starter.json"
                 className="min-w-lg w-full"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onImport()
+                  }
+                }}
               />
             </div>
             <DialogFooter>

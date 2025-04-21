@@ -1,4 +1,5 @@
 import { useStore } from '@tanstack/react-store'
+import { CodeIcon, FileIcon } from 'lucide-react'
 
 import type { Mode } from '@tanstack/cta-engine'
 
@@ -39,6 +40,7 @@ export default function ModeSelector() {
             className="px-8"
             disabled={!enableMode}
           >
+            <CodeIcon className="w-4 h-4" />
             Code Router
           </ToggleGroupItem>
           <ToggleGroupItem
@@ -46,6 +48,7 @@ export default function ModeSelector() {
             className="px-4"
             disabled={!enableMode}
           >
+            <FileIcon className="w-4 h-4" />
             File Router
           </ToggleGroupItem>
         </ToggleGroup>

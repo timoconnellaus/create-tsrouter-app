@@ -3,6 +3,7 @@ import { Derived, Effect, Store } from '@tanstack/react-store'
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
 
 type StarterInfo = {
+  url: string
   id: string
   name: string
   description: string
@@ -123,26 +124,28 @@ tailwindEditable.mount()
 
 const onProjectChange = new Effect({
   fn: async () => {
-    if (projectOptions.state.framework) {
-      const options = { ...projectOptions.state }
-      options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
-      const outputReq = await fetch('/api/run-create-app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          options,
-        }),
-      })
-      const output = await outputReq.json()
-      projectFiles.setState((state) => ({
-        ...state,
-        output,
-      }))
+    const options = {
+      ...projectOptions.state,
+      starter: projectStarter.state?.url || undefined,
     }
+    options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
+    console.log(options)
+    const outputReq = await fetch('/api/run-create-app', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        options,
+      }),
+    })
+    const output = await outputReq.json()
+    projectFiles.setState((state) => ({
+      ...state,
+      output,
+    }))
   },
-  deps: [selectedAddOns, availableAddOns, projectOptions],
+  deps: [selectedAddOns, availableAddOns, projectOptions, projectStarter],
 })
 onProjectChange.mount()
 

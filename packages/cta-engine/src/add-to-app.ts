@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { existsSync, statSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { execaSync } from 'execa'
@@ -14,6 +14,7 @@ import { createApp } from './create-app.js'
 import { readConfigFile, writeConfigFile } from './config-file.js'
 import { formatCommand, sortObject } from './utils.js'
 import { packageManagerInstall } from './package-manager.js'
+import { getBinaryFile, isBase64, readFileHelper } from './file-helpers.js'
 
 import type { Environment, Mode, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
@@ -94,7 +95,7 @@ export async function addToApp(
     const relativeFile = file.replace(process.cwd(), '')
     if (existsSync(file)) {
       if (!isDirectory(file)) {
-        const contents = (await readFile(file)).toString()
+        const contents = readFileHelper(file)
         if (
           ['package.json', CONFIG_FILE].includes(basename(file)) ||
           contents !== output.files[file]
@@ -109,12 +110,17 @@ export async function addToApp(
     }
   }
 
+  const deletedFiles: Array<string> = []
+  for (const file of output.deletedFiles) {
+    deletedFiles.push(file.replace(process.cwd(), ''))
+  }
+
   environment.finishStep('App setup processed')
 
   if (overwrittenFiles.length > 0 && !silent) {
     environment.warn(
       'The following will be overwritten:',
-      overwrittenFiles.join('\n'),
+      [...overwrittenFiles, ...deletedFiles].join('\n'),
     )
     const shouldContinue = await environment.confirm('Do you want to continue?')
     if (!shouldContinue) {
@@ -123,6 +129,12 @@ export async function addToApp(
   }
 
   environment.startStep('Writing files...')
+
+  for (const file of output.deletedFiles) {
+    if (existsSync(file)) {
+      await unlink(file)
+    }
+  }
 
   for (const file of [...changedFiles, ...overwrittenFiles]) {
     const targetFile = `.${file}`
@@ -145,7 +157,11 @@ export async function addToApp(
       await writeFile(targetFile, JSON.stringify(currentJson, null, 2))
     } else if (fName !== CONFIG_FILE) {
       await mkdir(resolve(dirname(targetFile)), { recursive: true })
-      await writeFile(resolve(targetFile), contents)
+      if (isBase64(contents)) {
+        await writeFile(resolve(targetFile), getBinaryFile(contents)!)
+      } else {
+        await writeFile(resolve(targetFile), contents)
+      }
     }
   }
 

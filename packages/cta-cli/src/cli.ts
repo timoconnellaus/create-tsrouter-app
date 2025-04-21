@@ -89,20 +89,29 @@ export function cli({
   program
     .command('add')
     .argument(
-      '[add-on]',
+      '[add-on...]',
       'Name of the add-ons (or add-ons separated by spaces or commas)',
     )
     .option('--ui', 'Add with the UI')
-    .action(async (addOn: string, options: { ui: boolean }) => {
-      const addOns = (addOn || '').split(',').map((addon) => addon.trim())
-      if (options.ui) {
+    .action(async (addOns: Array<string>) => {
+      const parsedAddOns: Array<string> = []
+      for (const addOn of addOns) {
+        if (addOn.includes(',') || addOn.includes(' ')) {
+          parsedAddOns.push(
+            ...addOn.split(/[\s,]+/).map((addon) => addon.trim()),
+          )
+        } else {
+          parsedAddOns.push(addOn.trim())
+        }
+      }
+      if (program.opts().ui) {
         launchUI({
           mode: 'add',
-          addOns,
+          addOns: parsedAddOns,
         })
       } else {
         await addToApp(
-          addOns,
+          parsedAddOns,
           {
             silent: false,
           },

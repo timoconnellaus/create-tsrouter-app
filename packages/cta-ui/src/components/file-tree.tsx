@@ -7,6 +7,7 @@ import { TreeView } from '@/components/ui/tree-view'
 
 type FileTreeItem = TreeDataItem & {
   contents: string
+  fullPath: string
 }
 
 export default function FileTree({
@@ -14,23 +15,18 @@ export default function FileTree({
   tree,
   originalTree,
   localTree,
+  selectedFile,
   onFileSelected,
 }: {
   prefix: string
   tree: Record<string, string>
   originalTree: Record<string, string>
   localTree: Record<string, string>
+  selectedFile: string | null
   onFileSelected: (file: string) => void
 }) {
   const computedTree = useMemo(() => {
-    const treeData: Array<TreeDataItem> = [
-      {
-        id: 'root',
-        name: '.',
-        children: [],
-        icon: () => <Folder className="w-4 h-4 mr-2" />,
-      },
-    ]
+    const treeData: Array<TreeDataItem> = []
 
     function changed(file: string) {
       if (!originalTree[file]) {
@@ -48,7 +44,8 @@ export default function FileTree({
     )
 
     allFileSet.sort().forEach((file) => {
-      const parts = file.split('/')
+      const strippedFile = file.replace('./', '')
+      const parts = strippedFile.split('/')
 
       let currentLevel = treeData
       parts.forEach((part, index) => {
@@ -79,8 +76,9 @@ export default function FileTree({
           }
 
           const newNode: FileTreeItem = {
-            id: index === parts.length - 1 ? file : `${file}-${index}`,
+            id: parts.slice(0, index + 1).join('/'),
             name: part,
+            fullPath: strippedFile,
             children: index < parts.length - 1 ? [] : undefined,
             icon:
               index < parts.length - 1
@@ -103,8 +101,21 @@ export default function FileTree({
     return treeData
   }, [prefix, tree, originalTree, localTree])
 
+  const initialExpandedItemIds = useMemo(
+    () => [
+      'src',
+      'src/routes',
+      'src/components',
+      'src/components/ui',
+      'src/lib',
+    ],
+    [],
+  )
+
   return (
     <TreeView
+      initialSelectedItemId={selectedFile?.replace('./', '') ?? undefined}
+      initialExpandedItemIds={initialExpandedItemIds}
       data={computedTree}
       defaultNodeIcon={() => <Folder className="w-4 h-4 mr-2" />}
       defaultLeafIcon={() => <FileText className="w-4 h-4 mr-2" />}

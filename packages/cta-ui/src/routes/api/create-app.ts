@@ -7,7 +7,10 @@ import {
   createDefaultEnvironment,
   finalizeAddOns,
   getFrameworkById,
+  loadStarter,
 } from '@tanstack/cta-engine'
+
+import type { Starter } from '@tanstack/cta-engine'
 
 let registered = false
 
@@ -15,22 +18,30 @@ export const APIRoute = createAPIFileRoute('/api/create-app')({
   POST: async ({ request }) => {
     const { options: serializedOptions } = await request.json()
 
-    console.log(serializedOptions)
-
     if (!registered) {
       registerReactCra()
       registerSolid()
       registered = true
     }
 
+    let starter: Starter | undefined
+    const addOns: Array<string> = [...serializedOptions.chosenAddOns]
+    if (serializedOptions.starter) {
+      starter = await loadStarter(serializedOptions.starter)
+      for (const addOn of starter?.dependsOn ?? []) {
+        addOns.push(addOn)
+      }
+    }
+
     const framework = getFrameworkById(serializedOptions.framework)
     const options = {
       ...serializedOptions,
+      starter,
       framework,
       chosenAddOns: await finalizeAddOns(
         framework,
         serializedOptions.mode,
-        serializedOptions.chosenAddOns,
+        addOns,
       ),
     }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { FilterIcon } from 'lucide-react'
 
@@ -50,42 +50,60 @@ export function DropdownMenuDemo() {
 }
 
 export default function FileNavigator() {
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
-  const [originalFileContents, setOriginalFileContents] = useState<string>()
-  const [modifiedFileContents, setModifiedFileContents] = useState<string>()
+  const [selectedFile, setSelectedFile] = useState<string | null>(
+    './package.json',
+  )
 
   const { output, originalOutput } = useStore(projectFiles)
   const localFiles = useStore(projectLocalFiles)
 
   const mode = useStore(applicationMode)
 
+  const { originalFileContents, modifiedFileContents } = useMemo(() => {
+    if (!selectedFile) {
+      return {
+        originalFileContents: undefined,
+        modifiedFileContents: undefined,
+      }
+    }
+    if (mode === 'add') {
+      if (localFiles[selectedFile]) {
+        if (!output.files[selectedFile]) {
+          return {
+            originalFileContents: undefined,
+            modifiedFileContents: localFiles[selectedFile],
+          }
+        } else {
+          return {
+            originalFileContents: localFiles[selectedFile],
+            modifiedFileContents: output.files[selectedFile],
+          }
+        }
+      } else {
+        return {
+          originalFileContents: originalOutput.files[selectedFile],
+          modifiedFileContents: output.files[selectedFile],
+        }
+      }
+    } else {
+      return {
+        modifiedFileContents: output.files[selectedFile],
+      }
+    }
+  }, [mode, selectedFile, output.files, originalOutput.files, localFiles])
+
   return (
     <div className="flex flex-row w-[calc(100vw-450px)]">
       <div className="w-1/4 max-w-1/4 pr-2">
         <DropdownMenuDemo />
         <FileTree
+          selectedFile={selectedFile}
           prefix="./"
           tree={output.files}
           originalTree={mode === 'setup' ? output.files : originalOutput.files}
           localTree={localFiles}
           onFileSelected={(file) => {
             setSelectedFile(file)
-            if (mode === 'add') {
-              if (localFiles[file]) {
-                if (!output.files[file]) {
-                  setOriginalFileContents(undefined)
-                  setModifiedFileContents(localFiles[file])
-                } else {
-                  setOriginalFileContents(localFiles[file])
-                  setModifiedFileContents(output.files[file])
-                }
-              } else {
-                setOriginalFileContents(originalOutput.files[file])
-                setModifiedFileContents(output.files[file])
-              }
-            } else {
-              setModifiedFileContents(output.files[file])
-            }
           }}
         />
       </div>

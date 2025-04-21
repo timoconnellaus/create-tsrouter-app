@@ -57,10 +57,9 @@ function getAddOns(framework: FrameworkDefinition) {
         packageAdditions,
         readme,
         files,
-        deletedFiles: [],
         getFiles,
         getFileContents,
-        getDeletedFiles: () => Promise.resolve([]),
+        getDeletedFiles: () => Promise.resolve(info.deletedFiles ?? []),
       })
     }
   }

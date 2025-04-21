@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
+import { HammerIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,11 +14,11 @@ import {
 import {
   applicationMode,
   projectOptions,
+  projectStarter,
   selectedAddOns,
 } from '@/store/project'
 
 export default function RunCreateApp() {
-  const currentlySelectedAddOns = useStore(selectedAddOns)
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
@@ -39,6 +40,7 @@ export default function RunCreateApp() {
         options: {
           ...options,
           chosenAddOns: selectedAddOns.state.map((addOn) => addOn.id),
+          starter: projectStarter.state?.url || undefined,
         },
       }),
       headers: {
@@ -90,10 +92,11 @@ export default function RunCreateApp() {
         <Button
           variant="default"
           onClick={onAddToApp}
-          disabled={currentlySelectedAddOns.length === 0 || isRunning}
+          disabled={isRunning}
           className="w-full"
         >
-          Run Create App
+          <HammerIcon className="w-4 h-4" />
+          Build Your App
         </Button>
       </div>
     </div>

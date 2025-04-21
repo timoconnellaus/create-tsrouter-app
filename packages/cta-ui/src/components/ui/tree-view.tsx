@@ -35,6 +35,7 @@ type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
   initialSelectedItemId?: string
   onSelectChange?: (item: TreeDataItem | undefined) => void
   expandAll?: boolean
+  initialExpandedItemIds?: Array<string>
   defaultNodeIcon?: any
   defaultLeafIcon?: any
   onDocumentDrag?: (sourceItem: TreeDataItem, targetItem: TreeDataItem) => void
@@ -47,6 +48,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
       initialSelectedItemId,
       onSelectChange,
       expandAll,
+      initialExpandedItemIds,
       defaultLeafIcon,
       defaultNodeIcon,
       className,
@@ -88,7 +90,10 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
     )
 
     const expandedItemIds = React.useMemo(() => {
-      if (!initialSelectedItemId) {
+      if (initialExpandedItemIds) {
+        return initialExpandedItemIds
+      }
+      if (!initialSelectedItemId && !expandAll) {
         return [] as Array<string>
       }
 
@@ -115,7 +120,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
 
       walkTreeItems(data, initialSelectedItemId)
       return ids
-    }, [data, expandAll, initialSelectedItemId])
+    }, [data, expandAll, initialSelectedItemId, initialExpandedItemIds])
 
     return (
       <div className={cn('overflow-hidden relative p-2', className)}>

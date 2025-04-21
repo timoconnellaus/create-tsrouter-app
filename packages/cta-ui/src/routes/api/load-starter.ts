@@ -23,6 +23,8 @@ export const APIRoute = createAPIFileRoute('/api/load-starter')({
       }
 
       return json({
+        url,
+
         id: parsed.data.id,
         name: parsed.data.name,
         description: parsed.data.description,

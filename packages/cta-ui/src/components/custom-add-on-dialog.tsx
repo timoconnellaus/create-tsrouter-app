@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { toast } from 'sonner'
+import { TicketPlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,6 +48,7 @@ export default function CustomAddOnDialog() {
           setOpen(true)
         }}
       >
+        <TicketPlusIcon className="w-4 h-4" />
         Import Custom Add-On
       </Button>
       <Dialog modal open={open}>
@@ -60,6 +62,11 @@ export default function CustomAddOnDialog() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://github.com/myorg/myproject/add-on.json"
               className="min-w-lg w-full"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onImport()
+                }
+              }}
             />
           </div>
           <DialogFooter>

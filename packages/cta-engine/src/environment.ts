@@ -52,7 +52,9 @@ export function createDefaultEnvironment(): Environment {
       }
     },
     deleteFile: async (path: string) => {
-      await unlink(path)
+      if (existsSync(path)) {
+        await unlink(path)
+      }
     },
 
     exists: (path: string) => existsSync(path),
@@ -80,6 +82,7 @@ export function createMemoryEnvironment() {
 
   const output: {
     files: Record<string, string>
+    deletedFiles: Array<string>
     commands: Array<{
       command: string
       args: Array<string>
@@ -87,6 +90,7 @@ export function createMemoryEnvironment() {
   } = {
     files: {},
     commands: [],
+    deletedFiles: [],
   }
 
   const { fs, vol } = memfs({})
@@ -127,7 +131,10 @@ export function createMemoryEnvironment() {
     await fs.writeFileSync(path, contents)
   }
   environment.deleteFile = async (path: string) => {
-    await fs.unlinkSync(path)
+    output.deletedFiles.push(path)
+    if (fs.existsSync(path)) {
+      await fs.unlinkSync(path)
+    }
   }
   environment.exists = (path: string) => {
     if (isTemplatePath(path)) {
