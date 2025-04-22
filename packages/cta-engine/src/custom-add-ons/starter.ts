@@ -3,10 +3,10 @@ import { existsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { StarterCompiledSchema } from '../types.js'
+import { createIgnore } from '../file-helpers.js'
 import {
   compareFilesRecursively,
   createAppOptionsFromPersisted,
-  createIgnore,
   createPackageAdditions,
   readCurrentProjectOptions,
   runCreateApp,

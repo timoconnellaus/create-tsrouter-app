@@ -2,7 +2,7 @@ import { basename, resolve } from 'node:path'
 
 import { isBase64 } from './file-helpers.js'
 import { formatCommand } from './utils.js'
-import { writeConfigFile } from './config-file.js'
+import { writeConfigFileToEnvironment } from './config-file.js'
 import {
   getPackageManagerScriptCommand,
   packageManagerInstall,
@@ -68,7 +68,7 @@ async function writeFiles(environment: Environment, options: Options) {
   environment.finishStep(`package.json written`)
 
   environment.startStep(`Writing config file...`)
-  await writeConfigFile(environment, options.targetDir, options)
+  await writeConfigFileToEnvironment(environment, options)
   environment.finishStep(`Config file written`)
 }
 

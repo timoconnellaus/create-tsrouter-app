@@ -3,13 +3,12 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 
 import { AddOnCompiledSchema } from '../types.js'
+import { createIgnore, recursivelyGatherFiles } from '../file-helpers.js'
 import {
   compareFilesRecursively,
   createAppOptionsFromPersisted,
-  createIgnore,
   createPackageAdditions,
   readCurrentProjectOptions,
-  recursivelyGatherFiles,
   runCreateApp,
 } from './shared.js'
 

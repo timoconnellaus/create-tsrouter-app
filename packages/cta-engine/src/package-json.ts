@@ -3,7 +3,7 @@ import { sortObject } from './utils.js'
 
 import type { Options } from './types.js'
 
-function mergePackageJSON(
+export function mergePackageJSON(
   packageJSON: Record<string, any>,
   overlayPackageJSON?: Record<string, any>,
 ) {

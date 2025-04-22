@@ -18,6 +18,8 @@ export const projectFiles = new Store<ProjectFiles>({
 
 export const projectLocalFiles = new Store<Record<string, string>>({})
 
+export const applicationMode = new Store<'add' | 'setup'>('add')
+
 // Options
 
 export const projectOptions = new Store<SerializedOptions>({
@@ -87,27 +89,50 @@ tailwindEditable.mount()
 
 const onProjectChange = new Effect({
   fn: async () => {
-    const options = {
-      ...projectOptions.state,
-      starter: projectStarter.state?.url || undefined,
+    if (applicationMode.state === 'setup') {
+      const options = {
+        ...projectOptions.state,
+        starter: projectStarter.state?.url || undefined,
+      }
+      options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
+      const outputReq = await fetch('/api/run-create-app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          options,
+        }),
+      })
+      const output = await outputReq.json()
+      projectFiles.setState((state) => ({
+        ...state,
+        output,
+      }))
+    } else {
+      const outputReq = await fetch('/api/dry-run-add-to-app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          addOns: selectedAddOns.state.map((addOn) => addOn.id),
+        }),
+      })
+      const output = await outputReq.json()
+      projectFiles.setState((state) => ({
+        ...state,
+        output,
+      }))
     }
-    options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
-    const outputReq = await fetch('/api/run-create-app', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        options,
-      }),
-    })
-    const output = await outputReq.json()
-    projectFiles.setState((state) => ({
-      ...state,
-      output,
-    }))
   },
-  deps: [selectedAddOns, availableAddOns, projectOptions, projectStarter],
+  deps: [
+    selectedAddOns,
+    availableAddOns,
+    projectOptions,
+    projectStarter,
+    applicationMode,
+  ],
 })
 onProjectChange.mount()
 
@@ -120,8 +145,6 @@ export const includeFiles = new Store<Array<string>>([
   'deleted',
   'overwritten',
 ])
-
-export const applicationMode = new Store<'add' | 'setup'>('add')
 
 export function setMode(mode: Mode) {
   selectedAddOns.setState(() => [])

@@ -3,15 +3,20 @@ import {
   copyFile,
   mkdir,
   readFile,
+  readdir,
   unlink,
   writeFile,
 } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
 
-import { getBinaryFile } from './file-helpers.js'
+import {
+  cleanUpFileArray,
+  cleanUpFiles,
+  getBinaryFile,
+} from './file-helpers.js'
 
 import type { Environment } from './types.js'
 
@@ -42,13 +47,15 @@ export function createDefaultEnvironment(): Environment {
     },
     execute: async (command: string, args: Array<string>, cwd: string) => {
       try {
-        await execa(command, args, {
+        const result = await execa(command, args, {
           cwd,
         })
+        return { stdout: result.stdout }
       } catch {
         errors.push(
           `Command "${command} ${args.join(' ')}" did not run successfully. Please run this manually in your project.`,
         )
+        return { stdout: '' }
       }
     },
     deleteFile: async (path: string) => {
@@ -57,7 +64,12 @@ export function createDefaultEnvironment(): Environment {
       }
     },
 
+    readFile: async (path: string) => {
+      return (await readFile(path)).toString()
+    },
     exists: (path: string) => existsSync(path),
+    isDirectory: (path: string) => statSync(path).isDirectory(),
+    readdir: async (path: string) => readdir(path),
 
     appName: 'TanStack',
 
@@ -77,7 +89,7 @@ export function createDefaultEnvironment(): Environment {
   }
 }
 
-export function createMemoryEnvironment() {
+export function createMemoryEnvironment(returnPathsRelativeTo: string = '') {
   const environment = createDefaultEnvironment()
 
   const output: {
@@ -118,7 +130,10 @@ export function createMemoryEnvironment() {
       command,
       args,
     })
-    return Promise.resolve()
+    return Promise.resolve({ stdout: '' })
+  }
+  environment.readFile = async (path: string) => {
+    return Promise.resolve(fs.readFileSync(path, 'utf-8').toString())
   }
   environment.writeFile = async (path: string, contents: string) => {
     fs.mkdirSync(dirname(path), { recursive: true })
@@ -136,12 +151,6 @@ export function createMemoryEnvironment() {
       await fs.unlinkSync(path)
     }
   }
-  environment.exists = (path: string) => {
-    if (isTemplatePath(path)) {
-      return existsSync(path)
-    }
-    return fs.existsSync(path)
-  }
   environment.finishRun = () => {
     output.files = vol.toJSON() as Record<string, string>
     for (const file of Object.keys(output.files)) {
@@ -149,6 +158,22 @@ export function createMemoryEnvironment() {
         delete output.files[file]
       }
     }
+    if (returnPathsRelativeTo.length) {
+      output.files = cleanUpFiles(output.files, returnPathsRelativeTo)
+      output.deletedFiles = cleanUpFileArray(
+        output.deletedFiles,
+        returnPathsRelativeTo,
+      )
+    }
+  }
+  environment.exists = (path: string) => {
+    return fs.existsSync(path)
+  }
+  environment.isDirectory = (path: string) => {
+    return fs.statSync(path).isDirectory()
+  }
+  environment.readdir = async (path: string) => {
+    return Promise.resolve(fs.readdirSync(path).map((d) => d.toString()))
   }
 
   return {

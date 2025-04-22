@@ -92,6 +92,7 @@ export function cli({
       '[add-on...]',
       'Name of the add-ons (or add-ons separated by spaces or commas)',
     )
+    .option('--forced', 'Force the add-on to be added', false)
     .option('--ui', 'Add with the UI')
     .action(async (addOns: Array<string>) => {
       const parsedAddOns: Array<string> = []
@@ -110,13 +111,9 @@ export function cli({
           addOns: parsedAddOns,
         })
       } else {
-        await addToApp(
-          parsedAddOns,
-          {
-            silent: false,
-          },
-          environment,
-        )
+        await addToApp(environment, parsedAddOns, process.cwd(), {
+          forced: program.opts().forced,
+        })
       }
     })
 

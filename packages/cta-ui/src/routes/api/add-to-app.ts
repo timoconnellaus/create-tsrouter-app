@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
 import { addToApp, createDefaultEnvironment } from '@tanstack/cta-engine'
@@ -12,12 +14,23 @@ export const APIRoute = createAPIFileRoute('/api/add-to-app')({
   POST: async ({ request }) => {
     const { addOns } = await request.json()
 
-    process.chdir(process.env.CTA_PROJECT_PATH!)
+    const projectPath = process.env.CTA_PROJECT_PATH!
 
     const environment = createDefaultEnvironment()
     environment.error = console.error
     environment.warn = console.warn
     environment.info = console.log
+
+    const persistedOptions = JSON.parse(
+      readFileSync(resolve(projectPath, '.cta.json')),
+    )
+
+    const newAddons: Array<string> = []
+    for (const addOn of addOns) {
+      if (!persistedOptions.existingAddOns.includes(addOn)) {
+        newAddons.push(addOn)
+      }
+    }
 
     const stream = new ReadableStream({
       start(controller) {
@@ -30,7 +43,9 @@ export const APIRoute = createAPIFileRoute('/api/add-to-app')({
           controller.enqueue(new TextEncoder().encode(`${message}\n`))
         }
 
-        addToApp(addOns, { silent: true }, environment).then(() => {
+        addToApp(environment, newAddons, projectPath, {
+          forced: true,
+        }).then(() => {
           controller.close()
         })
       },

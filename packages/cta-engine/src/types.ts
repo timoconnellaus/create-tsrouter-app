@@ -151,9 +151,17 @@ type FileEnvironment = {
   copyFile: (from: string, to: string) => Promise<void>
   writeFile: (path: string, contents: string) => Promise<void>
   writeFileBase64: (path: string, base64Contents: string) => Promise<void>
-  execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
+  execute: (
+    command: string,
+    args: Array<string>,
+    cwd: string,
+  ) => Promise<{ stdout: string }>
   deleteFile: (path: string) => Promise<void>
+
   exists: (path: string) => boolean
+  isDirectory: (path: string) => boolean
+  readFile: (path: string) => Promise<string>
+  readdir: (path: string) => Promise<Array<string>>
 }
 
 type UIEnvironment = {

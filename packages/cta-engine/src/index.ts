@@ -26,18 +26,25 @@ export {
   getFrameworks,
 } from './frameworks.js'
 
-export { writeConfigFile, readConfigFile } from './config-file.js'
+export {
+  writeConfigFileToEnvironment,
+  readConfigFileFromEnvironment,
+} from './config-file.js'
 
-export { readFileHelper, getBinaryFile, relativePath } from './file-helpers.js'
+export {
+  cleanUpFiles,
+  cleanUpFileArray,
+  readFileHelper,
+  getBinaryFile,
+  recursivelyGatherFiles,
+  relativePath,
+} from './file-helpers.js'
 
 export { formatCommand } from './utils.js'
 
 export { initStarter, compileStarter } from './custom-add-ons/starter.js'
 export { initAddOn, compileAddOn } from './custom-add-ons/add-on.js'
-export {
-  createAppOptionsFromPersisted,
-  recursivelyGatherFiles,
-} from './custom-add-ons/shared.js'
+export { createAppOptionsFromPersisted } from './custom-add-ons/shared.js'
 
 export { createSerializedOptions } from './options.js'
 

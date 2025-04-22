@@ -15,10 +15,11 @@ import ModeSelector from '@/components/sidebar-items/mode-selector'
 import TypescriptSwitch from '@/components/sidebar-items/typescript-switch'
 import StarterDialog from '@/components/sidebar-items/starter'
 
-import { isInitialized } from '@/store/project'
+import { applicationMode, isInitialized } from '@/store/project'
 
 export function AppSidebar() {
   const ready = useStore(isInitialized)
+  const mode = useStore(applicationMode)
 
   return (
     <Sidebar>
@@ -28,17 +29,21 @@ export function AppSidebar() {
       <SidebarContent>
         {ready && (
           <>
-            <SidebarGroup>
-              <ProjectName />
-              <ModeSelector />
-              <TypescriptSwitch />
-            </SidebarGroup>
+            {mode === 'setup' && (
+              <SidebarGroup>
+                <ProjectName />
+                <ModeSelector />
+                <TypescriptSwitch />
+              </SidebarGroup>
+            )}
             <SidebarGroup>
               <SelectedAddOns />
             </SidebarGroup>
-            <SidebarGroup>
-              <StarterDialog />
-            </SidebarGroup>
+            {mode === 'setup' && (
+              <SidebarGroup>
+                <StarterDialog />
+              </SidebarGroup>
+            )}
           </>
         )}
       </SidebarContent>

@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 import { CONFIG_FILE } from './constants.js'
@@ -15,34 +14,36 @@ export type PersistedOptions = Omit<
   starter?: string
 }
 
-export async function writeConfigFile(
-  environment: Environment,
-  targetDir: string,
-  options: Options,
-) {
+function createPersistedOptions(options: Options): PersistedOptions {
   /* eslint-disable unused-imports/no-unused-vars */
-  const { chosenAddOns, framework, ...rest } = options
+  const { chosenAddOns, framework, targetDir, ...rest } = options
   /* eslint-enable unused-imports/no-unused-vars */
-  const persistedOptions: PersistedOptions = {
+  return {
     ...rest,
     version: 1,
     framework: options.framework.id,
     existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
     starter: options.starter?.id ?? undefined,
   }
+}
 
+export async function writeConfigFileToEnvironment(
+  environment: Environment,
+  options: Options,
+) {
   await environment.writeFile(
-    resolve(targetDir, CONFIG_FILE),
-    JSON.stringify(persistedOptions, null, 2),
+    resolve(options.targetDir, CONFIG_FILE),
+    JSON.stringify(createPersistedOptions(options), null, 2),
   )
 }
 
-export async function readConfigFile(
+export async function readConfigFileFromEnvironment(
+  environment: Environment,
   targetDir: string,
 ): Promise<PersistedOptions | null> {
   try {
     const configFile = resolve(targetDir, CONFIG_FILE)
-    const config = await readFile(configFile, 'utf8')
+    const config = await environment.readFile(configFile)
 
     // TODO: Look for old config files and convert them to the new format
 
