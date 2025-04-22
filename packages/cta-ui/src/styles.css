@@ -165,7 +165,7 @@ code {
 
 [data-sidebar='group'] {
   background-color: hsl(240 5.9% 6%) !important;
-  @apply mb-2 rounded-lg border-1 border-gray-800;
+  @apply mb-2 rounded-lg inset-shadow-gray-600 inset-shadow-sm;
 }
 
 [data-sidebar='content'] {
@@ -173,5 +173,5 @@ code {
 }
 
 [data-sidebar='header'] {
-  @apply backdrop-blur-md shadow-gray-700 shadow-lg z-50;
+  @apply shadow-gray-700 shadow-md z-50;
 }
