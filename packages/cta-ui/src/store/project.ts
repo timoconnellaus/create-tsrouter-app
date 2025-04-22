@@ -92,7 +92,6 @@ const onProjectChange = new Effect({
       starter: projectStarter.state?.url || undefined,
     }
     options.chosenAddOns = selectedAddOns.state.map((addOn) => addOn.id)
-    console.log(options)
     const outputReq = await fetch('/api/run-create-app', {
       method: 'POST',
       headers: {

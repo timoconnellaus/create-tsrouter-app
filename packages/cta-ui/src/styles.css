@@ -162,3 +162,16 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+[data-sidebar='group'] {
+  background-color: hsl(240 5.9% 6%) !important;
+  @apply mb-2 rounded-lg border-1 border-gray-800;
+}
+
+[data-sidebar='content'] {
+  @apply p-2 pt-5;
+}
+
+[data-sidebar='header'] {
+  @apply backdrop-blur-md shadow-gray-700 shadow-lg z-50;
+}

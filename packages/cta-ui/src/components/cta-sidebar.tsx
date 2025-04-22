@@ -4,7 +4,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
 } from '@/components/ui/sidebar'
 
@@ -35,7 +34,6 @@ export function AppSidebar() {
               <TypescriptSwitch />
             </SidebarGroup>
             <SidebarGroup>
-              <SidebarGroupLabel>Add-ons</SidebarGroupLabel>
               <SelectedAddOns />
             </SidebarGroup>
             <SidebarGroup>
