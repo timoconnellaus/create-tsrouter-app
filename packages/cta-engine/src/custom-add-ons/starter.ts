@@ -15,6 +15,7 @@ import {
 import type { PersistedOptions } from '../config-file'
 import type {
   Environment,
+  Options,
   Starter,
   StarterCompiled,
   StarterInfo,
@@ -58,7 +59,9 @@ async function loadCurrentStarterInfo(environment: Environment) {
   const info = await readOrGenerateStarterInfo(persistedOptions)
 
   const output = await runCreateApp(
-    await createAppOptionsFromPersisted(persistedOptions),
+    (await createAppOptionsFromPersisted(
+      persistedOptions,
+    )) as Required<Options>,
   )
 
   return { info, output }

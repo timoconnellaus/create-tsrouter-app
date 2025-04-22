@@ -7,11 +7,12 @@ import type { Environment, Options } from './types.js'
 
 export type PersistedOptions = Omit<
   Partial<Options>,
-  'addOns' | 'chosenAddOns' | 'framework'
+  'addOns' | 'chosenAddOns' | 'framework' | 'starter'
 > & {
   framework: string
   version: number
   existingAddOns: Array<string>
+  starter?: string
 }
 
 export async function writeConfigFile(
@@ -27,6 +28,7 @@ export async function writeConfigFile(
     version: 1,
     framework: options.framework.id,
     existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
+    starter: options.starter?.id ?? undefined,
   }
 
   await environment.writeFile(

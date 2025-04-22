@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
 
 import { register as registerReactCra } from '@tanstack/cta-framework-react-cra'
@@ -10,7 +11,7 @@ import {
   loadStarter,
 } from '@tanstack/cta-engine'
 
-import type { Starter } from '@tanstack/cta-engine'
+import type { Options, Starter } from '@tanstack/cta-engine'
 
 let registered = false
 
@@ -33,9 +34,13 @@ export const APIRoute = createAPIFileRoute('/api/create-app')({
       }
     }
 
+    const projectPath = process.env.CTA_PROJECT_PATH!
+    const targetDir = resolve(projectPath, serializedOptions.projectName)
+
     const framework = getFrameworkById(serializedOptions.framework)
-    const options = {
+    const options: Options = {
       ...serializedOptions,
+      targetDir,
       starter,
       framework,
       chosenAddOns: await finalizeAddOns(

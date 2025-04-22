@@ -11,6 +11,7 @@ export type StarterInfo = {
   mode: Mode
   typescript: boolean
   tailwind: boolean
+  banner?: string
 }
 
 // Files

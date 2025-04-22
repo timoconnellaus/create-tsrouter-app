@@ -31,7 +31,7 @@ async function hasPendingGitChanges() {
 async function createOptions(
   json: PersistedOptions,
   addOns: Array<string>,
-): Promise<Required<Options>> {
+): Promise<Options> {
   const framework = getFrameworkById(json.framework)
 
   return {
@@ -43,7 +43,7 @@ async function createOptions(
       ...json.existingAddOns,
       ...addOns,
     ]),
-  } as Required<Options>
+  } as Options
 }
 
 async function runCreateApp(options: Required<Options>) {
@@ -86,7 +86,7 @@ export async function addToApp(
   environment.startStep('Processing new app setup...')
 
   const newOptions = await createOptions(persistedOptions, addOns)
-  const output = await runCreateApp(newOptions)
+  const output = await runCreateApp(newOptions as Required<Options>)
   const overwrittenFiles: Array<string> = []
   const changedFiles: Array<string> = []
   const contentMap = new Map<string, string>()
@@ -170,7 +170,7 @@ export async function addToApp(
   // Handle commands
 
   const originalOutput = await runCreateApp(
-    await createOptions(persistedOptions, []),
+    (await createOptions(persistedOptions, [])) as Required<Options>,
   )
 
   const originalCommands = new Set(

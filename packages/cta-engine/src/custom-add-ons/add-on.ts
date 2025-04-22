@@ -14,7 +14,13 @@ import {
 } from './shared.js'
 
 import type { PersistedOptions } from '../config-file'
-import type { AddOn, AddOnCompiled, AddOnInfo, Environment } from '../types'
+import type {
+  AddOn,
+  AddOnCompiled,
+  AddOnInfo,
+  Environment,
+  Options,
+} from '../types'
 
 const ADD_ON_DIR = '.add-on'
 
@@ -151,7 +157,9 @@ export async function generateProject(persistedOptions: PersistedOptions) {
   const info = await readOrGenerateAddOnInfo(persistedOptions)
 
   const output = await runCreateApp(
-    await createAppOptionsFromPersisted(persistedOptions),
+    (await createAppOptionsFromPersisted(
+      persistedOptions,
+    )) as Required<Options>,
   )
 
   return { info, output }

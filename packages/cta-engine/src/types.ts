@@ -47,6 +47,7 @@ export const StarterSchema = AddOnBaseSchema.extend({
   mode: z.string(),
   typescript: z.boolean(),
   tailwind: z.boolean(),
+  banner: z.string().optional(),
 })
 
 export const StarterCompiledSchema = StarterSchema.extend({

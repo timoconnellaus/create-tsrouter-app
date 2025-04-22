@@ -15,6 +15,7 @@ import type { Environment, Mode, Options } from '../types.js'
 import type { PersistedOptions } from '../config-file.js'
 
 export const IGNORE_FILES = [
+  '.starter',
   '.add-on',
   '.cta.json',
   '.git',
@@ -142,7 +143,7 @@ export function createPackageAdditions(
 
 export async function createAppOptionsFromPersisted(
   json: PersistedOptions,
-): Promise<Required<Options>> {
+): Promise<Options> {
   const framework = getFrameworkById(json.framework)
   return {
     ...json,
@@ -151,7 +152,7 @@ export async function createAppOptionsFromPersisted(
     chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
       ...json.existingAddOns,
     ]),
-  } as Required<Options>
+  } as Options
 }
 
 export async function runCreateApp(options: Required<Options>) {

@@ -5,10 +5,9 @@ export function cleanUpFiles(
   targetDir?: string,
 ) {
   return Object.keys(files).reduce<Record<string, string>>((acc, file) => {
-    let content = files[file]
-    if (content.startsWith('base64::')) {
-      content = '<binary file>'
-    }
+    const content = files[file].startsWith('base64::')
+      ? '<binary file>'
+      : files[file]
     if (basename(file) !== '.cta.json') {
       acc[targetDir ? file.replace(targetDir, '.') : file] = content
     }

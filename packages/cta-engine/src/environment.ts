@@ -144,6 +144,11 @@ export function createMemoryEnvironment() {
   }
   environment.finishRun = () => {
     output.files = vol.toJSON() as Record<string, string>
+    for (const file of Object.keys(output.files)) {
+      if (fs.statSync(file).isDirectory()) {
+        delete output.files[file]
+      }
+    }
   }
 
   return {

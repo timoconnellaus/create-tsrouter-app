@@ -31,6 +31,25 @@ describe('createMemoryEnvironment', () => {
     expect(output.files['/test.txt']).toEqual('test')
   })
 
+  it('should remove empty directories', async () => {
+    const { environment, output } = createMemoryEnvironment()
+
+    environment.startRun()
+
+    await environment.writeFile('/test.txt', 'test')
+
+    await environment.writeFile('/foo/test1.txt', 'test')
+    await environment.writeFile('/foo/test2.txt', 'test')
+    environment.deleteFile('/foo/test1.txt')
+    environment.deleteFile('/foo/test2.txt')
+
+    await environment.writeFile('/bar/test1.txt', 'test')
+
+    environment.finishRun()
+
+    expect(Object.keys(output.files)).toEqual(['/test.txt', '/bar/test1.txt'])
+  })
+
   it('should track command execution', async () => {
     const { environment, output } = createMemoryEnvironment()
 

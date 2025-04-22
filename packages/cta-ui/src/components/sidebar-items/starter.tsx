@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
-import { TrashIcon, FileBoxIcon } from 'lucide-react'
+import { FileBoxIcon, TrashIcon } from 'lucide-react'
 
 import { toast } from 'sonner'
 
@@ -28,7 +28,7 @@ export default function Starter() {
   const mode = useStore(applicationMode)
 
   const starterName = useStore(projectStarter)?.name
-
+  const starterBanner = useStore(projectStarter)?.banner
   if (mode !== 'setup') {
     return null
   }
@@ -49,6 +49,17 @@ export default function Starter() {
 
   return (
     <>
+      {starterBanner && (
+        <div className="flex justify-center mb-4">
+          <div className="p-2 bg-gray-300 rounded-lg shadow-xl shadow-gray-800">
+            <img
+              src={starterBanner}
+              alt="Starter Banner"
+              className="w-40 max-w-full"
+            />
+          </div>
+        </div>
+      )}
       {starterName && (
         <div className="text-md mb-4">
           <Button

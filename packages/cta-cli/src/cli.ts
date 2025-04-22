@@ -280,10 +280,10 @@ export function cli({
 
         if (options.ui) {
           const defaultOptions: Options = {
-            framework: getFrameworkByName(cliOptions.framework || 'react')!,
+            framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
             mode: 'file-router',
             chosenAddOns: [],
-            packageManager: 'pnpm',
+            packageManager: 'npm',
             projectName: projectName || 'my-app',
             targetDir: resolve(process.cwd(), projectName || 'my-app'),
             typescript: true,

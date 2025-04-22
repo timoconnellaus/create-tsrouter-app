@@ -35,6 +35,9 @@ export const APIRoute = createAPIFileRoute('/api/load-starter')({
         mode: parsed.data.mode,
         typescript: parsed.data.typescript,
         tailwind: parsed.data.tailwind,
+        banner: parsed.data.banner
+          ? url.replace('starter.json', parsed.data.banner)
+          : undefined,
       })
     } catch {
       return json({ error: 'Failed to load starter' }, { status: 500 })
