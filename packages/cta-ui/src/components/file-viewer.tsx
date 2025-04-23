@@ -6,7 +6,15 @@ import { json } from '@codemirror/lang-json'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 
-import { okaidia } from '@uiw/codemirror-theme-okaidia'
+import { githubDarkInit } from '@uiw/codemirror-theme-github'
+
+const theme = githubDarkInit({
+  settings: {
+    background: 'oklch(0.07 0.005 285.823)',
+    foreground: '#c9d1d9',
+    gutterBackground: 'oklch(0.22 0.005 285.823)',
+  },
+})
 
 export default function FileViewer({
   originalFile,
@@ -41,7 +49,7 @@ export default function FileViewer({
     return (
       <CodeMirror
         value={modifiedFile}
-        theme={okaidia}
+        theme={theme}
         height="100vh"
         width="100%"
         readOnly
@@ -51,7 +59,7 @@ export default function FileViewer({
     )
   }
   return (
-    <CodeMirrorMerge orientation="a-b" theme={okaidia} className="text-lg">
+    <CodeMirrorMerge orientation="a-b" theme={theme} className="text-lg">
       <CodeMirrorMerge.Original value={originalFile} extensions={[language]} />
       <CodeMirrorMerge.Modified value={modifiedFile} extensions={[language]} />
     </CodeMirrorMerge>

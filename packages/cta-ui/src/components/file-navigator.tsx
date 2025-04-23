@@ -10,12 +10,14 @@ import type { FileTreeItem } from '@/types'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
+import { useSidebar } from '@/components/ui/sidebar'
+
 import {
   applicationMode,
   includeFiles,
+  isInitialized,
   projectFiles,
   projectLocalFiles,
-  isInitialized,
 } from '@/store/project'
 
 import { getFileClass, twClasses } from '@/file-classes'
@@ -35,8 +37,8 @@ export function Filters() {
   }
 
   return (
-    <>
-      <div className="text-center text-sm border-b-1 mb-4">File Filters</div>
+    <div className="p-2 rounded-md bg-gray-900 file-filters">
+      <div className="text-center text-sm mb-2">File Filters</div>
       <div className="flex flex-row flex-wrap gap-y-2">
         <div className="flex flex-row items-center gap-2 w-1/3">
           <Checkbox
@@ -94,8 +96,7 @@ export function Filters() {
           </Label>
         </div>
       </div>
-      <Separator className="my-4" />
-    </>
+    </div>
   )
 }
 
@@ -192,7 +193,9 @@ export default function FileNavigator() {
   }
 
   return (
-    <div className="flex flex-row w-[calc(100vw-450px)]">
+    <div
+      className={`flex flex-row border-1 rounded-md mr-10 p-2 inset-shadow-gray-600 inset-shadow-sm`}
+    >
       <div className="w-1/4 max-w-1/4 pr-2">
         {mode === 'add' && <Filters />}
         <FileTree selectedFile={selectedFile} tree={fileTree} />

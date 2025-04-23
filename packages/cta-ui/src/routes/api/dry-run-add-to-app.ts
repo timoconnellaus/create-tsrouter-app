@@ -5,13 +5,14 @@ import { createAPIFileRoute } from '@tanstack/react-start/api'
 
 import {
   addToApp,
-  cleanUpFiles,
   createMemoryEnvironment,
   recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
 
 import { register as registerReactCra } from '@tanstack/cta-framework-react-cra'
 import { register as registerSolid } from '@tanstack/cta-framework-solid'
+
+import { cleanUpFileArray, cleanUpFiles } from '@/lib/file-helpers'
 
 registerReactCra()
 registerSolid()
@@ -37,7 +38,6 @@ export const APIRoute = createAPIFileRoute('/api/dry-run-add-to-app')({
       await recursivelyGatherFiles(projectPath, false),
     )
     for (const file of Object.keys(localFiles)) {
-      console.log('writing local file', file)
       environment.writeFile(resolve(projectPath, file), localFiles[file])
     }
 
@@ -56,6 +56,9 @@ export const APIRoute = createAPIFileRoute('/api/dry-run-add-to-app')({
     })
 
     environment.finishRun()
+
+    output.files = cleanUpFiles(output.files, projectPath)
+    output.deletedFiles = cleanUpFileArray(output.deletedFiles, projectPath)
 
     return json(output)
   },

@@ -9,7 +9,11 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar'
 import { Toaster } from '@/components/toaster'
 
 import { AppSidebar } from '@/components/cta-sidebar'
@@ -18,6 +22,20 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
+function Content() {
+  const { open } = useSidebar()
+
+  return (
+    <main
+      className={
+        open ? 'w-full max-w-[calc(100%-370px)]' : 'w-full max-w-[100%]'
+      }
+    >
+      <SidebarTrigger className="m-2" />
+      <Outlet />
+    </main>
+  )
+}
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -40,18 +58,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
 
-  component: () => (
-    <RootDocument>
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="w-[calc(100vw-200px)]">
-          <SidebarTrigger />
-          <Outlet />
+  component: () => {
+    return (
+      <RootDocument>
+        <SidebarProvider>
+          <AppSidebar />
+          <Content />
           <Toaster />
-        </main>
-      </SidebarProvider>
-    </RootDocument>
-  ),
+        </SidebarProvider>
+      </RootDocument>
+    )
+  },
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {

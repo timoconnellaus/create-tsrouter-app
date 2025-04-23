@@ -47,7 +47,7 @@ export function AppSidebar() {
           </>
         )}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="mb-5">
         <RunAddOns />
         <RunCreateApp />
       </SidebarFooter>

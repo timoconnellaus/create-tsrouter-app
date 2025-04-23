@@ -138,10 +138,7 @@ export async function writeFiles(
       )
     } else if (fName !== CONFIG_FILE) {
       if (isBase64(contents)) {
-        await environment.writeFile(
-          resolve(cwd, file),
-          getBinaryFile(contents)!,
-        )
+        await environment.writeFileBase64(resolve(cwd, file), contents)
       } else {
         await environment.writeFile(resolve(cwd, file), contents)
       }

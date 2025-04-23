@@ -175,3 +175,11 @@ code {
 [data-sidebar='header'] {
   @apply shadow-gray-700 shadow-md z-50;
 }
+
+.cm-changedLine {
+  background-color: oklch(0.27 0.005 285.823) !important;
+}
+
+.file-filters {
+  background-color: oklch(0.2 0.005 285.823);
+}
