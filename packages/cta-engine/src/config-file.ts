@@ -6,7 +6,7 @@ import type { Environment, Options } from './types.js'
 
 export type PersistedOptions = Omit<
   Partial<Options>,
-  'addOns' | 'chosenAddOns' | 'framework' | 'starter'
+  'addOns' | 'chosenAddOns' | 'framework' | 'starter' | 'targetDir'
 > & {
   framework: string
   version: number

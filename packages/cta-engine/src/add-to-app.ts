@@ -12,7 +12,6 @@ import {
 import { formatCommand } from './utils.js'
 import { packageManagerInstall } from './package-manager.js'
 import {
-  getBinaryFile,
   isBase64,
   recursivelyGatherFilesFromEnvironment,
 } from './file-helpers.js'

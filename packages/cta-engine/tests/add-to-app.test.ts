@@ -216,8 +216,8 @@ describe('writeFiles', () => {
     // It's ok for unchanged.jpg not to be written, because it matches the existing file
     expect(output.files).toEqual({
       './unchanged.jpg': 'base64::foobaz',
-      './changing.jpg': 'hello',
-      './new.jpg': 'hello',
+      './changing.jpg': 'base64::aGVsbG8=',
+      './new.jpg': 'base64::aGVsbG8=',
     })
   })
 

@@ -6,8 +6,9 @@ import { finalizeAddOns } from '../add-ons.js'
 import { getFrameworkById } from '../frameworks.js'
 import { readConfigFileFromEnvironment } from '../config-file.js'
 import { readFileHelper } from '../file-helpers.js'
+import { loadStarter } from '../custom-add-ons/starter.js'
 
-import type { Environment, Mode, Options } from '../types.js'
+import type { Environment, Mode, Options, SerializedOptions } from '../types.js'
 import type { PersistedOptions } from '../config-file.js'
 
 export function createPackageAdditions(
@@ -61,15 +62,46 @@ export function createPackageAdditions(
 export async function createAppOptionsFromPersisted(
   json: PersistedOptions,
 ): Promise<Options> {
-  const framework = getFrameworkById(json.framework)
+  /* eslint-disable unused-imports/no-unused-vars */
+  const { version, ...rest } = json
+  /* eslint-enable unused-imports/no-unused-vars */
+  const framework = getFrameworkById(rest.framework)
   return {
-    ...json,
-    framework,
-    addOns: true,
+    ...rest,
+    mode: json.mode as Mode,
+    projectName: json.projectName!,
+    typescript: json.typescript!,
+    tailwind: json.tailwind!,
+    git: json.git!,
+    packageManager: json.packageManager!,
+    targetDir: '',
+    framework: framework!,
+    starter: json.starter ? await loadStarter(json.starter) : undefined,
     chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
       ...json.existingAddOns,
     ]),
-  } as Options
+  }
+}
+
+export function createSerializedOptionsFromPersisted(
+  json: PersistedOptions,
+): SerializedOptions {
+  /* eslint-disable unused-imports/no-unused-vars */
+  const { version, ...rest } = json
+  /* eslint-enable unused-imports/no-unused-vars */
+  return {
+    ...rest,
+    mode: json.mode as Mode,
+    projectName: json.projectName!,
+    typescript: json.typescript!,
+    tailwind: json.tailwind!,
+    git: json.git!,
+    packageManager: json.packageManager!,
+    targetDir: '',
+    framework: json.framework,
+    starter: json.starter,
+    chosenAddOns: json.existingAddOns,
+  }
 }
 
 export async function runCreateApp(options: Required<Options>) {

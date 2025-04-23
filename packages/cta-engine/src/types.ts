@@ -137,7 +137,7 @@ export type SerializedOptions = Omit<
 > & {
   chosenAddOns: Array<string>
   starter?: string | undefined
-  framework?: string | undefined
+  framework: string
 }
 
 type ProjectEnvironment = {
