@@ -1,21 +1,17 @@
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { CodeIcon, FileIcon } from 'lucide-react'
 
 import type { Mode } from '@tanstack/cta-engine'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-import {
-  applicationMode,
-  modeEditable,
-  projectOptions,
-  setMode,
-} from '@/store/project'
+import { applicationMode, modeEditable, projectOptions } from '@/store/project'
 
 export default function ModeSelector() {
-  const mode = useStore(applicationMode)
-  const options = useStore(projectOptions)
-  const enableMode = useStore(modeEditable)
+  const mode = useAtomValue(applicationMode)
+  const enableMode = useAtomValue(modeEditable)
+  const routerMode = useAtomValue(projectOptions).mode
+  const setRouterMode = useSetAtom(projectOptions)
 
   if (mode !== 'setup') {
     return null
@@ -26,10 +22,13 @@ export default function ModeSelector() {
       <div className="flex flex-row justify-center items-center mt-4">
         <ToggleGroup
           type="single"
-          value={options.mode}
+          value={routerMode}
           onValueChange={(v: string) => {
             if (v) {
-              setMode(v as Mode)
+              setRouterMode((state) => ({
+                ...state,
+                mode: v as Mode,
+              }))
             }
           }}
         >

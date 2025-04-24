@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { InfoIcon } from 'lucide-react'
 
 import type { AddOnInfo } from '@/types'
@@ -19,8 +19,9 @@ const addOnTypeLabels: Record<string, string> = {
 }
 
 export default function SelectedAddOns() {
-  const addOns = useStore(availableAddOns)
-  const addOnStatus = useStore(addOnState)
+  const addOns = useAtomValue(availableAddOns)
+  const addOnStatus = useAtomValue(addOnState)
+  const toggle = useSetAtom(toggleAddOn)
 
   const sortedAddOns = useMemo(() => {
     return addOns.sort((a, b) => {
@@ -57,7 +58,7 @@ export default function SelectedAddOns() {
                       checked={addOnStatus[addOn.id].selected}
                       disabled={!addOnStatus[addOn.id].enabled}
                       onCheckedChange={() => {
-                        toggleAddOn(addOn.id)
+                        toggle(addOn.id)
                       }}
                     />
                     <Label

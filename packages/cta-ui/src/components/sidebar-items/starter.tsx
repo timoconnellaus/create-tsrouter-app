@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { FileBoxIcon, TrashIcon } from 'lucide-react'
 
 import { toast } from 'sonner'
@@ -14,21 +14,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import {
-  applicationMode,
-  projectStarter,
-  removeStarter,
-  setStarter,
-} from '@/store/project'
+import { applicationMode, projectStarter } from '@/store/project'
 
 export default function Starter() {
   const [url, setUrl] = useState('')
   const [open, setOpen] = useState(false)
 
-  const mode = useStore(applicationMode)
+  const mode = useAtomValue(applicationMode)
 
-  const starterName = useStore(projectStarter)?.name
-  const starterBanner = useStore(projectStarter)?.banner
+  const starterName = useAtomValue(projectStarter)?.name
+  const starterBanner = useAtomValue(projectStarter)?.banner
+
+  const setStarter = useSetAtom(projectStarter)
+
   if (mode !== 'setup') {
     return null
   }
@@ -67,7 +65,7 @@ export default function Starter() {
             size="sm"
             className="mr-2"
             onClick={() => {
-              removeStarter()
+              setStarter(undefined)
             }}
           >
             <TrashIcon className="w-4 h-4" />

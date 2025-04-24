@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { FileText, Folder } from 'lucide-react'
 
 import FileViewer from './file-viewer'
@@ -9,11 +9,10 @@ import type { FileTreeItem } from '@/types'
 
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Separator } from '@/components/ui/separator'
-import { useSidebar } from '@/components/ui/sidebar'
 
 import {
   applicationMode,
+  dryRunAtom,
   includeFiles,
   isInitialized,
   projectFiles,
@@ -23,12 +22,12 @@ import {
 import { getFileClass, twClasses } from '@/file-classes'
 
 export function Filters() {
-  const includedFiles = useStore(includeFiles)
-
+  const includedFiles = useAtomValue(includeFiles)
+  const setIncludeFiles = useSetAtom(includeFiles)
   function toggleFilter(
     filter: 'unchanged' | 'added' | 'modified' | 'deleted' | 'overwritten',
   ) {
-    includeFiles.setState((state) => {
+    setIncludeFiles((state) => {
       if (state.includes(filter)) {
         return state.filter((file) => file !== filter)
       }
@@ -105,10 +104,11 @@ export default function FileNavigator() {
     './package.json',
   )
 
-  const { output, originalOutput } = useStore(projectFiles)
-  const localTree = useStore(projectLocalFiles)
+  const { originalOutput } = useAtomValue(projectFiles)
+  const localTree = useAtomValue(projectLocalFiles)
+  const { data: output } = useAtomValue(dryRunAtom)
 
-  const mode = useStore(applicationMode)
+  const mode = useAtomValue(applicationMode)
   const tree = output.files
   const originalTree = mode === 'setup' ? output.files : originalOutput.files
   const deletedFiles = output.deletedFiles
@@ -116,7 +116,7 @@ export default function FileNavigator() {
   const [originalFileContents, setOriginalFileContents] = useState<string>()
   const [modifiedFileContents, setModifiedFileContents] = useState<string>()
 
-  const includedFiles = useStore(includeFiles)
+  const includedFiles = useAtomValue(includeFiles)
 
   const fileTree = useMemo(() => {
     const treeData: Array<FileTreeItem> = []
@@ -187,7 +187,8 @@ export default function FileNavigator() {
     return treeData
   }, [tree, originalTree, localTree, includedFiles])
 
-  const ready = useStore(isInitialized)
+  const ready = useAtomValue(isInitialized)
+
   if (!ready) {
     return null
   }

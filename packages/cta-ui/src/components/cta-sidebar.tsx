@@ -1,4 +1,4 @@
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue } from 'jotai'
 import {
   Sidebar,
   SidebarContent,
@@ -18,8 +18,8 @@ import StarterDialog from '@/components/sidebar-items/starter'
 import { applicationMode, isInitialized } from '@/store/project'
 
 export function AppSidebar() {
-  const ready = useStore(isInitialized)
-  const mode = useStore(applicationMode)
+  const ready = useAtomValue(isInitialized)
+  const mode = useAtomValue(applicationMode)
 
   return (
     <Sidebar>

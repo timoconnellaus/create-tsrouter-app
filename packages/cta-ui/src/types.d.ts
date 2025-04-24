@@ -17,6 +17,15 @@ export type StarterInfo = {
 
 // Files
 
+export type DryRunOutput = {
+  files: Record<string, string>
+  commands: Array<{
+    command: string
+    args: Array<string>
+  }>
+  deletedFiles: Array<string>
+}
+
 export type ProjectFiles = {
   originalOutput: {
     files: Record<string, string>
@@ -24,14 +33,6 @@ export type ProjectFiles = {
       command: string
       args: Array<string>
     }>
-  }
-  output: {
-    files: Record<string, string>
-    commands: Array<{
-      command: string
-      args: Array<string>
-    }>
-    deletedFiles: Array<string>
   }
 }
 

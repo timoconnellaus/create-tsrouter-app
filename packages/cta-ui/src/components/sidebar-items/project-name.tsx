@@ -1,4 +1,4 @@
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 
 import { Input } from '@/components/ui/input'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
@@ -6,8 +6,9 @@ import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { applicationMode, projectOptions } from '@/store/project'
 
 export default function ProjectName() {
-  const name = useStore(projectOptions)
-  const mode = useStore(applicationMode)
+  const name = useAtomValue(projectOptions)
+  const mode = useAtomValue(applicationMode)
+  const setProjectOptions = useSetAtom(projectOptions)
 
   if (mode !== 'setup') {
     return null
@@ -20,7 +21,7 @@ export default function ProjectName() {
         value={name.projectName}
         placeholder="my-app"
         onChange={(e) => {
-          projectOptions.setState((state) => ({
+          setProjectOptions((state) => ({
             ...state,
             projectName: e.target.value,
           }))

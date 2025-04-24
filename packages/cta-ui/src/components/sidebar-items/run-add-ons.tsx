@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue } from 'jotai'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,12 +13,13 @@ import {
 import { applicationMode, selectedAddOns } from '@/store/project'
 
 export default function RunAddOns() {
-  const currentlySelectedAddOns = useStore(selectedAddOns)
+  const currentlySelectedAddOns = useAtomValue(selectedAddOns)
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
 
-  const mode = useStore(applicationMode)
+  const mode = useAtomValue(applicationMode)
+  const selAddOns = useAtomValue(selectedAddOns)
 
   if (mode !== 'add') {
     return null
@@ -31,7 +32,7 @@ export default function RunAddOns() {
     const streamingReq = await fetch('/api/add-to-app', {
       method: 'POST',
       body: JSON.stringify({
-        addOns: selectedAddOns.state.map((addOn) => addOn.id),
+        addOns: selAddOns.map((addOn) => addOn.id),
       }),
       headers: {
         'Content-Type': 'application/json',

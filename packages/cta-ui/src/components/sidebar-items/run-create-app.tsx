@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue } from 'jotai'
 import { HammerIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -23,8 +23,10 @@ export default function RunCreateApp() {
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
 
-  const mode = useStore(applicationMode)
-  const options = useStore(projectOptions)
+  const mode = useAtomValue(applicationMode)
+  const options = useAtomValue(projectOptions)
+  const selAddOns = useAtomValue(selectedAddOns)
+  const projStarter = useAtomValue(projectStarter)
 
   if (mode !== 'setup') {
     return null
@@ -39,8 +41,8 @@ export default function RunCreateApp() {
       body: JSON.stringify({
         options: {
           ...options,
-          chosenAddOns: selectedAddOns.state.map((addOn) => addOn.id),
-          starter: projectStarter.state?.url || undefined,
+          chosenAddOns: selAddOns.map((addOn) => addOn.id),
+          starter: projStarter?.url || undefined,
         },
       }),
       headers: {

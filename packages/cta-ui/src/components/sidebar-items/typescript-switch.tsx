@@ -1,8 +1,7 @@
-import { useStore } from '@tanstack/react-store'
+import { useAtomValue, useSetAtom } from 'jotai'
 
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { cn } from '@/lib/utils'
 
 import {
   applicationMode,
@@ -12,10 +11,12 @@ import {
 } from '@/store/project'
 
 export default function TypescriptSwitch() {
-  const options = useStore(projectOptions)
-  const mode = useStore(applicationMode)
-  const enableTailwind = useStore(tailwindEditable)
-  const enableTypeScript = useStore(typeScriptEditable)
+  const options = useAtomValue(projectOptions)
+  const mode = useAtomValue(applicationMode)
+  const enableTailwind = useAtomValue(tailwindEditable)
+  const enableTypeScript = useAtomValue(typeScriptEditable)
+
+  const setProjectOptions = useSetAtom(projectOptions)
 
   if (mode !== 'setup') {
     return null
@@ -28,7 +29,7 @@ export default function TypescriptSwitch() {
           id="typescript-switch"
           checked={options.typescript}
           onCheckedChange={(checked) => {
-            projectOptions.setState((state) => ({
+            setProjectOptions((state) => ({
               ...state,
               typescript: checked,
             }))
@@ -45,7 +46,7 @@ export default function TypescriptSwitch() {
           id="tailwind-switch"
           checked={options.tailwind}
           onCheckedChange={(checked) => {
-            projectOptions.setState((state) => ({
+            setProjectOptions((state) => ({
               ...state,
               tailwind: checked,
             }))
