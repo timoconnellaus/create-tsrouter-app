@@ -104,7 +104,7 @@ export default function FileNavigator() {
     './package.json',
   )
 
-  const { originalOutput } = useAtomValue(projectFiles)
+  const originalOutput = useAtomValue(projectFiles)
   const localTree = useAtomValue(projectLocalFiles)
   const { data: output } = useAtomValue(dryRunAtom)
 

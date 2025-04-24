@@ -5,25 +5,7 @@ import { getAddOnStatus } from './add-ons'
 
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
 
-import type {
-  AddOnInfo,
-  DryRunOutput,
-  ProjectFiles,
-  StarterInfo,
-} from '@/types.js'
-
-export const isInitialized = atom(false)
-
-export const projectFiles = atom<ProjectFiles>({
-  originalOutput: {
-    files: {},
-    commands: [],
-  },
-})
-
-export const projectLocalFiles = atom<Record<string, string>>({})
-
-export const applicationMode = atom<'add' | 'setup'>('add')
+import type { AddOnInfo, ProjectFiles, StarterInfo } from '@/types.js'
 
 // Options
 
@@ -42,10 +24,6 @@ export const projectOptions = atom<SerializedOptions>({
 export const projectStarter = atom<StarterInfo | undefined>(undefined)
 
 // Addons
-
-export const codeRouterAddOns = atom<Array<AddOnInfo>>([])
-
-export const fileRouterAddOns = atom<Array<AddOnInfo>>([])
 
 export const customAddOns = atom<Array<AddOnInfo>>([])
 
@@ -102,21 +80,35 @@ export const selectedAddOns = atom<Array<AddOnInfo>>((get) =>
 )
 
 export const dryRunAtom = atomWithQuery((get) => ({
-  queryKey: ['dry-run', get(projectOptions), get(selectedAddOns)],
+  queryKey: [
+    'dry-run',
+    get(applicationMode),
+    JSON.stringify(get(projectOptions)),
+    JSON.stringify(get(selectedAddOns).map((addOn) => addOn.id)),
+    get(projectStarter)?.url,
+  ],
   queryFn: async () => {
-    if (get(applicationMode) === 'setup') {
-      const options = {
-        ...get(projectOptions),
-        starter: get(projectStarter)?.url || undefined,
+    if (get(applicationMode) === 'none') {
+      return {
+        files: {},
+        commands: [],
+        deletedFiles: [],
       }
-      options.chosenAddOns = get(selectedAddOns).map((addOn) => addOn.id)
+    }
+
+    const addOns = get(selectedAddOns).map((addOn) => addOn.id)
+    if (get(applicationMode) === 'setup') {
       const outputReq = await fetch('/api/dry-run-create-app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          options,
+          options: {
+            ...get(projectOptions),
+            chosenAddOns: addOns,
+            starter: get(projectStarter)?.url,
+          },
         }),
       })
       return outputReq.json()
@@ -127,12 +119,12 @@ export const dryRunAtom = atomWithQuery((get) => ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        addOns: get(selectedAddOns).map((addOn) => addOn.id),
+        addOns,
       }),
     })
     return outputReq.json()
   },
-  initialData: {
+  initialData: get(initialPayloadAtom).data.output || {
     files: {},
     commands: [],
     deletedFiles: [],
@@ -185,31 +177,48 @@ export const removeStarter = atom(null, (get, set) => {
   set(projectStarter, undefined)
 })
 
-export const loadInitialSetup = atom(null, async (get, set) => {
-  console.log('write')
+export const initialPayloadAtom = atomWithQuery(() => ({
+  queryKey: ['initial-payload'],
+  queryFn: async () => {
+    const payloadReq = await fetch('/api/initial-payload')
+    const data = await payloadReq.json()
+    getDefaultStore().set(projectOptions, data.options)
+    getDefaultStore().set(originalSelectedAddOns, data.options.chosenAddOns)
+    return data
+  },
+  initialData: {
+    addOns: {
+      'code-router': [] as Array<AddOnInfo>,
+      'file-router': [] as Array<AddOnInfo>,
+    },
+    localFiles: {} as Record<string, string>,
+    options: {} as SerializedOptions,
+    output: {
+      files: {},
+      commands: [],
+    } as ProjectFiles,
+    applicationMode: 'none' as 'add' | 'setup' | 'none',
+  },
+}))
 
-  const payloadReq = await fetch('/api/initial-payload')
-  const {
-    addOns,
-    localFiles,
-    options,
-    output,
-    applicationMode: appMode,
-  } = await payloadReq.json()
+export const codeRouterAddOns = atom<Array<AddOnInfo>>(
+  (get) => get(initialPayloadAtom).data.addOns['code-router'] || [],
+)
 
-  set(applicationMode, appMode)
-  set(codeRouterAddOns, addOns['code-router'])
-  set(fileRouterAddOns, addOns['file-router'])
-  set(projectFiles, {
-    originalOutput: output,
-  })
-  set(projectOptions, options)
-  set(originalSelectedAddOns, options.chosenAddOns)
-  set(projectLocalFiles, localFiles)
+export const fileRouterAddOns = atom<Array<AddOnInfo>>(
+  (get) => get(initialPayloadAtom).data.addOns['file-router'] || [],
+)
 
-  set(isInitialized, true)
-})
+export const applicationMode = atom<'add' | 'setup' | 'none'>(
+  (get) => get(initialPayloadAtom).data.applicationMode || 'none',
+)
 
-if (typeof window !== 'undefined') {
-  getDefaultStore().set(loadInitialSetup)
-}
+export const projectLocalFiles = atom<Record<string, string>>(
+  (get) => get(initialPayloadAtom).data.localFiles || {},
+)
+
+export const projectFiles = atom<ProjectFiles>(
+  (get) => get(initialPayloadAtom).data.output,
+)
+
+export const isInitialized = atom((get) => get(initialPayloadAtom).isFetched)

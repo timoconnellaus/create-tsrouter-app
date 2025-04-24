@@ -22,6 +22,8 @@ export async function createAppWrapper(
 ) {
   registerFrameworks()
 
+  console.log(projectOptions)
+
   const framework = getFrameworkById(projectOptions.framework)!
 
   let starter: Starter | undefined

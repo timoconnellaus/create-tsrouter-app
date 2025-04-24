@@ -27,13 +27,11 @@ export type DryRunOutput = {
 }
 
 export type ProjectFiles = {
-  originalOutput: {
-    files: Record<string, string>
-    commands: Array<{
-      command: string
-      args: Array<string>
-    }>
-  }
+  files: Record<string, string>
+  commands: Array<{
+    command: string
+    args: Array<string>
+  }>
 }
 
 export type AddOnInfo = {
