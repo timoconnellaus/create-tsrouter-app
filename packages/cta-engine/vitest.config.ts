@@ -3,6 +3,7 @@ import path from 'node:path'
 
 export default defineConfig({
   test: {
+    setupFiles: ['./tests/setupVitest.js'],
     deps: {
       moduleDirectories: ['node_modules', path.resolve('../../packages')],
     },
