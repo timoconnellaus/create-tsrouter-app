@@ -63,6 +63,9 @@ export async function generateInitialPayload() {
     name: addOn.name,
     description: addOn.description,
     type: addOn.type,
+    smallLogo: addOn.smallLogo,
+    logo: addOn.logo,
+    link: addOn.link,
   }))
 
   const fileRouter = getAllAddOns(framework!, 'file-router').map((addOn) => ({
@@ -70,6 +73,9 @@ export async function generateInitialPayload() {
     name: addOn.name,
     description: addOn.description,
     type: addOn.type,
+    smallLogo: addOn.smallLogo,
+    logo: addOn.logo,
+    link: addOn.link,
   }))
 
   return {

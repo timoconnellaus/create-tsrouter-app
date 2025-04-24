@@ -40,6 +40,9 @@ export type AddOnInfo = {
   description: string
   type: 'add-on' | 'example' | 'starter' | 'toolchain'
   modes: Array<'code-router' | 'file-router'>
+  smallLogo?: string
+  logo?: string
+  link: string
 }
 
 export type FileClass =

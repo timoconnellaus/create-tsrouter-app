@@ -4,7 +4,6 @@ import { CodeIcon, FileIcon } from 'lucide-react'
 import type { Mode } from '@tanstack/cta-engine'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { SidebarGroupLabel } from '@/components/ui/sidebar'
 
 import {
   applicationMode,
@@ -24,8 +23,7 @@ export default function ModeSelector() {
 
   return (
     <>
-      <SidebarGroupLabel className="mt-4">Router Mode</SidebarGroupLabel>
-      <div className="flex flex-row justify-center items-center">
+      <div className="flex flex-row justify-center items-center mt-4">
         <ToggleGroup
           type="single"
           value={options.mode}

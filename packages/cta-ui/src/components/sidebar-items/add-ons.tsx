@@ -1,13 +1,16 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
+import { InfoIcon } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import type { AddOnInfo } from '@/types'
+
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 import { availableAddOns, selectedAddOns } from '@/store/project'
 
-import { cn } from '@/lib/utils'
-
 import ImportCustomAddOn from '@/components/custom-add-on-dialog'
+import AddOnInfoDialog from '@/components/add-on-info-dialog'
 
 const addOnTypeLabels: Record<string, string> = {
   toolchain: 'Toolchain',
@@ -25,8 +28,14 @@ export default function SelectedAddOns() {
     })
   }, [addOns])
 
+  const [infoAddOn, setInfoAddOn] = useState<AddOnInfo>()
+
   return (
     <>
+      <AddOnInfoDialog
+        addOn={infoAddOn}
+        onClose={() => setInfoAddOn(undefined)}
+      />
       {Object.keys(addOnTypeLabels).map((type) => (
         <div key={type}>
           {sortedAddOns.filter((addOn) => addOn.type === type).length > 0 && (
@@ -38,27 +47,43 @@ export default function SelectedAddOns() {
             {sortedAddOns
               .filter((addOn) => addOn.type === type)
               .map((addOn) => (
-                <div className="p-1 w-1/2" key={addOn.id}>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className={cn('w-full')}
-                    onClick={() => {
-                      selectedAddOns.setState((state) => {
-                        if (state.some((a) => a.id === addOn.id)) {
-                          return state.filter((a) => a.id !== addOn.id)
-                        }
-                        return [...state, addOn]
-                      })
-                    }}
-                    style={{
-                      backgroundColor: selected.some((a) => a.id === addOn.id)
-                        ? 'green'
-                        : 'transparent',
-                    }}
-                  >
-                    <div className="text-md font-bold">{addOn.name}</div>
-                  </Button>
+                <div
+                  key={addOn.id}
+                  className="w-1/2 flex flex-row justify-between pr-4"
+                >
+                  <div className="p-1 flex flex-row items-center">
+                    <Switch
+                      id={addOn.id}
+                      checked={selected.some((a) => a.id === addOn.id)}
+                      onCheckedChange={() => {
+                        selectedAddOns.setState((state) => {
+                          if (state.some((a) => a.id === addOn.id)) {
+                            return state.filter((a) => a.id !== addOn.id)
+                          }
+                          return [...state, addOn]
+                        })
+                      }}
+                    />
+                    <Label
+                      htmlFor={addOn.id}
+                      className="pl-2 font-semibold text-gray-300"
+                    >
+                      {addOn.smallLogo && (
+                        <img
+                          src={`data:image/svg+xml,${encodeURIComponent(
+                            addOn.smallLogo,
+                          )}`}
+                          alt={addOn.name}
+                          className="w-5"
+                        />
+                      )}
+                      {addOn.name}
+                    </Label>
+                    <InfoIcon
+                      className="ml-2 w-4 text-gray-600"
+                      onClick={() => setInfoAddOn(addOn)}
+                    />
+                  </div>
                 </div>
               ))}
           </div>

@@ -36,6 +36,7 @@ export default function TypescriptSwitch() {
           disabled={!enableTypeScript}
         />
         <Label htmlFor="typescript-switch" className="ml-2">
+          <img src="/typescript.svg" className="w-5" />
           TypeScript
         </Label>
       </div>
@@ -52,6 +53,7 @@ export default function TypescriptSwitch() {
           disabled={!enableTailwind}
         />
         <Label htmlFor="tailwind-switch" className="ml-2">
+          <img src="/tailwind.svg" className="w-5" />
           Tailwind
         </Label>
       </div>

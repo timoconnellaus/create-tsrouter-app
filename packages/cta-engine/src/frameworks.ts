@@ -34,6 +34,14 @@ function getAddOns(framework: FrameworkDefinition) {
         readme = readFileSync(resolve(addOnsBase, dir, 'README.md'), 'utf-8')
       }
 
+      let smallLogo: string | undefined
+      if (existsSync(resolve(addOnsBase, dir, 'small-logo.svg'))) {
+        smallLogo = readFileSync(
+          resolve(addOnsBase, dir, 'small-logo.svg'),
+          'utf-8',
+        )
+      }
+
       const absoluteFiles: Record<string, string> = {}
       const assetsDir = resolve(addOnsBase, dir, 'assets')
       if (existsSync(assetsDir)) {
@@ -57,6 +65,7 @@ function getAddOns(framework: FrameworkDefinition) {
         packageAdditions,
         readme,
         files,
+        smallLogo,
         getFiles,
         getFileContents,
         getDeletedFiles: () => Promise.resolve(info.deletedFiles ?? []),

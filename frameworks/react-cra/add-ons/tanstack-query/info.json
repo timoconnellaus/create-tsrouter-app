@@ -1,5 +1,5 @@
 {
-  "name": "TanStack Query",
+  "name": "Query",
   "description": "Integrate TanStack Query into your application.",
   "phase": "add-on",
   "modes": ["file-router", "code-router"],

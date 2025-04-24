@@ -40,6 +40,8 @@ export const AddOnBaseSchema = z.object({
     .optional(),
   shadcnComponents: z.array(z.string()).optional(),
   dependsOn: z.array(z.string()).optional(),
+  smallLogo: z.string().optional(),
+  logo: z.string().optional(),
 })
 
 export const StarterSchema = AddOnBaseSchema.extend({
