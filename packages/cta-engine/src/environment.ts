@@ -51,7 +51,7 @@ export function createDefaultEnvironment(): Environment {
           cwd,
         })
         return { stdout: result.stdout }
-      } catch {
+      } catch (e) {
         errors.push(
           `Command "${command} ${args.join(' ')}" did not run successfully. Please run this manually in your project.`,
         )

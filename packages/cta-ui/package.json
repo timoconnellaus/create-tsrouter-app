@@ -6,7 +6,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "dev": "tsc --watch -p tsconfig.lib.json",
-    "dev:ui": "vinxi dev"
+    "dev:ui": "vinxi dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",
@@ -62,6 +65,7 @@
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@vitest/coverage-v8": "3.1.1",
     "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^26.0.0",
     "typescript": "^5.7.2",

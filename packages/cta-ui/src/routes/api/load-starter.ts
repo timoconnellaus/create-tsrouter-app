@@ -31,6 +31,7 @@ export const APIRoute = createAPIFileRoute('/api/load-starter')({
         version: parsed.data.version,
         author: parsed.data.author,
         license: parsed.data.license,
+        dependsOn: parsed.data.dependsOn,
 
         mode: parsed.data.mode,
         typescript: parsed.data.typescript,

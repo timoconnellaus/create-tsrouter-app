@@ -12,6 +12,7 @@ export type StarterInfo = {
   typescript: boolean
   tailwind: boolean
   banner?: string
+  dependsOn?: Array<string>
 }
 
 // Files
@@ -43,6 +44,7 @@ export type AddOnInfo = {
   smallLogo?: string
   logo?: string
   link: string
+  dependsOn?: Array<string>
 }
 
 export type FileClass =

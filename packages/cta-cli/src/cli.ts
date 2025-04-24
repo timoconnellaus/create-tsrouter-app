@@ -280,7 +280,7 @@ export function cli({
             framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
             mode: 'file-router',
             chosenAddOns: [],
-            packageManager: 'npm',
+            packageManager: 'pnpm',
             projectName: projectName || 'my-app',
             targetDir: resolve(process.cwd(), projectName || 'my-app'),
             typescript: true,

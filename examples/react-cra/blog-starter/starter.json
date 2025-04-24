@@ -6,7 +6,7 @@
   "author": "Jane Smith <jane.smith@example.com>",
   "license": "MIT",
   "link": "https://github.com/jane-smith/blog-example-starter",
-  "shadcnComponents": ["card"],
+  "shadcnComponents": [],
   "framework": "react-cra",
   "mode": "file-router",
   "routes": [],

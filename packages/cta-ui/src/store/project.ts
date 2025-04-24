@@ -1,6 +1,9 @@
 import { Derived, Effect, Store } from '@tanstack/react-store'
 
+import { getAddOnStatus } from './add-ons'
+
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
+
 import type { AddOnInfo, ProjectFiles, StarterInfo } from '@/types.js'
 
 export const isInitialized = new Store<boolean>(false)
@@ -58,8 +61,6 @@ export const availableAddOns = new Derived<Array<AddOnInfo>>({
 })
 availableAddOns.mount()
 
-export const selectedAddOns = new Store<Array<AddOnInfo>>([])
-
 export const modeEditable = new Derived<boolean>({
   fn: () => {
     return projectStarter.state === undefined
@@ -86,6 +87,46 @@ export const tailwindEditable = new Derived<boolean>({
   deps: [projectStarter],
 })
 tailwindEditable.mount()
+
+export const originalSelectedAddOns = new Store<Array<string>>([])
+export const userSelectedAddOns = new Store<Array<string>>([])
+
+export const addOnState = new Derived<
+  Record<
+    string,
+    {
+      selected: boolean
+      enabled: boolean
+    }
+  >
+>({
+  fn: () => {
+    const originalAddOns: Set<string> = new Set()
+    for (const addOn of projectStarter.state?.dependsOn || []) {
+      originalAddOns.add(addOn)
+    }
+    for (const addOn of originalSelectedAddOns.state) {
+      originalAddOns.add(addOn)
+    }
+
+    return getAddOnStatus(
+      availableAddOns.state,
+      userSelectedAddOns.state,
+      originalSelectedAddOns.state,
+    )
+  },
+  deps: [availableAddOns, userSelectedAddOns, originalSelectedAddOns],
+})
+addOnState.mount()
+
+export const selectedAddOns = new Derived<Array<AddOnInfo>>({
+  fn: () => {
+    return availableAddOns.state.filter(
+      (addOn) => addOnState.state[addOn.id].selected,
+    )
+  },
+  deps: [availableAddOns, addOnState],
+})
 
 const onProjectChange = new Effect({
   fn: async () => {
@@ -135,6 +176,18 @@ const onProjectChange = new Effect({
   ],
 })
 onProjectChange.mount()
+
+export function toggleAddOn(addOnId: string) {
+  if (addOnState.state[addOnId].enabled) {
+    if (addOnState.state[addOnId].selected) {
+      userSelectedAddOns.setState((state) =>
+        state.filter((addOn) => addOn !== addOnId),
+      )
+    } else {
+      userSelectedAddOns.setState((state) => [...state, addOnId])
+    }
+  }
+}
 
 // Application setup
 
@@ -189,6 +242,7 @@ export async function loadInitialSetup() {
     output,
   }))
   projectOptions.setState(() => options)
+  originalSelectedAddOns.setState(() => options.chosenAddOns)
   projectLocalFiles.setState(() => localFiles)
 
   isInitialized.setState(() => true)

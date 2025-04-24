@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { customAddOns, projectOptions, selectedAddOns } from '@/store/project'
+import { customAddOns, projectOptions, toggleAddOn } from '@/store/project'
 
 export default function CustomAddOnDialog() {
   const [url, setUrl] = useState('')
@@ -28,7 +28,7 @@ export default function CustomAddOnDialog() {
     if (!data.error) {
       customAddOns.setState((state) => [...state, data])
       if (data.modes.includes(mode)) {
-        selectedAddOns.setState((state) => [...state, data])
+        toggleAddOn(data.id)
       }
       setOpen(false)
     } else {

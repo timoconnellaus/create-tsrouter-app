@@ -7,7 +7,7 @@ import type { AddOnInfo } from '@/types'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 
-import { availableAddOns, selectedAddOns } from '@/store/project'
+import { addOnState, availableAddOns, toggleAddOn } from '@/store/project'
 
 import ImportCustomAddOn from '@/components/custom-add-on-dialog'
 import AddOnInfoDialog from '@/components/add-on-info-dialog'
@@ -20,7 +20,7 @@ const addOnTypeLabels: Record<string, string> = {
 
 export default function SelectedAddOns() {
   const addOns = useStore(availableAddOns)
-  const selected = useStore(selectedAddOns)
+  const addOnStatus = useStore(addOnState)
 
   const sortedAddOns = useMemo(() => {
     return addOns.sort((a, b) => {
@@ -54,14 +54,10 @@ export default function SelectedAddOns() {
                   <div className="p-1 flex flex-row items-center">
                     <Switch
                       id={addOn.id}
-                      checked={selected.some((a) => a.id === addOn.id)}
+                      checked={addOnStatus[addOn.id].selected}
+                      disabled={!addOnStatus[addOn.id].enabled}
                       onCheckedChange={() => {
-                        selectedAddOns.setState((state) => {
-                          if (state.some((a) => a.id === addOn.id)) {
-                            return state.filter((a) => a.id !== addOn.id)
-                          }
-                          return [...state, addOn]
-                        })
+                        toggleAddOn(addOn.id)
                       }}
                     />
                     <Label

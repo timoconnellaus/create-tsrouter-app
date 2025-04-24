@@ -85,7 +85,7 @@ export default function RunAddOns() {
           disabled={currentlySelectedAddOns.length === 0 || isRunning}
           className="w-full"
         >
-          Run Add-Ons
+          Add These Add-Ons To Your App
         </Button>
       </div>
     </div>
