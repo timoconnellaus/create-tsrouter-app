@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { FileText, Folder } from 'lucide-react'
 
 import FileViewer from './file-viewer'
@@ -11,29 +10,18 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import {
-  applicationMode,
-  dryRunAtom,
-  includeFiles,
-  isInitialized,
-  projectFiles,
-  projectLocalFiles,
+  useApplicationMode,
+  useDryRun,
+  useFilters,
+  useOriginalOutput,
+  useProjectLocalFiles,
+  useReady,
 } from '@/store/project'
 
 import { getFileClass, twClasses } from '@/file-classes'
 
 export function Filters() {
-  const includedFiles = useAtomValue(includeFiles)
-  const setIncludeFiles = useSetAtom(includeFiles)
-  function toggleFilter(
-    filter: 'unchanged' | 'added' | 'modified' | 'deleted' | 'overwritten',
-  ) {
-    setIncludeFiles((state) => {
-      if (state.includes(filter)) {
-        return state.filter((file) => file !== filter)
-      }
-      return [...state, filter]
-    })
-  }
+  const { includedFiles, toggleFilter } = useFilters()
 
   return (
     <div className="p-2 rounded-md bg-gray-900 file-filters">
@@ -104,19 +92,21 @@ export default function FileNavigator() {
     './package.json',
   )
 
-  const originalOutput = useAtomValue(projectFiles)
-  const localTree = useAtomValue(projectLocalFiles)
-  const { data: output } = useAtomValue(dryRunAtom)
+  const projectFiles = useOriginalOutput()
+  const localTree = useProjectLocalFiles()
+  const dryRunOutput = useDryRun()
 
-  const mode = useAtomValue(applicationMode)
-  const tree = output.files
-  const originalTree = mode === 'setup' ? output.files : originalOutput.files
-  const deletedFiles = output.deletedFiles
+  const mode = useApplicationMode()
+
+  const tree = dryRunOutput.files
+  const originalTree =
+    mode === 'setup' ? dryRunOutput.files : projectFiles.files
+  const deletedFiles = dryRunOutput.deletedFiles
 
   const [originalFileContents, setOriginalFileContents] = useState<string>()
   const [modifiedFileContents, setModifiedFileContents] = useState<string>()
 
-  const includedFiles = useAtomValue(includeFiles)
+  const { includedFiles } = useFilters()
 
   const fileTree = useMemo(() => {
     const treeData: Array<FileTreeItem> = []
@@ -187,7 +177,7 @@ export default function FileNavigator() {
     return treeData
   }, [tree, originalTree, localTree, includedFiles])
 
-  const ready = useAtomValue(isInitialized)
+  const ready = useReady()
 
   if (!ready) {
     return null

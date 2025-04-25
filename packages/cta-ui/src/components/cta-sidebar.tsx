@@ -1,4 +1,3 @@
-import { useAtomValue } from 'jotai'
 import {
   Sidebar,
   SidebarContent,
@@ -15,11 +14,11 @@ import ModeSelector from '@/components/sidebar-items/mode-selector'
 import TypescriptSwitch from '@/components/sidebar-items/typescript-switch'
 import StarterDialog from '@/components/sidebar-items/starter'
 
-import { applicationMode, isInitialized } from '@/store/project'
+import { useApplicationMode, useReady } from '@/store/project'
 
 export function AppSidebar() {
-  const ready = useAtomValue(isInitialized)
-  const mode = useAtomValue(applicationMode)
+  const ready = useReady()
+  const mode = useApplicationMode()
 
   return (
     <Sidebar>

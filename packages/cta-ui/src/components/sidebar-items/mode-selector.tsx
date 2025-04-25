@@ -1,17 +1,20 @@
-import { useAtomValue, useSetAtom } from 'jotai'
 import { CodeIcon, FileIcon } from 'lucide-react'
 
 import type { Mode } from '@tanstack/cta-engine'
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-import { applicationMode, modeEditable, projectOptions } from '@/store/project'
+import {
+  setRouterMode,
+  useApplicationMode,
+  useModeEditable,
+  useRouterMode,
+} from '@/store/project'
 
 export default function ModeSelector() {
-  const mode = useAtomValue(applicationMode)
-  const enableMode = useAtomValue(modeEditable)
-  const routerMode = useAtomValue(projectOptions).mode
-  const setRouterMode = useSetAtom(projectOptions)
+  const mode = useApplicationMode()
+  const enableMode = useModeEditable()
+  const routerMode = useRouterMode()
 
   if (mode !== 'setup') {
     return null
@@ -25,10 +28,7 @@ export default function ModeSelector() {
           value={routerMode}
           onValueChange={(v: string) => {
             if (v) {
-              setRouterMode((state) => ({
-                ...state,
-                mode: v as Mode,
-              }))
+              setRouterMode(v as Mode)
             }
           }}
         >

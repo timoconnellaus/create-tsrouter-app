@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { toast } from 'sonner'
 import { TicketPlusIcon } from 'lucide-react'
 
@@ -13,24 +12,23 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { customAddOns, projectOptions, toggleAddOn } from '@/store/project'
+import { addCustomAddOn, useAddOns, useRouterMode } from '@/store/project'
 
 export default function CustomAddOnDialog() {
   const [url, setUrl] = useState('')
   const [open, setOpen] = useState(false)
 
-  const mode = useAtomValue(projectOptions).mode
-  const setCustomAddOns = useSetAtom(customAddOns)
-  const toggle = useSetAtom(toggleAddOn)
+  const mode = useRouterMode()
+  const { toggleAddOn } = useAddOns()
 
   async function onImport() {
     const response = await fetch(`/api/load-remote-add-on?url=${url}`)
     const data = await response.json()
 
     if (!data.error) {
-      setCustomAddOns((state) => [...state, data])
+      addCustomAddOn(data)
       if (data.modes.includes(mode)) {
-        toggle(data.id)
+        toggleAddOn(data.id)
       }
       setOpen(false)
     } else {

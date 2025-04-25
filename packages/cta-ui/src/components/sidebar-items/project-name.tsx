@@ -1,14 +1,15 @@
-import { useAtomValue, useSetAtom } from 'jotai'
-
 import { Input } from '@/components/ui/input'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 
-import { applicationMode, projectOptions } from '@/store/project'
+import {
+  setProjectName,
+  useApplicationMode,
+  useProjectName,
+} from '@/store/project'
 
 export default function ProjectName() {
-  const name = useAtomValue(projectOptions)
-  const mode = useAtomValue(applicationMode)
-  const setProjectOptions = useSetAtom(projectOptions)
+  const name = useProjectName()
+  const mode = useApplicationMode()
 
   if (mode !== 'setup') {
     return null
@@ -18,14 +19,9 @@ export default function ProjectName() {
     <>
       <SidebarGroupLabel>Project Name</SidebarGroupLabel>
       <Input
-        value={name.projectName}
+        value={name}
         placeholder="my-app"
-        onChange={(e) => {
-          setProjectOptions((state) => ({
-            ...state,
-            projectName: e.target.value,
-          }))
-        }}
+        onChange={(e) => setProjectName(e.target.value)}
         className="w-full"
       />
     </>

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { FileBoxIcon, TrashIcon } from 'lucide-react'
 
 import { toast } from 'sonner'
@@ -14,18 +13,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { applicationMode, projectStarter } from '@/store/project'
+import {
+  setProjectStarter,
+  useApplicationMode,
+  useProjectStarter,
+} from '@/store/project'
 
 export default function Starter() {
   const [url, setUrl] = useState('')
   const [open, setOpen] = useState(false)
 
-  const mode = useAtomValue(applicationMode)
+  const mode = useApplicationMode()
 
-  const starterName = useAtomValue(projectStarter)?.name
-  const starterBanner = useAtomValue(projectStarter)?.banner
-
-  const setStarter = useSetAtom(projectStarter)
+  const { projectStarter } = useProjectStarter()
 
   if (mode !== 'setup') {
     return null
@@ -36,7 +36,7 @@ export default function Starter() {
     const data = await response.json()
 
     if (!data.error) {
-      setStarter(data)
+      setProjectStarter(data)
       setOpen(false)
     } else {
       toast.error('Failed to load starter', {
@@ -47,31 +47,31 @@ export default function Starter() {
 
   return (
     <>
-      {starterBanner && (
+      {projectStarter?.banner && (
         <div className="flex justify-center mb-4">
           <div className="p-2 bg-gray-300 rounded-lg shadow-xl shadow-gray-800">
             <img
-              src={starterBanner}
+              src={projectStarter.banner}
               alt="Starter Banner"
               className="w-40 max-w-full"
             />
           </div>
         </div>
       )}
-      {starterName && (
+      {projectStarter?.name && (
         <div className="text-md mb-4">
           <Button
             variant="outline"
             size="sm"
             className="mr-2"
             onClick={() => {
-              setStarter(undefined)
+              setProjectStarter(undefined)
             }}
           >
             <TrashIcon className="w-4 h-4" />
           </Button>
           <span className="font-bold">Starter: </span>
-          {starterName}
+          {projectStarter.name}
         </div>
       )}
       <div>

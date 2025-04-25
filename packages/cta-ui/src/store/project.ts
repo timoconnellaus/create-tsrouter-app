@@ -1,15 +1,63 @@
-import { atom, getDefaultStore } from 'jotai'
-import { atomWithQuery } from 'jotai-tanstack-query'
+import { useCallback, useMemo } from 'react'
+import { create } from 'zustand'
+import { useQuery } from '@tanstack/react-query'
 
 import { getAddOnStatus } from './add-ons'
 
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
 
-import type { AddOnInfo, ProjectFiles, StarterInfo } from '@/types.js'
+import type {
+  AddOnInfo,
+  DryRunOutput,
+  InitialData,
+  StarterInfo,
+} from '@/types.js'
 
-// Options
+const useInitialData = () =>
+  useQuery<InitialData>({
+    queryKey: ['initial-data'],
+    queryFn: async () => {
+      const payloadReq = await fetch('/api/initial-payload')
+      return await payloadReq.json()
+    },
+    initialData: {
+      options: {
+        framework: 'react-cra',
+        mode: 'file-router',
+        projectName: 'my-application',
+        targetDir: 'my-application',
+        typescript: true,
+        tailwind: true,
+        git: true,
+        chosenAddOns: [],
+        packageManager: 'pnpm',
+      },
+      localFiles: {},
+      output: {
+        files: {},
+        commands: [],
+        deletedFiles: [],
+      },
+      addOns: {
+        'code-router': [],
+        'file-router': [],
+      },
+      applicationMode: 'none',
+    },
+  })
 
-export const projectOptions = atom<SerializedOptions>({
+export const useProjectLocalFiles = () => useInitialData().data.localFiles
+export const useOriginalOutput = () => useInitialData().data.output
+export const useOriginalSelectedAddOns = () =>
+  useInitialData().data.options.chosenAddOns
+export const useApplicationMode = () => useInitialData().data.applicationMode
+export const useReady = () => useInitialData().isFetched
+export const useCodeRouterAddOns = () =>
+  useInitialData().data.addOns['code-router']
+export const useFileRouterAddOns = () =>
+  useInitialData().data.addOns['file-router']
+
+export const useProjectOptions = create<SerializedOptions>(() => ({
   framework: 'react-cra',
   mode: 'file-router',
   projectName: 'my-app',
@@ -19,206 +67,231 @@ export const projectOptions = atom<SerializedOptions>({
   git: true,
   chosenAddOns: [],
   packageManager: 'pnpm',
-})
-
-export const projectStarter = atom<StarterInfo | undefined>(undefined)
-
-// Addons
-
-export const customAddOns = atom<Array<AddOnInfo>>([])
-
-export const availableAddOns = atom<Array<AddOnInfo>>((get) => {
-  const mode = get(projectOptions).mode
-  const baseAddOns =
-    mode === 'code-router' ? get(codeRouterAddOns) : get(fileRouterAddOns)
-  return [
-    ...baseAddOns,
-    ...get(customAddOns).filter((addOn) => addOn.modes.includes(mode)),
-  ]
-})
-
-export const modeEditable = atom((get) => get(projectStarter) === undefined)
-
-export const typeScriptEditable = atom(
-  (get) =>
-    get(projectStarter) === undefined &&
-    get(projectOptions).mode === 'code-router',
-)
-
-export const tailwindEditable = atom((get) => get(projectStarter) === undefined)
-
-export const originalSelectedAddOns = atom<Array<string>>([])
-
-export const userSelectedAddOns = atom<Array<string>>([])
-
-export const addOnState = atom<
-  Record<
-    string,
-    {
-      selected: boolean
-      enabled: boolean
-    }
-  >
->((get) => {
-  const originalAddOns: Set<string> = new Set()
-  for (const addOn of get(projectStarter)?.dependsOn || []) {
-    originalAddOns.add(addOn)
-  }
-  for (const addOn of get(originalSelectedAddOns)) {
-    originalAddOns.add(addOn)
-  }
-
-  return getAddOnStatus(
-    get(availableAddOns),
-    get(userSelectedAddOns),
-    get(originalSelectedAddOns),
-  )
-})
-
-export const selectedAddOns = atom<Array<AddOnInfo>>((get) =>
-  get(availableAddOns).filter((addOn) => get(addOnState)[addOn.id].selected),
-)
-
-export const dryRunAtom = atomWithQuery((get) => ({
-  queryKey: [
-    'dry-run',
-    get(applicationMode),
-    JSON.stringify(get(projectOptions)),
-    JSON.stringify(get(selectedAddOns).map((addOn) => addOn.id)),
-    get(projectStarter)?.url,
-  ],
-  queryFn: async () => {
-    if (get(applicationMode) === 'none') {
-      return {
-        files: {},
-        commands: [],
-        deletedFiles: [],
-      }
-    }
-
-    const addOns = get(selectedAddOns).map((addOn) => addOn.id)
-    if (get(applicationMode) === 'setup') {
-      const outputReq = await fetch('/api/dry-run-create-app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          options: {
-            ...get(projectOptions),
-            chosenAddOns: addOns,
-            starter: get(projectStarter)?.url,
-          },
-        }),
-      })
-      return outputReq.json()
-    }
-    const outputReq = await fetch('/api/dry-run-add-to-app', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        addOns,
-      }),
-    })
-    return outputReq.json()
-  },
-  initialData: get(initialPayloadAtom).data.output || {
-    files: {},
-    commands: [],
-    deletedFiles: [],
-  },
 }))
 
-export const toggleAddOn = atom(null, (get, set, addOnId: string) => {
-  const status = get(addOnState)[addOnId]
-  if (status.enabled) {
-    if (status.selected) {
-      set(userSelectedAddOns, (state) =>
-        state.filter((addOn) => addOn !== addOnId),
-      )
-    } else {
-      set(userSelectedAddOns, (state) => [...state, addOnId])
-    }
+const useApplicationSettings = create<{
+  includeFiles: Array<string>
+}>(() => ({
+  includeFiles: ['unchanged', 'added', 'modified', 'deleted', 'overwritten'],
+}))
+
+const useMutableAddOns = create<{
+  userSelectedAddOns: Array<string>
+  customAddOns: Array<AddOnInfo>
+}>(() => ({
+  userSelectedAddOns: [],
+  customAddOns: [],
+}))
+
+export const useProjectStarter = create<{
+  projectStarter: StarterInfo | undefined
+}>(() => ({
+  projectStarter: undefined,
+}))
+
+export function addCustomAddOn(addOn: AddOnInfo) {
+  useMutableAddOns.setState((state) => ({
+    customAddOns: [...state.customAddOns, addOn],
+  }))
+  if (addOn.modes.includes(useProjectOptions.getState().mode)) {
+    useMutableAddOns.setState((state) => ({
+      userSelectedAddOns: [...state.userSelectedAddOns, addOn.id],
+    }))
   }
-})
+}
 
-// Application setup
+export function useAddOns() {
+  const routerMode = useRouterMode()
+  const originalSelectedAddOns = useOriginalSelectedAddOns()
+  const codeRouterAddOns = useCodeRouterAddOns()
+  const fileRouterAddOns = useFileRouterAddOns()
+  const { userSelectedAddOns, customAddOns } = useMutableAddOns()
+  const projectStarter = useProjectStarter().projectStarter
 
-export const includeFiles = atom<Array<string>>([
-  'unchanged',
-  'added',
-  'modified',
-  'deleted',
-  'overwritten',
-])
+  const availableAddOns = useMemo(() => {
+    const baseAddOns =
+      routerMode === 'code-router' ? codeRouterAddOns : fileRouterAddOns
+    return [
+      ...baseAddOns,
+      ...customAddOns.filter((addOn) => addOn.modes.includes(routerMode)),
+    ]
+  }, [routerMode, codeRouterAddOns, fileRouterAddOns, customAddOns])
 
-export const setMode = atom(null, (get, set, mode: Mode) => {
-  set(userSelectedAddOns, [])
-  set(projectOptions, (state) => ({
-    ...state,
-    mode,
-    typescript: mode === 'file-router' ? true : state.typescript,
-  }))
-})
+  const addOnState = useMemo(() => {
+    const originalAddOns: Set<string> = new Set()
+    for (const addOn of projectStarter?.dependsOn || []) {
+      originalAddOns.add(addOn)
+    }
+    for (const addOn of originalSelectedAddOns) {
+      originalAddOns.add(addOn)
+    }
+    return getAddOnStatus(
+      availableAddOns,
+      userSelectedAddOns,
+      Array.from(originalAddOns),
+    )
+  }, [
+    availableAddOns,
+    userSelectedAddOns,
+    originalSelectedAddOns,
+    projectStarter?.dependsOn,
+  ])
 
-export const setStarter = atom(null, (get, set, starter: StarterInfo) => {
-  set(projectStarter, starter)
-  set(projectOptions, (state) => ({
-    ...state,
-    mode: starter.mode,
-    typescript: starter.typescript,
-    tailwind: starter.tailwind,
-  }))
-})
+  const chosenAddOns = useMemo(() => {
+    return Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected)
+  }, [addOnState])
 
-export const removeStarter = atom(null, (get, set) => {
-  set(projectStarter, undefined)
-})
-
-export const initialPayloadAtom = atomWithQuery(() => ({
-  queryKey: ['initial-payload'],
-  queryFn: async () => {
-    const payloadReq = await fetch('/api/initial-payload')
-    const data = await payloadReq.json()
-    getDefaultStore().set(projectOptions, data.options)
-    getDefaultStore().set(originalSelectedAddOns, data.options.chosenAddOns)
-    return data
-  },
-  initialData: {
-    addOns: {
-      'code-router': [] as Array<AddOnInfo>,
-      'file-router': [] as Array<AddOnInfo>,
+  const toggleAddOn = useCallback(
+    (addOnId: string) => {
+      if (addOnState[addOnId] && addOnState[addOnId].enabled) {
+        if (addOnState[addOnId].selected) {
+          useMutableAddOns.setState((state) => ({
+            userSelectedAddOns: state.userSelectedAddOns.filter(
+              (addOn) => addOn !== addOnId,
+            ),
+          }))
+        } else {
+          useMutableAddOns.setState((state) => ({
+            userSelectedAddOns: [...state.userSelectedAddOns, addOnId],
+          }))
+        }
+      }
     },
-    localFiles: {} as Record<string, string>,
-    options: {} as SerializedOptions,
-    output: {
+    [addOnState],
+  )
+
+  return {
+    toggleAddOn,
+    chosenAddOns,
+    availableAddOns,
+    userSelectedAddOns,
+    originalSelectedAddOns,
+    addOnState,
+  }
+}
+
+const useHasProjectStarter = () =>
+  useProjectStarter((state) => state.projectStarter === undefined)
+
+export const useModeEditable = () => useHasProjectStarter()
+
+export const useTypeScriptEditable = () => {
+  const hasProjectStarter = useHasProjectStarter()
+  const routerMode = useRouterMode()
+  return hasProjectStarter && routerMode === 'code-router'
+}
+
+export const useTailwindEditable = () => {
+  const hasProjectStarter = useHasProjectStarter()
+  const routerMode = useRouterMode()
+  return hasProjectStarter && routerMode === 'code-router'
+}
+
+export const useProjectName = () =>
+  useProjectOptions((state) => state.projectName)
+
+export const useRouterMode = () => useProjectOptions((state) => state.mode)
+
+export function useFilters() {
+  const includedFiles = useApplicationSettings((state) => state.includeFiles)
+
+  const toggleFilter = useCallback((filter: string) => {
+    useApplicationSettings.setState((state) => ({
+      includeFiles: state.includeFiles.includes(filter)
+        ? state.includeFiles.filter((f) => f !== filter)
+        : [...state.includeFiles, filter],
+    }))
+  }, [])
+
+  return {
+    includedFiles,
+    toggleFilter,
+  }
+}
+
+export function useDryRun() {
+  const applicationMode = useApplicationMode()
+  const projectOptions = useProjectOptions()
+  const { userSelectedAddOns, chosenAddOns } = useAddOns()
+  const projectStarter = useProjectStarter().projectStarter
+
+  const { data: dryRunOutput } = useQuery<DryRunOutput>({
+    queryKey: [
+      'dry-run',
+      applicationMode,
+      JSON.stringify(projectOptions),
+      JSON.stringify(userSelectedAddOns),
+      projectStarter?.url,
+    ],
+    queryFn: async () => {
+      if (applicationMode === 'none') {
+        return {
+          files: {},
+          commands: [],
+          deletedFiles: [],
+        }
+      } else if (applicationMode === 'setup') {
+        const outputReq = await fetch('/api/dry-run-create-app', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            options: {
+              ...projectOptions,
+              chosenAddOns: chosenAddOns,
+              starter: projectStarter?.url,
+            },
+          }),
+        })
+        return outputReq.json()
+      } else {
+        const outputReq = await fetch('/api/dry-run-add-to-app', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            addOns: userSelectedAddOns,
+          }),
+        })
+        return outputReq.json()
+      }
+    },
+    initialData: {
       files: {},
       commands: [],
-    } as ProjectFiles,
-    applicationMode: 'none' as 'add' | 'setup' | 'none',
-  },
-}))
+      deletedFiles: [],
+    },
+  })
 
-export const codeRouterAddOns = atom<Array<AddOnInfo>>(
-  (get) => get(initialPayloadAtom).data.addOns['code-router'] || [],
-)
+  return dryRunOutput
+}
 
-export const fileRouterAddOns = atom<Array<AddOnInfo>>(
-  (get) => get(initialPayloadAtom).data.addOns['file-router'] || [],
-)
+export const setProjectName = (projectName: string) =>
+  useProjectOptions.setState({
+    projectName,
+  })
 
-export const applicationMode = atom<'add' | 'setup' | 'none'>(
-  (get) => get(initialPayloadAtom).data.applicationMode || 'none',
-)
+export const setRouterMode = (mode: Mode) =>
+  useProjectOptions.setState({
+    mode,
+  })
 
-export const projectLocalFiles = atom<Record<string, string>>(
-  (get) => get(initialPayloadAtom).data.localFiles || {},
-)
+export function setTypeScript(typescript: boolean) {
+  useProjectOptions.setState({
+    typescript,
+  })
+}
 
-export const projectFiles = atom<ProjectFiles>(
-  (get) => get(initialPayloadAtom).data.output,
-)
+export function setTailwind(tailwind: boolean) {
+  useProjectOptions.setState({
+    tailwind,
+  })
+}
 
-export const isInitialized = atom((get) => get(initialPayloadAtom).isFetched)
+export function setProjectStarter(starter: StarterInfo | undefined) {
+  useProjectStarter.setState(() => ({
+    projectStarter: starter,
+  }))
+}

@@ -1,5 +1,7 @@
 import type { Mode } from '@tanstack/cta-engine'
 
+export type ApplicationMode = 'add' | 'setup' | 'none'
+
 export type StarterInfo = {
   url: string
   id: string
@@ -24,14 +26,6 @@ export type DryRunOutput = {
     args: Array<string>
   }>
   deletedFiles: Array<string>
-}
-
-export type ProjectFiles = {
-  files: Record<string, string>
-  commands: Array<{
-    command: string
-    args: Array<string>
-  }>
 }
 
 export type AddOnInfo = {
@@ -59,4 +53,15 @@ export type FileTreeItem = TreeDataItem & {
   fileClass: FileClass | undefined
   originalFile?: string
   modifiedFile?: string
+}
+
+export type InitialData = {
+  options: SerializedOptions
+  output: GeneratorOutput
+  localFiles: Record<string, string>
+  addOns: {
+    'code-router': Array<AddOnInfo>
+    'file-router': Array<AddOnInfo>
+  }
+  applicationMode: ApplicationMode
 }

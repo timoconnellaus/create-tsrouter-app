@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAtomValue } from 'jotai'
 import { HammerIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -12,10 +11,10 @@ import {
 } from '@/components/ui/dialog'
 
 import {
-  applicationMode,
-  projectOptions,
-  projectStarter,
-  selectedAddOns,
+  useAddOns,
+  useApplicationMode,
+  useProjectOptions,
+  useProjectStarter,
 } from '@/store/project'
 
 export default function RunCreateApp() {
@@ -23,10 +22,10 @@ export default function RunCreateApp() {
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
 
-  const mode = useAtomValue(applicationMode)
-  const options = useAtomValue(projectOptions)
-  const selAddOns = useAtomValue(selectedAddOns)
-  const projStarter = useAtomValue(projectStarter)
+  const mode = useApplicationMode()
+  const options = useProjectOptions()
+  const { chosenAddOns } = useAddOns()
+  const { projectStarter } = useProjectStarter()
 
   if (mode !== 'setup') {
     return null
@@ -41,8 +40,8 @@ export default function RunCreateApp() {
       body: JSON.stringify({
         options: {
           ...options,
-          chosenAddOns: selAddOns.map((addOn) => addOn.id),
-          starter: projStarter?.url || undefined,
+          chosenAddOns,
+          starter: projectStarter?.url || undefined,
         },
       }),
       headers: {

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAtomValue } from 'jotai'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -10,16 +9,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-import { applicationMode, selectedAddOns } from '@/store/project'
+import { useAddOns, useApplicationMode } from '@/store/project'
 
 export default function RunAddOns() {
-  const currentlySelectedAddOns = useAtomValue(selectedAddOns)
+  const { chosenAddOns } = useAddOns()
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState('')
   const [finished, setFinished] = useState(false)
 
-  const mode = useAtomValue(applicationMode)
-  const selAddOns = useAtomValue(selectedAddOns)
+  const mode = useApplicationMode()
 
   if (mode !== 'add') {
     return null
@@ -32,7 +30,7 @@ export default function RunAddOns() {
     const streamingReq = await fetch('/api/add-to-app', {
       method: 'POST',
       body: JSON.stringify({
-        addOns: selAddOns.map((addOn) => addOn.id),
+        addOns: chosenAddOns,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +81,7 @@ export default function RunAddOns() {
         <Button
           variant="default"
           onClick={onAddToApp}
-          disabled={currentlySelectedAddOns.length === 0 || isRunning}
+          disabled={chosenAddOns.length === 0 || isRunning}
           className="w-full"
         >
           Add These Add-Ons To Your App

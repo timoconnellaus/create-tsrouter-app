@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { InfoIcon } from 'lucide-react'
 
 import type { AddOnInfo } from '@/types'
@@ -7,7 +6,7 @@ import type { AddOnInfo } from '@/types'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 
-import { addOnState, availableAddOns, toggleAddOn } from '@/store/project'
+import { useAddOns } from '@/store/project'
 
 import ImportCustomAddOn from '@/components/custom-add-on-dialog'
 import AddOnInfoDialog from '@/components/add-on-info-dialog'
@@ -19,15 +18,13 @@ const addOnTypeLabels: Record<string, string> = {
 }
 
 export default function SelectedAddOns() {
-  const addOns = useAtomValue(availableAddOns)
-  const addOnStatus = useAtomValue(addOnState)
-  const toggle = useSetAtom(toggleAddOn)
+  const { availableAddOns, addOnState, toggleAddOn } = useAddOns()
 
   const sortedAddOns = useMemo(() => {
-    return addOns.sort((a, b) => {
+    return availableAddOns.sort((a, b) => {
       return a.name.localeCompare(b.name)
     })
-  }, [addOns])
+  }, [availableAddOns])
 
   const [infoAddOn, setInfoAddOn] = useState<AddOnInfo>()
 
@@ -55,10 +52,10 @@ export default function SelectedAddOns() {
                   <div className="p-1 flex flex-row items-center">
                     <Switch
                       id={addOn.id}
-                      checked={addOnStatus[addOn.id].selected}
-                      disabled={!addOnStatus[addOn.id].enabled}
+                      checked={addOnState[addOn.id].selected}
+                      disabled={!addOnState[addOn.id].enabled}
                       onCheckedChange={() => {
-                        toggle(addOn.id)
+                        toggleAddOn(addOn.id)
                       }}
                     />
                     <Label
