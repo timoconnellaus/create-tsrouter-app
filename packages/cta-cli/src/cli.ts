@@ -109,6 +109,8 @@ export function cli({
         launchUI({
           mode: 'add',
           addOns: parsedAddOns,
+          forcedMode,
+          forcedAddOns,
         })
       } else {
         await addToApp(environment, parsedAddOns, process.cwd(), {
@@ -290,6 +292,8 @@ export function cli({
           launchUI({
             mode: 'setup',
             options: createSerializedOptions(finalOptions || defaultOptions),
+            forcedMode,
+            forcedAddOns,
           })
           return
         }

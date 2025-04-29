@@ -64,6 +64,8 @@ export type InitialData = {
     'file-router': Array<AddOnInfo>
   }
   applicationMode: ApplicationMode
+  forcedRouterMode?: Mode
+  forcedAddOns?: Array<string>
 }
 
 export type EventItem = {

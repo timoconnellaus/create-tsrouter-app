@@ -36,8 +36,13 @@ const useInitialData = () =>
         'file-router': [],
       },
       applicationMode: 'none',
+      forcedRouterMode: undefined,
+      forcedAddOns: [],
     },
   })
+
+const useForcedRouterMode = () => useInitialData().data.forcedRouterMode
+const useForcedAddOns = () => useInitialData().data.forcedAddOns
 
 export const useProjectLocalFiles = () => useInitialData().data.localFiles
 export const useOriginalOutput = () => useInitialData().data.output
@@ -98,6 +103,7 @@ export function useAddOns() {
   const originalSelectedAddOns = useOriginalSelectedAddOns()
   const codeRouterAddOns = useCodeRouterAddOns()
   const fileRouterAddOns = useFileRouterAddOns()
+  const forcedAddOns = useForcedAddOns()
   const { userSelectedAddOns, customAddOns } = useMutableAddOns()
   const projectStarter = useProjectStarter().projectStarter
 
@@ -118,6 +124,9 @@ export function useAddOns() {
     for (const addOn of originalSelectedAddOns) {
       originalAddOns.add(addOn)
     }
+    for (const addOn of forcedAddOns) {
+      originalAddOns.add(addOn)
+    }
     return getAddOnStatus(
       availableAddOns,
       userSelectedAddOns,
@@ -128,11 +137,18 @@ export function useAddOns() {
     userSelectedAddOns,
     originalSelectedAddOns,
     projectStarter?.dependsOn,
+    forcedAddOns,
   ])
 
   const chosenAddOns = useMemo(() => {
-    return Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected)
-  }, [addOnState])
+    const addOns = new Set(
+      Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected),
+    )
+    for (const addOn of forcedAddOns) {
+      addOns.add(addOn)
+    }
+    return Array.from(addOns)
+  }, [addOnState, forcedAddOns])
 
   const toggleAddOn = useCallback(
     (addOnId: string) => {
@@ -166,7 +182,11 @@ export function useAddOns() {
 const useHasProjectStarter = () =>
   useProjectStarter((state) => state.projectStarter === undefined)
 
-export const useModeEditable = () => useHasProjectStarter()
+export const useModeEditable = () => {
+  const forcedRouterMode = useForcedRouterMode()
+  const hasProjectStarter = useHasProjectStarter()
+  return !forcedRouterMode && hasProjectStarter
+}
 
 export const useTypeScriptEditable = () => {
   const hasProjectStarter = useHasProjectStarter()
@@ -183,7 +203,11 @@ export const useTailwindEditable = () => {
 export const useProjectName = () =>
   useProjectOptions((state) => state.projectName)
 
-export const useRouterMode = () => useProjectOptions((state) => state.mode)
+export const useRouterMode = () => {
+  const forcedRouterMode = useForcedRouterMode()
+  const userMode = useProjectOptions((state) => state.mode)
+  return forcedRouterMode || userMode
+}
 
 export function useFilters() {
   const includedFiles = useApplicationSettings((state) => state.includeFiles)

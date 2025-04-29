@@ -13,6 +13,8 @@ import { createAppWrapper } from './create-app-wrapper.js'
 import { registerFrameworks } from './framework-registration.js'
 import {
   getApplicationMode,
+  getForcedAddOns,
+  getForcedRouterMode,
   getProjectOptions,
   getProjectPath,
 } from './server-environment.js'
@@ -30,6 +32,8 @@ export async function generateInitialPayload() {
       ? await cleanUpFiles(await recursivelyGatherFiles(projectPath, false))
       : {}
 
+  const forcedRouterMode = getForcedRouterMode()
+
   function getSerializedOptions() {
     if (applicationMode === 'setup') {
       const projectOptions = getProjectOptions()
@@ -37,7 +41,7 @@ export async function generateInitialPayload() {
         ...projectOptions,
         framework: projectOptions.framework || 'react-cra',
         projectName: projectOptions.projectName || basename(projectPath),
-        mode: projectOptions.mode || 'file-router',
+        mode: forcedRouterMode || projectOptions.mode,
         typescript: projectOptions.typescript || true,
         tailwind: projectOptions.tailwind || true,
         git: projectOptions.git || true,
@@ -89,5 +93,7 @@ export async function generateInitialPayload() {
     },
     options: serializedOptions,
     output,
+    forcedRouterMode,
+    forcedAddOns: getForcedAddOns(),
   }
 }
