@@ -107,7 +107,7 @@ export async function writeFiles(
 
   if (!forced && overwrittenFiles.length) {
     environment.warn(
-      'The following will be overwritten:',
+      'The following will be overwritten',
       [...overwrittenFiles, ...output.deletedFiles].join('\n'),
     )
     const shouldContinue = await environment.confirm('Do you want to continue?')

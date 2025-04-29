@@ -4,7 +4,7 @@
   "bin": "./dist/index.js",
   "type": "module",
   "scripts": {
-    "cleanNodeModules": "pnpm -r exec rm -rf node_modules",
+    "cleanNodeModules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "nx run-many --target=build --parallel 5",
     "cipublish": "node scripts/publish.js",
     "dev": "nx run-many --target=dev --parallel 10",

@@ -35,14 +35,16 @@ export function createUIEnvironment(
       },
       info: (title?: string, message?: string) => {
         log.info(
-          `${title ? chalk.red(title) : ''}${message ? chalk.green(message) : ''}`,
+          `${title ? chalk.red(title) : ''}${message ? '\n' + chalk.green(message) : ''}`,
         )
       },
       error: (title?: string, message?: string) => {
-        log.error(`${title ? `${title}: ` : ''}${message}`)
+        log.error(
+          `${title ? `${title}: ` : ''}${message ? '\n' + message : ''}`,
+        )
       },
       warn: (title?: string, message?: string) => {
-        log.warn(`${title ? `${title}: ` : ''}${message}`)
+        log.warn(`${title ? `${title}: ` : ''}${message ? '\n' + message : ''}`)
       },
       confirm: async (message: string) => {
         const shouldContinue = await confirm({
