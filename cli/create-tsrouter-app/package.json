@@ -1,6 +1,6 @@
 {
   "name": "create-tsrouter-app",
-  "version": "0.10.0-alpha.20",
+  "version": "0.10.0-alpha.21",
   "description": "Tanstack Application Builder",
   "bin": "./dist/index.js",
   "type": "module",
