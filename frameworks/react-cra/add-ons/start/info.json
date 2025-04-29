@@ -26,5 +26,6 @@
     "./index.html",
     "./src/main.tsx",
     "./src/App.css"
-  ]
+  ],
+  "addOnSpecialSteps": ["rimraf-node-modules"]
 }

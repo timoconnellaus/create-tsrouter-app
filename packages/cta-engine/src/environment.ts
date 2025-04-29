@@ -11,6 +11,7 @@ import { existsSync, statSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { execa } from 'execa'
 import { memfs } from 'memfs'
+import { rimraf } from 'rimraf'
 
 import {
   cleanUpFileArray,
@@ -51,7 +52,7 @@ export function createDefaultEnvironment(): Environment {
           cwd,
         })
         return { stdout: result.stdout }
-      } catch (e) {
+      } catch {
         errors.push(
           `Command "${command} ${args.join(' ')}" did not run successfully. Please run this manually in your project.`,
         )
@@ -70,6 +71,9 @@ export function createDefaultEnvironment(): Environment {
     exists: (path: string) => existsSync(path),
     isDirectory: (path: string) => statSync(path).isDirectory(),
     readdir: async (path: string) => readdir(path),
+    rimraf: async (path: string) => {
+      await rimraf(path)
+    },
 
     appName: 'TanStack',
 
@@ -175,6 +179,7 @@ export function createMemoryEnvironment(returnPathsRelativeTo: string = '') {
   environment.readdir = async (path: string) => {
     return Promise.resolve(fs.readdirSync(path).map((d) => d.toString()))
   }
+  environment.rimraf = async () => {}
 
   return {
     environment,

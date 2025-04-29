@@ -11,6 +11,7 @@ import { createPackageJSON } from './package-json.js'
 import { createTemplateFile } from './template-file.js'
 import { installShadcnComponents } from './integrations/shadcn.js'
 import { setupGit } from './integrations/git.js'
+import { runSpecialSteps } from './special-steps/index.js'
 
 import type { Environment, FileBundleHandler, Options } from './types.js'
 
@@ -118,6 +119,17 @@ async function runCommandsAndInstallDependencies(
       'Initialized git repository',
     )
     s.stop(`Initialized git repository`)
+  }
+
+  // Run any special steps for the new add-ons
+  const specialSteps = new Set<string>([])
+  for (const addOn of options.chosenAddOns) {
+    for (const step of addOn.createSpecialSteps || []) {
+      specialSteps.add(step)
+    }
+  }
+  if (specialSteps.size) {
+    await runSpecialSteps(environment, options, Array.from(specialSteps))
   }
 
   // Install dependencies

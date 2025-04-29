@@ -16,6 +16,7 @@ import {
   recursivelyGatherFilesFromEnvironment,
 } from './file-helpers.js'
 import { mergePackageJSON } from './package-json.js'
+import { runSpecialSteps } from './special-steps/index.js'
 
 import type { Environment, Mode, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
@@ -225,6 +226,20 @@ export async function addToApp(
     'processing-new-app-setup',
     'Application files written',
   )
+
+  // Run any special steps for the new add-ons
+
+  const specialSteps = new Set<string>([])
+  for (const addOn of newOptions.chosenAddOns) {
+    for (const step of addOn.addOnSpecialSteps || []) {
+      if (addOns.includes(addOn.id)) {
+        specialSteps.add(step)
+      }
+    }
+  }
+  if (specialSteps.size) {
+    await runSpecialSteps(environment, newOptions, Array.from(specialSteps))
+  }
 
   // Install dependencies
 

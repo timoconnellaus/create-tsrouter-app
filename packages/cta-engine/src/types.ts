@@ -49,6 +49,8 @@ export const AddOnBaseSchema = z.object({
   dependsOn: z.array(z.string()).optional(),
   smallLogo: z.string().optional(),
   logo: z.string().optional(),
+  addOnSpecialSteps: z.array(z.string()).optional(),
+  createSpecialSteps: z.array(z.string()).optional(),
 })
 
 export const StarterSchema = AddOnBaseSchema.extend({
@@ -171,6 +173,7 @@ type FileEnvironment = {
   isDirectory: (path: string) => boolean
   readFile: (path: string) => Promise<string>
   readdir: (path: string) => Promise<Array<string>>
+  rimraf: (path: string) => Promise<void>
 }
 
 export type StatusEvent = {
