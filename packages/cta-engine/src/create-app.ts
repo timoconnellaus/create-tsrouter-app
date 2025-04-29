@@ -219,7 +219,7 @@ function report(environment: Environment, options: Options) {
   if (environment.getErrors().length) {
     errorStatement = `
 
-Errors were encountered during this process:
+Errors were encountered during the creation of your app:
 
 ${environment.getErrors().join('\n')}`
   }
