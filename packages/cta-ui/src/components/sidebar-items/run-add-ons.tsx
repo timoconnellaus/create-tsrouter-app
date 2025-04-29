@@ -10,12 +10,14 @@ import {
 } from '@/components/ui/dialog'
 
 import { useAddOns, useApplicationMode } from '@/store/project'
+import useStreamingStatus from '@/hooks/use-streaming-status'
+import StatusList from '@/components/StatusList'
+import { addToAppStreaming, shutdown } from '@/lib/api'
 
 export default function RunAddOns() {
   const { chosenAddOns } = useAddOns()
   const [isRunning, setIsRunning] = useState(false)
-  const [output, setOutput] = useState('')
-  const [finished, setFinished] = useState(false)
+  const { streamItems, monitorStream, finished } = useStreamingStatus()
 
   const mode = useApplicationMode()
 
@@ -25,26 +27,7 @@ export default function RunAddOns() {
 
   async function onAddToApp() {
     setIsRunning(true)
-    setOutput('')
-
-    const streamingReq = await fetch('/api/add-to-app', {
-      method: 'POST',
-      body: JSON.stringify({
-        addOns: chosenAddOns,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const reader = streamingReq.body?.getReader()
-    const decoder = new TextDecoder()
-
-    while (true) {
-      const result = await reader?.read()
-      if (result?.done) break
-      setOutput((s) => s + decoder.decode(result?.value))
-    }
-    setFinished(true)
+    monitorStream(await addToAppStreaming(chosenAddOns))
   }
 
   return (
@@ -57,16 +40,12 @@ export default function RunAddOns() {
           <DialogHeader>
             <DialogTitle>Adding Add-Ons</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <pre>{output}</pre>
-          </div>
+          <StatusList streamItems={streamItems} finished={finished} />
           <DialogFooter>
             <Button
               variant="default"
               onClick={async () => {
-                await fetch('/api/shutdown', {
-                  method: 'POST',
-                })
+                await shutdown()
                 window.close()
               }}
               disabled={!finished}

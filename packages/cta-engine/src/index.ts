@@ -53,6 +53,9 @@ export { createSerializedOptions } from './options.js'
 
 export {
   StarterCompiledSchema,
+  StatusEvent,
+  StatusStepType,
+  StopEvent,
   AddOnCompiledSchema,
   AddOnInfoSchema,
   IntegrationSchema,

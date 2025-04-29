@@ -18,6 +18,7 @@ import {
   useApplicationMode,
   useProjectStarter,
 } from '@/store/project'
+import { loadRemoteStarter } from '@/lib/api'
 
 export default function Starter() {
   const [url, setUrl] = useState('')
@@ -32,16 +33,15 @@ export default function Starter() {
   }
 
   async function onImport() {
-    const response = await fetch(`/api/load-starter?url=${url}`)
-    const data = await response.json()
+    const data = await loadRemoteStarter(url)
 
-    if (!data.error) {
-      setProjectStarter(data)
-      setOpen(false)
-    } else {
+    if ('error' in data) {
       toast.error('Failed to load starter', {
         description: data.error,
       })
+    } else {
+      setProjectStarter(data)
+      setOpen(false)
     }
   }
 

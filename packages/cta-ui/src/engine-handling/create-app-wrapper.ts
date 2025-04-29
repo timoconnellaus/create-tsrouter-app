@@ -67,13 +67,28 @@ export async function createAppWrapper(
   if (opts.stream) {
     return new ReadableStream({
       start(controller) {
-        environment.startStep = (message) => {
-          console.log(message)
-          controller.enqueue(new TextEncoder().encode(`${message}\n`))
+        environment.startStep = ({ id, type, message }) => {
+          controller.enqueue(
+            new TextEncoder().encode(
+              JSON.stringify({
+                msgType: 'start',
+                id,
+                type,
+                message,
+              }) + '\n',
+            ),
+          )
         }
-        environment.finishStep = (message) => {
-          console.log(message)
-          controller.enqueue(new TextEncoder().encode(`${message}\n`))
+        environment.finishStep = (id, message) => {
+          controller.enqueue(
+            new TextEncoder().encode(
+              JSON.stringify({
+                msgType: 'finish',
+                id,
+                message,
+              }) + '\n',
+            ),
+          )
         }
 
         createApp(environment, options).then(() => {

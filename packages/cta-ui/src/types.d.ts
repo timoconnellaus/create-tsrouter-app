@@ -1,4 +1,4 @@
-import type { Mode } from '@tanstack/cta-engine'
+import type { Mode, StatusStepType } from '@tanstack/cta-engine'
 
 export type ApplicationMode = 'add' | 'setup' | 'none'
 
@@ -64,4 +64,24 @@ export type InitialData = {
     'file-router': Array<AddOnInfo>
   }
   applicationMode: ApplicationMode
+}
+
+export type EventItem = {
+  msgType: 'start'
+  id: string
+  type: StatusStepType
+  message: string
+}
+export type EventFinish = {
+  msgType: 'finish'
+  id: string
+  message: string
+}
+
+export type StreamEvent = EventItem | EventFinish
+
+export type StreamItem = {
+  id: string
+  icon: typeof FileIcon
+  message: string
 }

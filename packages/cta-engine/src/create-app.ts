@@ -38,38 +38,62 @@ async function writeFiles(environment: Environment, options: Options) {
     }
   }
 
-  environment.startStep('Writing framework files...')
+  environment.startStep({
+    id: 'write-framework-files',
+    type: 'file',
+    message: 'Writing framework files...',
+  })
   await writeFileBundle(options.framework)
-  environment.finishStep('Framework files written')
+  environment.finishStep('write-framework-files', 'Framework files written')
 
+  let wroteAddonFiles = false
   for (const type of ['add-on', 'example', 'toolchain']) {
     for (const phase of ['setup', 'add-on', 'example']) {
       for (const addOn of options.chosenAddOns.filter(
         (addOn) => addOn.phase === phase && addOn.type === type,
       )) {
-        environment.startStep(`Writing ${addOn.name} files...`)
+        environment.startStep({
+          id: 'write-addon-files',
+          type: 'file',
+          message: `Writing ${addOn.name} files...`,
+        })
         await writeFileBundle(addOn)
-        environment.finishStep(`${addOn.name} files written`)
+        wroteAddonFiles = true
       }
     }
   }
-
-  if (options.starter) {
-    environment.startStep(`Writing starter files...`)
-    await writeFileBundle(options.starter)
-    environment.finishStep(`Starter files written`)
+  if (wroteAddonFiles) {
+    environment.finishStep('write-addon-files', 'Add-on files written')
   }
 
-  environment.startStep(`Writing package.json...`)
+  if (options.starter) {
+    environment.startStep({
+      id: 'write-starter-files',
+      type: 'file',
+      message: 'Writing starter files...',
+    })
+    await writeFileBundle(options.starter)
+    environment.finishStep('write-starter-files', 'Starter files written')
+  }
+
+  environment.startStep({
+    id: 'write-package-json',
+    type: 'file',
+    message: 'Writing package.json...',
+  })
   await environment.writeFile(
     resolve(options.targetDir, './package.json'),
     JSON.stringify(createPackageJSON(options), null, 2),
   )
-  environment.finishStep(`package.json written`)
+  environment.finishStep('write-package-json', 'Package.json written')
 
-  environment.startStep(`Writing config file...`)
+  environment.startStep({
+    id: 'write-config-file',
+    type: 'file',
+    message: 'Writing config file...',
+  })
   await writeConfigFileToEnvironment(environment, options)
-  environment.finishStep(`Config file written`)
+  environment.finishStep('write-config-file', 'Config file written')
 }
 
 async function runCommandsAndInstallDependencies(
@@ -81,25 +105,34 @@ async function runCommandsAndInstallDependencies(
   // Setup git
   if (options.git) {
     s.start(`Initializing git repository...`)
-    environment.startStep(`Initializing git repository...`)
+    environment.startStep({
+      id: 'initialize-git-repository',
+      type: 'command',
+      message: 'Initializing git repository...',
+    })
 
     await setupGit(environment, options.targetDir)
 
-    environment.finishStep(`Initialized git repository`)
+    environment.finishStep(
+      'initialize-git-repository',
+      'Initialized git repository',
+    )
     s.stop(`Initialized git repository`)
   }
 
   // Install dependencies
   s.start(`Installing dependencies via ${options.packageManager}...`)
-  environment.startStep(
-    `Installing dependencies via ${options.packageManager}...`,
-  )
+  environment.startStep({
+    id: 'install-dependencies',
+    type: 'package-manager',
+    message: `Installing dependencies via ${options.packageManager}...`,
+  })
   await packageManagerInstall(
     environment,
     options.targetDir,
     options.packageManager,
   )
-  environment.finishStep(`Installed dependencies`)
+  environment.finishStep('install-dependencies', 'Installed dependencies')
   s.stop(`Installed dependencies`)
 
   for (const phase of ['setup', 'add-on', 'example']) {
@@ -107,15 +140,23 @@ async function runCommandsAndInstallDependencies(
       (addOn) =>
         addOn.phase === phase && addOn.command && addOn.command.command,
     )) {
-      s.start(`Setting up ${addOn.name}...`)
-      environment.startStep(`Setting up ${addOn.name}...`)
+      s.start(`Running commands for ${addOn.name}...`)
+      const cmd = formatCommand({
+        command: addOn.command!.command,
+        args: addOn.command!.args || [],
+      })
+      environment.startStep({
+        id: 'run-commands',
+        type: 'command',
+        message: cmd,
+      })
       await environment.execute(
         addOn.command!.command,
         addOn.command!.args || [],
         options.targetDir,
       )
-      environment.finishStep(`${addOn.name} setup complete`)
-      s.stop(`${addOn.name} setup complete`)
+      environment.finishStep('run-commands', 'Setup commands complete')
+      s.stop(`${addOn.name} commands complete`)
     }
   }
 
@@ -126,7 +167,15 @@ async function runCommandsAndInstallDependencies(
     options.starter.command.command
   ) {
     s.start(`Setting up starter ${options.starter.name}...`)
-    environment.startStep(`Setting up starter ${options.starter.name}...`)
+    const cmd = formatCommand({
+      command: options.starter.command.command,
+      args: options.starter.command.args || [],
+    })
+    environment.startStep({
+      id: 'run-starter-command',
+      type: 'command',
+      message: cmd,
+    })
 
     await environment.execute(
       options.starter.command.command,
@@ -134,8 +183,8 @@ async function runCommandsAndInstallDependencies(
       options.targetDir,
     )
 
-    environment.finishStep(`Starter ${options.starter.name} setup complete`)
-    s.stop(`Starter ${options.starter.name} setup complete`)
+    environment.finishStep('run-starter-command', 'Starter command complete')
+    s.stop(`${options.starter.name} commands complete`)
   }
 
   await installShadcnComponents(environment, options.targetDir, options)

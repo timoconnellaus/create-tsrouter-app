@@ -6,20 +6,13 @@ import { getAddOnStatus } from './add-ons'
 
 import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
 
-import type {
-  AddOnInfo,
-  DryRunOutput,
-  InitialData,
-  StarterInfo,
-} from '@/types.js'
+import type { AddOnInfo, DryRunOutput, StarterInfo } from '@/types.js'
+import { dryRunAddToApp, dryRunCreateApp, loadInitialData } from '@/lib/api'
 
 const useInitialData = () =>
-  useQuery<InitialData>({
+  useQuery({
     queryKey: ['initial-data'],
-    queryFn: async () => {
-      const payloadReq = await fetch('/api/initial-payload')
-      return await payloadReq.json()
-    },
+    queryFn: async () => loadInitialData(),
     initialData: {
       options: {
         framework: 'react-cra',
@@ -231,31 +224,9 @@ export function useDryRun() {
           deletedFiles: [],
         }
       } else if (applicationMode === 'setup') {
-        const outputReq = await fetch('/api/dry-run-create-app', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            options: {
-              ...projectOptions,
-              chosenAddOns: chosenAddOns,
-              starter: projectStarter?.url,
-            },
-          }),
-        })
-        return outputReq.json()
+        return dryRunCreateApp(projectOptions, chosenAddOns, projectStarter)
       } else {
-        const outputReq = await fetch('/api/dry-run-add-to-app', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            addOns: userSelectedAddOns,
-          }),
-        })
-        return outputReq.json()
+        return dryRunAddToApp(userSelectedAddOns)
       }
     },
     initialData: {

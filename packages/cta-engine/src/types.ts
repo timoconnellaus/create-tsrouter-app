@@ -5,6 +5,13 @@ import type { PackageManager } from './package-manager.js'
 
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
+export type StatusStepType =
+  | 'file'
+  | 'command'
+  | 'info'
+  | 'package-manager'
+  | 'other'
+
 export const AddOnBaseSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -166,11 +173,24 @@ type FileEnvironment = {
   readdir: (path: string) => Promise<Array<string>>
 }
 
+export type StatusEvent = {
+  id: string
+  type: StatusStepType
+  message: string
+}
+export type StopEvent = {
+  id: string
+}
+
 type UIEnvironment = {
   appName: string
 
-  startStep: (message: string) => void
-  finishStep: (message: string) => void
+  startStep: (info: {
+    id: string
+    type: StatusStepType
+    message: string
+  }) => void
+  finishStep: (id: string, finalMessage: string) => void
 
   intro: (message: string) => void
   outro: (message: string) => void

@@ -10,17 +10,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
+import useStreamingStatus from '@/hooks/use-streaming-status'
 import {
   useAddOns,
   useApplicationMode,
   useProjectOptions,
   useProjectStarter,
 } from '@/store/project'
+import StatusList from '@/components/StatusList'
+import { createAppStreaming, shutdown } from '@/lib/api'
 
 export default function RunCreateApp() {
   const [isRunning, setIsRunning] = useState(false)
-  const [output, setOutput] = useState('')
-  const [finished, setFinished] = useState(false)
+  const { streamItems, monitorStream, finished } = useStreamingStatus()
 
   const mode = useApplicationMode()
   const options = useProjectOptions()
@@ -33,30 +35,9 @@ export default function RunCreateApp() {
 
   async function onAddToApp() {
     setIsRunning(true)
-    setOutput('')
-
-    const streamingReq = await fetch('/api/create-app', {
-      method: 'POST',
-      body: JSON.stringify({
-        options: {
-          ...options,
-          chosenAddOns,
-          starter: projectStarter?.url || undefined,
-        },
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const reader = streamingReq.body?.getReader()
-    const decoder = new TextDecoder()
-
-    while (true) {
-      const result = await reader?.read()
-      if (result?.done) break
-      setOutput((s) => s + decoder.decode(result?.value))
-    }
-    setFinished(true)
+    monitorStream(
+      await createAppStreaming(options, chosenAddOns, projectStarter),
+    )
   }
 
   return (
@@ -69,16 +50,12 @@ export default function RunCreateApp() {
           <DialogHeader>
             <DialogTitle>Creating Your Application</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <pre>{output}</pre>
-          </div>
+          <StatusList streamItems={streamItems} finished={finished} />
           <DialogFooter>
             <Button
               variant="default"
               onClick={async () => {
-                await fetch('/api/shutdown', {
-                  method: 'POST',
-                })
+                await shutdown()
                 window.close()
               }}
               disabled={!finished}

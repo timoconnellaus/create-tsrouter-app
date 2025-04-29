@@ -5,7 +5,7 @@
   "link": "https://tanstack.com/start/latest",
   "modes": ["file-router"],
   "type": "add-on",
-  "warning": "TanStack Start is not yet at 1.0 and may change significantly or not be compatible with other add-ons.",
+  "warning": "TanStack Start is not yet at 1.0 and may change significantly or not be compatible with other add-ons.\nMigrating to Start might require deleting node_modules and re-installing.",
   "routes": [
     {
       "url": "/demo/start/server-funcs",
@@ -20,5 +20,11 @@
       "jsName": "StartApiRequestDemo"
     }
   ],
-  "deletedFiles": ["./vite.config.js", "./vite.config.ts", "./index.html"]
+  "deletedFiles": [
+    "./vite.config.js",
+    "./vite.config.ts",
+    "./index.html",
+    "./src/main.tsx",
+    "./src/App.css"
+  ]
 }

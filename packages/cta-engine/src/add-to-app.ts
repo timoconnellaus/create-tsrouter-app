@@ -121,7 +121,11 @@ export async function writeFiles(
     }
   }
 
-  environment.startStep('Writing files...')
+  environment.startStep({
+    id: 'write-files',
+    type: 'file',
+    message: 'Writing add-on files...',
+  })
 
   for (const file of [...changedFiles, ...overwrittenFiles]) {
     const fName = basename(file)
@@ -144,7 +148,7 @@ export async function writeFiles(
     }
   }
 
-  environment.finishStep('Files written')
+  environment.finishStep('write-files', 'Add-on files written')
 }
 
 export async function runNewCommands(
@@ -169,11 +173,13 @@ export async function runNewCommands(
   for (const command of output.commands) {
     const commandString = [command.command, ...command.args].join(' ')
     if (!originalCommands.has(commandString)) {
-      environment.startStep(
-        `Running ${formatCommand({ command: command.command, args: command.args })}...`,
-      )
+      environment.startStep({
+        id: 'run-commands',
+        type: 'command',
+        message: `Running ${formatCommand({ command: command.command, args: command.args })}...`,
+      })
       await environment.execute(command.command, command.args, cwd)
-      environment.finishStep(`${command.command} complete`)
+      environment.finishStep('run-commands', 'Setup commands complete')
     }
   }
 }
@@ -200,7 +206,11 @@ export async function addToApp(
   }
 
   environment.intro(`Adding ${addOns.join(', ')} to the project...`)
-  environment.startStep('Processing new app setup...')
+  environment.startStep({
+    id: 'processing-new-app-setup',
+    type: 'file',
+    message: 'Processing new app setup...',
+  })
 
   const newOptions = await createOptions(persistedOptions, addOns, cwd)
 
@@ -211,13 +221,18 @@ export async function addToApp(
 
   await writeFiles(environment, cwd, output, !!options?.forced)
 
-  environment.finishStep('App setup processed')
+  environment.finishStep(
+    'processing-new-app-setup',
+    'Application files written',
+  )
 
   // Install dependencies
 
-  environment.startStep(
-    `Installing dependencies via ${newOptions.packageManager}...`,
-  )
+  environment.startStep({
+    id: 'install-dependencies',
+    type: 'package-manager',
+    message: `Installing dependencies via ${newOptions.packageManager}...`,
+  })
   const s = environment.spinner()
   s.start(`Installing dependencies via ${newOptions.packageManager}...`)
   await packageManagerInstall(
@@ -226,15 +241,19 @@ export async function addToApp(
     newOptions.packageManager,
   )
   s.stop(`Installed dependencies`)
-  environment.finishStep('Installed dependencies')
+  environment.finishStep('install-dependencies', 'Dependencies installed')
 
   // Handle new commands
 
   await runNewCommands(environment, persistedOptions, cwd, output)
 
-  environment.startStep('Writing config file...')
+  environment.startStep({
+    id: 'write-config-file',
+    type: 'file',
+    message: 'Writing config file...',
+  })
   writeConfigFileToEnvironment(environment, newOptions)
-  environment.finishStep('Config file written')
+  environment.finishStep('write-config-file', 'Config file written')
 
   environment.outro('Add-ons added successfully!')
 }

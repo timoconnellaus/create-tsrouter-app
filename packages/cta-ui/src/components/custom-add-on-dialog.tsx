@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 
 import { addCustomAddOn, useAddOns, useRouterMode } from '@/store/project'
+import { loadRemoteAddOn } from '@/lib/api'
 
 export default function CustomAddOnDialog() {
   const [url, setUrl] = useState('')
@@ -22,19 +23,18 @@ export default function CustomAddOnDialog() {
   const { toggleAddOn } = useAddOns()
 
   async function onImport() {
-    const response = await fetch(`/api/load-remote-add-on?url=${url}`)
-    const data = await response.json()
+    const data = await loadRemoteAddOn(url)
 
-    if (!data.error) {
+    if ('error' in data) {
+      toast.error('Failed to load add-on', {
+        description: data.error,
+      })
+    } else {
       addCustomAddOn(data)
       if (data.modes.includes(mode)) {
         toggleAddOn(data.id)
       }
       setOpen(false)
-    } else {
-      toast.error('Failed to load add-on', {
-        description: data.error,
-      })
     }
   }
 
