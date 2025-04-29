@@ -20,8 +20,8 @@ export function launchUI({
 
   delete process.env.NODE_ENV
 
-  process.env.CTA_PROJECT_PATH = projectPath
   process.env.CTA_ADD_ONS = addOns?.join(',') || ''
+  process.env.CTA_PROJECT_PATH = projectPath
   process.env.CTA_OPTIONS = options ? JSON.stringify(options) : ''
   process.env.CTA_MODE = mode
   if (forcedMode) {
