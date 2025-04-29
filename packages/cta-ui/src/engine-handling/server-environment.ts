@@ -20,5 +20,7 @@ export function getForcedRouterMode(): Mode | undefined {
 }
 
 export function getForcedAddOns(): Array<string> | undefined {
-  return process.env.CTA_FORCED_ADD_ONS?.split(',') || []
+  return (process.env.CTA_FORCED_ADD_ONS?.split(',') || []).filter(
+    (addOn: string) => addOn !== '',
+  )
 }
