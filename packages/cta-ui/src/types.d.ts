@@ -55,6 +55,20 @@ export type FileTreeItem = TreeDataItem & {
   modifiedFile?: string
 }
 
+export type Registry = {
+  starters: Array<{
+    name: string
+    description: string
+    url: string
+    banner?: string
+  }>
+  'add-ons': Array<{
+    name: string
+    description: string
+    url: string
+  }>
+}
+
 export type InitialData = {
   options: SerializedOptions
   output: GeneratorOutput
@@ -66,6 +80,7 @@ export type InitialData = {
   applicationMode: ApplicationMode
   forcedRouterMode?: Mode
   forcedAddOns?: Array<string>
+  registry: Registry | undefined
 }
 
 export type EventItem = {

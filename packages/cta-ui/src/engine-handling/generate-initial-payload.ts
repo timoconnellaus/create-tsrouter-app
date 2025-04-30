@@ -17,9 +17,19 @@ import {
   getForcedRouterMode,
   getProjectOptions,
   getProjectPath,
+  getRegistry,
 } from './server-environment.js'
 
 import type { SerializedOptions } from '@tanstack/cta-engine'
+import type { Registry } from '@/types.js'
+
+function absolutizeUrl(originalUrl: string, relativeUrl: string) {
+  if (relativeUrl.startsWith('http') || relativeUrl.startsWith('https')) {
+    return relativeUrl
+  }
+  const baseUrl = originalUrl.replace(/registry.json$/, '')
+  return `${baseUrl}${relativeUrl.replace(/^\.\//, '')}`
+}
 
 export async function generateInitialPayload() {
   registerFrameworks()
@@ -51,6 +61,21 @@ export async function generateInitialPayload() {
         readFileSync(resolve(projectPath, '.cta.json')),
       )
       return createSerializedOptionsFromPersisted(persistedOptions)
+    }
+  }
+
+  const registryUrl = getRegistry()
+  let registry: Registry | undefined
+  if (registryUrl) {
+    registry = (await fetch(registryUrl).then((res) => res.json())) as Registry
+    for (const addOn of registry['add-ons']) {
+      addOn.url = absolutizeUrl(registryUrl, addOn.url)
+    }
+    for (const starter of registry.starters) {
+      starter.url = absolutizeUrl(registryUrl, starter.url)
+      if (starter.banner) {
+        starter.banner = absolutizeUrl(registryUrl, starter.banner)
+      }
     }
   }
 
@@ -95,5 +120,6 @@ export async function generateInitialPayload() {
     output,
     forcedRouterMode,
     forcedAddOns: getForcedAddOns(),
+    registry,
   }
 }

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { useQuery } from '@tanstack/react-query'
 
 import { getAddOnStatus } from './add-ons'
@@ -38,11 +39,14 @@ const useInitialData = () =>
       applicationMode: 'none',
       forcedRouterMode: undefined,
       forcedAddOns: [],
+      registry: undefined,
     },
   })
 
 const useForcedRouterMode = () => useInitialData().data.forcedRouterMode
 const useForcedAddOns = () => useInitialData().data.forcedAddOns
+
+export const useRegistry = () => useInitialData().data.registry
 
 export const useProjectLocalFiles = () => useInitialData().data.localFiles
 export const useOriginalOutput = () => useInitialData().data.output
@@ -262,6 +266,41 @@ export function useDryRun() {
 
   return dryRunOutput
 }
+
+type StartupDialogState = {
+  open: boolean
+  dontShowAgain: boolean
+  setOpen: (open: boolean) => void
+  setDontShowAgain: (dontShowAgain: boolean) => void
+}
+
+export const useStartupDialog = create<StartupDialogState>()(
+  persist(
+    (set) => ({
+      open: false,
+      dontShowAgain: false,
+      setOpen: (open) => set({ open }),
+      setDontShowAgain: (dontShowAgain) => set({ dontShowAgain }),
+    }),
+    {
+      name: 'startup-dialog',
+      partialize: (state) => ({
+        dontShowAgain: state.dontShowAgain,
+      }),
+      merge: (persistedState: unknown, currentState) => {
+        if (
+          persistedState &&
+          (persistedState as { dontShowAgain?: boolean }).dontShowAgain
+        ) {
+          currentState.open = false
+        } else {
+          currentState.open = true
+        }
+        return currentState
+      },
+    },
+  ),
+)
 
 export const setProjectName = (projectName: string) =>
   useProjectOptions.setState({

@@ -24,3 +24,7 @@ export function getForcedAddOns(): Array<string> | undefined {
     (addOn: string) => addOn !== '',
   )
 }
+
+export function getRegistry(): string | undefined {
+  return process.env.CTA_REGISTRY
+}

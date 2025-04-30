@@ -12,13 +12,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-
 import {
   setProjectStarter,
   useApplicationMode,
   useProjectStarter,
+  useRegistry,
 } from '@/store/project'
 import { loadRemoteStarter } from '@/lib/api'
+import { StartersCarousel } from '@/components/starters-carousel'
 
 export default function Starter() {
   const [url, setUrl] = useState('')
@@ -32,8 +33,8 @@ export default function Starter() {
     return null
   }
 
-  async function onImport() {
-    const data = await loadRemoteStarter(url)
+  async function onImport(registryUrl?: string) {
+    const data = await loadRemoteStarter(registryUrl || url)
 
     if ('error' in data) {
       toast.error('Failed to load starter', {
@@ -44,6 +45,8 @@ export default function Starter() {
       setOpen(false)
     }
   }
+
+  const registry = useRegistry()
 
   return (
     <>
@@ -86,11 +89,16 @@ export default function Starter() {
           <FileBoxIcon className="w-4 h-4" />
           Set Project Starter
         </Button>
-        <Dialog modal open={open}>
+        <Dialog modal open={open} onOpenChange={setOpen}>
           <DialogContent className="sm:min-w-[425px] sm:max-w-fit">
             <DialogHeader>
               <DialogTitle>Project Starter URL</DialogTitle>
             </DialogHeader>
+            {registry?.starters && (
+              <div>
+                <StartersCarousel onImport={onImport} />
+              </div>
+            )}
             <div>
               <Input
                 value={url}

@@ -1,0 +1,34 @@
+{
+  "starters": [
+    {
+      "name": "e-Commerce",
+      "description": "A starter project for React with CRA",
+      "url": "./ecommerce-starter/starter.json",
+      "banner": "./ecommerce-starter/.starter/banner.png"
+    },
+    {
+      "name": "Blog",
+      "description": "A blog starter for Tanstack React Start",
+      "url": "./blog-starter/starter.json",
+      "banner": "./blog-starter/.starter/banner.png"
+    },
+    {
+      "name": "Resume",
+      "description": "A resume starter for Tanstack React Start",
+      "url": "./resume-starter/starter.json",
+      "banner": "./resume-starter/.starter/banner.png"
+    }
+  ],
+  "add-ons": [
+    {
+      "name": "Legend State",
+      "description": "A Legend State add-on for Tanstack React Start",
+      "url": "./legend-state-add-on/add-on.json"
+    },
+    {
+      "name": "MUI",
+      "description": "A MUI add-on for Tanstack React Start",
+      "url": "./mui-add-on/add-on.json"
+    }
+  ]
+}
