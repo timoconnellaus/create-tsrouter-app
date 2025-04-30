@@ -1,0 +1,17 @@
+{
+  "name": "Neon",
+  "description": "Add the Neon database to your application.",
+  "link": "https://neon.tech",
+  "phase": "add-on",
+  "type": "add-on",
+  "modes": ["file-router"],
+  "routes": [
+    {
+      "url": "/demo/neon",
+      "name": "Neon",
+      "path": "src/routes/demo.neon.tsx",
+      "jsName": "NeonDemo"
+    }
+  ],
+  "dependsOn": ["start"]
+}
