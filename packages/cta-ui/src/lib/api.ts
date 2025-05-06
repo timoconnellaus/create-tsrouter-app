@@ -2,12 +2,14 @@ import type { SerializedOptions } from '@tanstack/cta-engine'
 
 import type { AddOnInfo, DryRunOutput, InitialData, StarterInfo } from '@/types'
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
+
 export async function createAppStreaming(
   options: SerializedOptions,
   chosenAddOns: Array<string>,
   projectStarter?: StarterInfo,
 ) {
-  return await fetch('/api/create-app', {
+  return await fetch(`${baseUrl}/api/create-app`, {
     method: 'POST',
     body: JSON.stringify({
       options: {
@@ -23,7 +25,7 @@ export async function createAppStreaming(
 }
 
 export async function addToAppStreaming(chosenAddOns: Array<string>) {
-  return await fetch('/api/add-to-app', {
+  return await fetch(`${baseUrl}/api/add-to-app`, {
     method: 'POST',
     body: JSON.stringify({
       addOns: chosenAddOns,
@@ -35,23 +37,23 @@ export async function addToAppStreaming(chosenAddOns: Array<string>) {
 }
 
 export function shutdown() {
-  return fetch('/api/shutdown', {
+  return fetch(`${baseUrl}/api/shutdown`, {
     method: 'POST',
   })
 }
 
 export async function loadRemoteAddOn(url: string) {
-  const response = await fetch(`/api/load-remote-add-on?url=${url}`)
+  const response = await fetch(`${baseUrl}/api/load-remote-add-on?url=${url}`)
   return (await response.json()) as AddOnInfo | { error: string }
 }
 
 export async function loadRemoteStarter(url: string) {
-  const response = await fetch(`/api/load-starter?url=${url}`)
+  const response = await fetch(`${baseUrl}/api/load-starter?url=${url}`)
   return (await response.json()) as StarterInfo | { error: string }
 }
 
 export async function loadInitialData() {
-  const payloadReq = await fetch('/api/initial-payload')
+  const payloadReq = await fetch(`${baseUrl}/api/initial-payload`)
   return (await payloadReq.json()) as InitialData
 }
 
@@ -60,7 +62,7 @@ export async function dryRunCreateApp(
   chosenAddOns: Array<string>,
   projectStarter?: StarterInfo,
 ) {
-  const outputReq = await fetch('/api/dry-run-create-app', {
+  const outputReq = await fetch(`${baseUrl}/api/dry-run-create-app`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ export async function dryRunCreateApp(
 }
 
 export async function dryRunAddToApp(addOns: Array<string>) {
-  const outputReq = await fetch('/api/dry-run-add-to-app', {
+  const outputReq = await fetch(`${baseUrl}/api/dry-run-add-to-app`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

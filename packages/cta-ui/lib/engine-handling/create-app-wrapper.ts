@@ -9,26 +9,28 @@ import {
   loadStarter,
 } from '@tanstack/cta-engine'
 
-import { registerFrameworks } from './framework-registration'
+import { registerFrameworks } from './framework-registration.js'
 
-import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
-import { getApplicationMode, getProjectPath } from './server-environment'
+import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
+import { getApplicationMode, getProjectPath } from './server-environment.js'
 
 import type { Options, SerializedOptions, Starter } from '@tanstack/cta-engine'
 
+import type { Response } from 'express'
+
 export async function createAppWrapper(
   projectOptions: SerializedOptions,
-  opts: { dryRun?: boolean; stream?: boolean },
+  opts: { dryRun?: boolean; response?: Response },
 ) {
   registerFrameworks()
 
   const framework = getFrameworkById(projectOptions.framework)!
 
   let starter: Starter | undefined
-  const addOns: Array<string> = [...projectOptions.chosenAddOns]
+  const addOns: Array<string> = [...(projectOptions.chosenAddOns || [])]
   if (projectOptions.starter) {
     starter = await loadStarter(projectOptions.starter)
-    for (const addOn of starter.dependsOn ?? []) {
+    for (const addOn of starter?.dependsOn ?? []) {
       addOns.push(addOn)
     }
   }
@@ -64,38 +66,34 @@ export async function createAppWrapper(
 
   const { environment, output } = createEnvironment()
 
-  if (opts.stream) {
-    return new ReadableStream({
-      start(controller) {
-        environment.startStep = ({ id, type, message }) => {
-          controller.enqueue(
-            new TextEncoder().encode(
-              JSON.stringify({
-                msgType: 'start',
-                id,
-                type,
-                message,
-              }) + '\n',
-            ),
-          )
-        }
-        environment.finishStep = (id, message) => {
-          controller.enqueue(
-            new TextEncoder().encode(
-              JSON.stringify({
-                msgType: 'finish',
-                id,
-                message,
-              }) + '\n',
-            ),
-          )
-        }
-
-        createApp(environment, options).then(() => {
-          controller.close()
-        })
-      },
+  if (opts.response) {
+    opts.response.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked',
     })
+
+    environment.startStep = ({ id, type, message }) => {
+      opts.response!.write(
+        JSON.stringify({
+          msgType: 'start',
+          id,
+          type,
+          message,
+        }) + '\n',
+      )
+    }
+    environment.finishStep = (id, message) => {
+      opts.response!.write(
+        JSON.stringify({
+          msgType: 'finish',
+          id,
+          message,
+        }) + '\n',
+      )
+    }
+
+    await createApp(environment, options)
+    opts.response.end()
   } else {
     await createApp(environment, options)
 

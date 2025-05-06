@@ -21,7 +21,7 @@ import {
 } from './server-environment.js'
 
 import type { SerializedOptions } from '@tanstack/cta-engine'
-import type { Registry } from '@/types.js'
+import type { Registry } from '../types.js'
 
 function absolutizeUrl(originalUrl: string, relativeUrl: string) {
   if (relativeUrl.startsWith('http') || relativeUrl.startsWith('https')) {
@@ -58,7 +58,7 @@ export async function generateInitialPayload() {
       } as SerializedOptions
     } else {
       const persistedOptions = JSON.parse(
-        readFileSync(resolve(projectPath, '.cta.json')),
+        readFileSync(resolve(projectPath, '.cta.json')).toString(),
       )
       return createSerializedOptionsFromPersisted(persistedOptions)
     }

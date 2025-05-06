@@ -8,26 +8,26 @@ import {
   recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
 
+import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
+import { getProjectPath } from './server-environment.js'
 import { createAppWrapper } from './create-app-wrapper.js'
 
-import { getProjectPath } from '@/engine-handling/server-environment.js'
-import {
-  cleanUpFileArray,
-  cleanUpFiles,
-} from '@/engine-handling/file-helpers.js'
+import type { Response } from 'express'
 
 export async function addToAppWrapper(
   addOns: Array<string>,
   opts: {
     dryRun?: boolean
-    stream?: boolean
+    response?: Response
   },
 ) {
   const projectPath = getProjectPath()
 
   const persistedOptions = JSON.parse(
-    readFileSync(resolve(projectPath, '.cta.json')),
+    readFileSync(resolve(projectPath, '.cta.json')).toString(),
   )
+
+  persistedOptions.targetDir = projectPath
 
   const newAddons: Array<string> = []
   for (const addOn of addOns) {
@@ -64,42 +64,38 @@ export async function addToAppWrapper(
 
   const { environment, output } = await createEnvironment()
 
-  if (opts.stream) {
-    return new ReadableStream({
-      start(controller) {
-        environment.startStep = ({ id, type, message }) => {
-          controller.enqueue(
-            new TextEncoder().encode(
-              JSON.stringify({
-                msgType: 'start',
-                id,
-                type,
-                message,
-              }) + '\n',
-            ),
-          )
-        }
-        environment.finishStep = (id, message) => {
-          controller.enqueue(
-            new TextEncoder().encode(
-              JSON.stringify({
-                msgType: 'finish',
-                id,
-                message,
-              }) + '\n',
-            ),
-          )
-        }
-
-        environment.startRun()
-        addToApp(environment, newAddons, projectPath, {
-          forced: true,
-        }).then(() => {
-          environment.finishRun()
-          controller.close()
-        })
-      },
+  if (opts.response) {
+    opts.response.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked',
     })
+
+    environment.startStep = ({ id, type, message }) => {
+      opts.response!.write(
+        JSON.stringify({
+          msgType: 'start',
+          id,
+          type,
+          message,
+        }) + '\n',
+      )
+    }
+    environment.finishStep = (id, message) => {
+      opts.response!.write(
+        JSON.stringify({
+          msgType: 'finish',
+          id,
+          message,
+        }) + '\n',
+      )
+    }
+
+    environment.startRun()
+    await addToApp(environment, newAddons, projectPath, {
+      forced: true,
+    })
+    environment.finishRun()
+    opts.response.end()
   } else {
     environment.startRun()
     await addToApp(environment, newAddons, projectPath, {

@@ -109,7 +109,8 @@ export function cli({
         launchUI({
           mode: 'add',
           addOns: parsedAddOns,
-          forcedMode,
+          projectPath: process.cwd(),
+          forcedRouterMode: forcedMode,
           forcedAddOns,
         })
       } else {
@@ -292,7 +293,7 @@ export function cli({
           launchUI({
             mode: 'setup',
             options: createSerializedOptions(finalOptions || defaultOptions),
-            forcedMode,
+            forcedRouterMode: forcedMode,
             forcedAddOns,
           })
           return
