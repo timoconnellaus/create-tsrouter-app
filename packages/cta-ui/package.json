@@ -9,7 +9,6 @@
     "build:lib": "tsc -p tsconfig.lib.json",
     "dev": "tsc --watch -p tsconfig.lib.json",
     "dev:ui": "VITE_API_BASE_URL=http://localhost:8080 vite dev",
-    "build:server": "tsc -p tsconfig.api-server.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
