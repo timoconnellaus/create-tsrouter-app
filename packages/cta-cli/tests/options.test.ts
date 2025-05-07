@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 
-import { promptForOptions } from '../src/options'
+import { promptForCreateOptions } from '../src/options'
 import {
   __testClearFrameworks,
   __testRegisterFramework,
@@ -67,13 +67,13 @@ function setBasicSpies() {
   vi.spyOn(prompts, 'selectAddOns').mockImplementation(async () => [])
 }
 
-describe('promptForOptions', () => {
+describe('promptForCreateOptions', () => {
   //// Project name
 
   it('prompt for a project name', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions(baseCliOptions, {})
+    const options = await promptForCreateOptions(baseCliOptions, {})
 
     expect(options?.projectName).toBe('hello')
   })
@@ -81,7 +81,7 @@ describe('promptForOptions', () => {
   it('accept incoming project name', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, projectName: 'override' },
       {},
     )
@@ -94,7 +94,7 @@ describe('promptForOptions', () => {
   it('forceMode should override template', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, template: 'javascript' },
       { forcedMode: 'file-router' },
     )
@@ -110,7 +110,7 @@ describe('promptForOptions', () => {
       async () => 'code-router',
     )
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, template: 'javascript' },
       {},
     )
@@ -125,7 +125,7 @@ describe('promptForOptions', () => {
       async () => 'code-router',
     )
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, template: 'file-router' },
       {},
     )
@@ -140,7 +140,7 @@ describe('promptForOptions', () => {
       async () => 'code-router',
     )
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, tailwind: false, framework: undefined },
       {},
     )
@@ -153,7 +153,7 @@ describe('promptForOptions', () => {
   it('prompt for tailwind when unspecified in react-cra', async () => {
     setBasicSpies()
     vi.spyOn(prompts, 'selectTailwind').mockImplementation(async () => false)
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, tailwind: undefined },
       {},
     )
@@ -164,7 +164,7 @@ describe('promptForOptions', () => {
   it('prompt for tailwind when unspecified in react-cra - true', async () => {
     setBasicSpies()
     vi.spyOn(prompts, 'selectTailwind').mockImplementation(async () => true)
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, tailwind: undefined },
       {},
     )
@@ -174,7 +174,7 @@ describe('promptForOptions', () => {
 
   it('set tailwind when solid', async () => {
     setBasicSpies()
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, tailwind: undefined, framework: 'solid' },
       {},
     )
@@ -187,7 +187,7 @@ describe('promptForOptions', () => {
   it('uses the package manager from the cli options', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, packageManager: 'bun' },
       {},
     )
@@ -200,7 +200,7 @@ describe('promptForOptions', () => {
 
     process.env.npm_config_userconfig = 'blarg'
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, packageManager: undefined },
       {},
     )
@@ -212,7 +212,7 @@ describe('promptForOptions', () => {
   it('should be clean when no add-ons are selected', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions({ ...baseCliOptions }, {})
+    const options = await promptForCreateOptions({ ...baseCliOptions }, {})
 
     expect(options?.chosenAddOns).toEqual([])
   })
@@ -222,7 +222,7 @@ describe('promptForOptions', () => {
 
     vi.spyOn(prompts, 'selectToolchain').mockImplementation(async () => 'biome')
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, toolchain: 'biome' },
       {},
     )
@@ -237,7 +237,7 @@ describe('promptForOptions', () => {
       async () => undefined,
     )
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions },
       { forcedAddOns: ['react-query'] },
     )
@@ -252,7 +252,7 @@ describe('promptForOptions', () => {
   it('should handle add-ons from the CLI', async () => {
     setBasicSpies()
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, addOns: ['biome', 'react-query'] },
       {},
     )
@@ -272,7 +272,7 @@ describe('promptForOptions', () => {
       Promise.resolve(['biome', 'react-query']),
     )
 
-    const options = await promptForOptions(
+    const options = await promptForCreateOptions(
       { ...baseCliOptions, addOns: undefined },
       {},
     )
