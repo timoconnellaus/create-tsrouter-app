@@ -46,9 +46,24 @@ export async function readConfigFileFromEnvironment(
     const configFile = resolve(targetDir, CONFIG_FILE)
     const config = await environment.readFile(configFile)
 
-    // TODO: Look for old config files and convert them to the new format
+    const originalJSON = JSON.parse(config)
 
-    return JSON.parse(config)
+    // Look for markers out outdated config files and upgrade the format on the fly (it will be written in the updated version after we add add-ons)
+    if (originalJSON.existingAddOns) {
+      if (originalJSON.framework === 'react') {
+        originalJSON.framework = 'react-cra'
+      }
+      originalJSON.chosenAddOns = originalJSON.existingAddOns
+      delete originalJSON.existingAddOns
+      delete originalJSON.addOns
+      if (originalJSON.toolchain && originalJSON.toolchain !== 'none') {
+        originalJSON.chosenAddOns.push(originalJSON.toolchain)
+      }
+      delete originalJSON.toolchain
+      delete originalJSON.variableValues
+    }
+
+    return originalJSON
   } catch {
     return null
   }

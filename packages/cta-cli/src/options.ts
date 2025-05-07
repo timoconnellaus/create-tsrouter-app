@@ -4,6 +4,7 @@ import {
   finalizeAddOns,
   getFrameworkById,
   getPackageManager,
+  readConfigFile,
 } from '@tanstack/cta-engine'
 
 import {
@@ -20,8 +21,9 @@ import {
 import type { Mode, Options } from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
+import { intro } from '@clack/prompts'
 
-export async function promptForOptions(
+export async function promptForCreateOptions(
   cliOptions: CliOptions,
   {
     forcedAddOns = [],
@@ -125,4 +127,46 @@ export async function promptForOptions(
   options.git = cliOptions.git || (await selectGit())
 
   return options
+}
+
+export async function promptForAddOns(): Promise<Array<string>> {
+  const config = await readConfigFile(process.cwd())
+
+  if (!config) {
+    console.error('No config file found')
+    process.exit(1)
+  }
+
+  const framework = getFrameworkById(config.framework)
+
+  if (!framework) {
+    console.error(`Unknown framework: ${config.framework}`)
+    process.exit(1)
+  }
+
+  intro(`Adding new add-ons to '${config.projectName}'`)
+
+  const addOns: Set<string> = new Set()
+
+  for (const addOn of await selectAddOns(
+    framework,
+    config.mode!,
+    'add-on',
+    'What add-ons would you like for your project?',
+    config.chosenAddOns,
+  )) {
+    addOns.add(addOn)
+  }
+
+  for (const addOn of await selectAddOns(
+    framework,
+    config.mode!,
+    'example',
+    'Would you like any examples?',
+    config.chosenAddOns,
+  )) {
+    addOns.add(addOn)
+  }
+
+  return Array.from(addOns)
 }

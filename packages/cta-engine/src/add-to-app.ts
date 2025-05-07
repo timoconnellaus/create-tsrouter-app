@@ -17,6 +17,7 @@ import {
 } from './file-helpers.js'
 import { mergePackageJSON } from './package-json.js'
 import { runSpecialSteps } from './special-steps/index.js'
+import { loadStarter } from './custom-add-ons/starter.js'
 
 import type { Environment, Mode, Options } from './types.js'
 import type { PersistedOptions } from './config-file.js'
@@ -40,7 +41,7 @@ async function createOptions(
 ): Promise<Options> {
   const framework = getFrameworkById(json.framework)
 
-  // TODO: Load the starter
+  const starter = json.starter ? await loadStarter(json.starter) : undefined
 
   return {
     ...json,
@@ -52,6 +53,7 @@ async function createOptions(
       ...addOns,
     ]),
     targetDir,
+    starter,
   } as Options
 }
 

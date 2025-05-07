@@ -65,4 +65,41 @@ describe('readConfigFileFromEnvironment', () => {
     const config = await readConfigFileFromEnvironment(environment, targetDir)
     expect(config).toEqual(persistedOptions)
   })
+
+  it('should upgrade old config files', async () => {
+    const targetDir = 'test-dir'
+    const persistedOptions = {
+      framework: 'react',
+      projectName: 'foo',
+      typescript: false,
+      tailwind: false,
+      packageManager: 'pnpm',
+      toolchain: 'none',
+      mode: 'code-router',
+      git: true,
+      variableValues: {},
+      version: 1,
+      existingAddOns: [],
+    }
+    const { output, environment } = createMemoryEnvironment()
+    environment.writeFile(
+      resolve(targetDir, CONFIG_FILE),
+      JSON.stringify(persistedOptions, null, 2),
+    )
+    const config = await readConfigFileFromEnvironment(environment, targetDir)
+
+    environment.finishRun()
+
+    expect(config).toEqual({
+      framework: 'react-cra',
+      projectName: 'foo',
+      typescript: false,
+      tailwind: false,
+      packageManager: 'pnpm',
+      chosenAddOns: [],
+      git: true,
+      mode: 'code-router',
+      version: 1,
+    })
+  })
 })
