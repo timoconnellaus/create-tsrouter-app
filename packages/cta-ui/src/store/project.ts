@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useQuery } from '@tanstack/react-query'
@@ -10,6 +10,18 @@ import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
 import type { AddOnInfo, DryRunOutput, StarterInfo } from '@/types.js'
 import { dryRunAddToApp, dryRunCreateApp, loadInitialData } from '@/lib/api'
 
+export const useProjectOptions = create<SerializedOptions>(() => ({
+  framework: 'react-cra',
+  mode: 'file-router',
+  projectName: 'my-app',
+  targetDir: 'my-app',
+  typescript: true,
+  tailwind: true,
+  git: true,
+  chosenAddOns: [],
+  packageManager: 'pnpm',
+}))
+
 const useInitialData = () =>
   useQuery({
     queryKey: ['initial-data'],
@@ -18,8 +30,8 @@ const useInitialData = () =>
       options: {
         framework: 'react-cra',
         mode: 'file-router',
-        projectName: 'my-application',
-        targetDir: 'my-application',
+        projectName: 'my-app',
+        targetDir: 'my-app',
         typescript: true,
         tailwind: true,
         git: true,
@@ -50,26 +62,14 @@ export const useRegistry = () => useInitialData().data.registry
 
 export const useProjectLocalFiles = () => useInitialData().data.localFiles
 export const useOriginalOutput = () => useInitialData().data.output
-export const useOriginalSelectedAddOns = () =>
-  useInitialData().data.options.chosenAddOns
+export const useOriginalOptions = () => useInitialData().data.options
+export const useOriginalSelectedAddOns = () => useOriginalOptions().chosenAddOns
 export const useApplicationMode = () => useInitialData().data.applicationMode
 export const useReady = () => useInitialData().isFetched
 export const useCodeRouterAddOns = () =>
   useInitialData().data.addOns['code-router']
 export const useFileRouterAddOns = () =>
   useInitialData().data.addOns['file-router']
-
-export const useProjectOptions = create<SerializedOptions>(() => ({
-  framework: 'react-cra',
-  mode: 'file-router',
-  projectName: 'my-app',
-  targetDir: 'my-app',
-  typescript: true,
-  tailwind: true,
-  git: true,
-  chosenAddOns: [],
-  packageManager: 'pnpm',
-}))
 
 const useApplicationSettings = create<{
   includeFiles: Array<string>
@@ -128,7 +128,7 @@ export function useAddOns() {
     for (const addOn of originalSelectedAddOns) {
       originalAddOns.add(addOn)
     }
-    for (const addOn of forcedAddOns) {
+    for (const addOn of forcedAddOns || []) {
       originalAddOns.add(addOn)
     }
     return getAddOnStatus(
@@ -148,7 +148,7 @@ export function useAddOns() {
     const addOns = new Set(
       Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected),
     )
-    for (const addOn of forcedAddOns) {
+    for (const addOn of forcedAddOns || []) {
       addOns.add(addOn)
     }
     return Array.from(addOns)
@@ -328,4 +328,15 @@ export function setProjectStarter(starter: StarterInfo | undefined) {
   useProjectStarter.setState(() => ({
     projectStarter: starter,
   }))
+}
+
+export function useManager() {
+  const ready = useReady()
+  const originalOptions = useOriginalOptions()
+
+  useEffect(() => {
+    if (ready) {
+      useProjectOptions.setState(originalOptions)
+    }
+  }, [ready])
 }

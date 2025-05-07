@@ -286,20 +286,19 @@ export function cli({
         }
 
         if (options.ui) {
-          const defaultOptions: Options = {
-            framework: getFrameworkById(cliOptions.framework || 'react-cra')!,
-            mode: 'file-router',
-            chosenAddOns: [],
-            packageManager: 'pnpm',
-            projectName: projectName || 'my-app',
-            targetDir: resolve(process.cwd(), projectName || 'my-app'),
-            typescript: true,
-            tailwind: true,
-            git: true,
-          }
+          const optionsFromCLI = await normalizeOptions(
+            cliOptions,
+            forcedMode,
+            forcedAddOns,
+            { disableNameCheck: true },
+          )
           launchUI({
             mode: 'setup',
-            options: createSerializedOptions(finalOptions || defaultOptions),
+            options: {
+              ...createSerializedOptions(optionsFromCLI!),
+              projectName: 'my-app',
+              targetDir: resolve(process.cwd(), 'my-app'),
+            },
             forcedRouterMode: forcedMode,
             forcedAddOns,
           })

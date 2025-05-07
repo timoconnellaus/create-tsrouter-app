@@ -10,11 +10,13 @@ import {
 import { Toaster } from '@/components/toaster'
 
 import { AppSidebar } from '@/components/cta-sidebar'
+import { useManager } from '@/store/project'
 
 const queryClient = new QueryClient()
 
 function Content() {
   const { open } = useSidebar()
+  useManager()
 
   return (
     <main

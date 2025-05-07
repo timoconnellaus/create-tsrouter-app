@@ -18,9 +18,12 @@ export async function normalizeOptions(
   cliOptions: CliOptions,
   forcedMode?: Mode,
   forcedAddOns?: Array<string>,
+  opts?: {
+    disableNameCheck?: boolean
+  },
 ): Promise<Options | undefined> {
   const projectName = (cliOptions.projectName ?? '').trim()
-  if (!projectName) {
+  if (!projectName && !opts?.disableNameCheck) {
     return undefined
   }
 

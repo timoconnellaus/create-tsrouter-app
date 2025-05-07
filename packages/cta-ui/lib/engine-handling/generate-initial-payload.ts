@@ -1,4 +1,4 @@
-import { basename } from 'node:path'
+import { basename, resolve } from 'node:path'
 
 import {
   createSerializedOptionsFromPersisted,
@@ -55,6 +55,9 @@ export async function generateInitialPayload() {
         typescript: projectOptions.typescript || true,
         tailwind: projectOptions.tailwind || true,
         git: projectOptions.git || true,
+        targetDir:
+          projectOptions.targetDir ||
+          resolve(projectPath, projectOptions.projectName),
       } as SerializedOptions
     } else {
       const persistedOptions = await readConfigFile(projectPath)
