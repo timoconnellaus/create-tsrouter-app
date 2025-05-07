@@ -8,7 +8,8 @@
     "build": "nx run-many --target=build --parallel 5",
     "cipublish": "node scripts/publish.js",
     "dev": "nx run-many --target=dev --parallel 10",
-    "test": "nx run-many -t test"
+    "test": "nx run-many -t test",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,8 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "nx": "20.6.4",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "husky": "^8.0.0"
   },
   "packageManager": "pnpm@9.15.5",
   "pnpm": {
