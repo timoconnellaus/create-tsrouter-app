@@ -48,7 +48,7 @@ async function createOptions(
     tailwind: true,
     addOns: true,
     chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
-      ...json.existingAddOns,
+      ...json.chosenAddOns,
       ...addOns,
     ]),
     targetDir,

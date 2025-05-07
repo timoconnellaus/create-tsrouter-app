@@ -48,7 +48,7 @@ export async function readOrGenerateStarterInfo(
           dependencies: {},
           devDependencies: {},
         },
-        dependsOn: options.existingAddOns,
+        dependsOn: options.chosenAddOns,
         typescript: options.typescript!,
         tailwind: options.tailwind!,
       }

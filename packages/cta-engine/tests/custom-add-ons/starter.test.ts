@@ -15,13 +15,13 @@ describe('readOrGenerateStarterInfo', () => {
     const starterInfo = await readOrGenerateStarterInfo({
       framework: 'test',
       version: 1,
-      existingAddOns: [],
       starter: undefined,
       projectName: 'test',
       mode: 'code-router',
       typescript: true,
       tailwind: true,
       git: true,
+      chosenAddOns: [],
     })
     expect(starterInfo.id).toEqual('test-starter')
   })
@@ -33,7 +33,7 @@ describe('readOrGenerateStarterInfo', () => {
       JSON.stringify({
         framework: 'test',
         version: 1,
-        existingAddOns: [],
+        chosenAddOns: [],
         starter: undefined,
         name: 'test-starter',
         mode: 'code-router',
@@ -45,7 +45,7 @@ describe('readOrGenerateStarterInfo', () => {
     const starterInfo = await readOrGenerateStarterInfo({
       framework: 'test',
       version: 1,
-      existingAddOns: [],
+      chosenAddOns: [],
       starter: undefined,
       projectName: 'test',
       mode: 'code-router',

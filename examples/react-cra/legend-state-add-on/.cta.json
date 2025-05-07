@@ -8,5 +8,5 @@
   "targetDir": "/Users/jherr/projects/cta/legend-state-add-on",
   "version": 1,
   "framework": "react-cra",
-  "existingAddOns": []
+  "chosenAddOns": []
 }

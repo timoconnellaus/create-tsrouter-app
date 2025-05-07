@@ -148,7 +148,7 @@ export async function readOrGenerateAddOnInfo(
           dependencies: {},
           devDependencies: {},
         },
-        dependsOn: options.existingAddOns,
+        dependsOn: options.chosenAddOns,
       } as AddOnInfo)
 }
 

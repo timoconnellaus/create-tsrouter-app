@@ -11,3 +11,12 @@ export type Registry = {
     url: string
   }>
 }
+
+export type DryRunOutput = {
+  files: Record<string, string>
+  commands: Array<{
+    command: string
+    args: Array<string>
+  }>
+  deletedFiles: Array<string>
+}

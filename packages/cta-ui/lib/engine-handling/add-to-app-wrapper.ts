@@ -1,18 +1,23 @@
-import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import {
   addToApp,
+  createAppOptionsFromPersisted,
   createDefaultEnvironment,
   createMemoryEnvironment,
+  createSerializedOptionsFromPersisted,
+  readConfigFile,
   recursivelyGatherFiles,
+  writeConfigFileToEnvironment,
 } from '@tanstack/cta-engine'
 
 import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
 import { getProjectPath } from './server-environment.js'
 import { createAppWrapper } from './create-app-wrapper.js'
 
+import type { Environment } from '@tanstack/cta-engine'
 import type { Response } from 'express'
+import type { DryRunOutput } from '../types.js'
 
 export async function addToAppWrapper(
   addOns: Array<string>,
@@ -23,30 +28,34 @@ export async function addToAppWrapper(
 ) {
   const projectPath = getProjectPath()
 
-  const persistedOptions = JSON.parse(
-    readFileSync(resolve(projectPath, '.cta.json')).toString(),
-  )
+  const persistedOptions = await readConfigFile(projectPath)
 
-  persistedOptions.targetDir = projectPath
+  if (!persistedOptions) {
+    throw new Error('No config file found')
+  }
+
+  const options = await createAppOptionsFromPersisted(persistedOptions)
+  options.targetDir = projectPath
 
   const newAddons: Array<string> = []
   for (const addOn of addOns) {
-    if (!persistedOptions.existingAddOns.includes(addOn)) {
+    if (!options.chosenAddOns.some((a) => a.id === addOn)) {
       newAddons.push(addOn)
     }
   }
 
   if (newAddons.length === 0) {
-    return await createAppWrapper(persistedOptions, opts)
+    const serializedOptions =
+      createSerializedOptionsFromPersisted(persistedOptions)
+    return await createAppWrapper(serializedOptions, opts)
   }
 
-  async function createEnvironment() {
+  async function createEnvironment(): Promise<{
+    environment: Environment
+    output: DryRunOutput
+  }> {
     if (opts.dryRun) {
       const { environment, output } = createMemoryEnvironment(projectPath)
-      environment.writeFile(
-        resolve(projectPath, '.cta.json'),
-        JSON.stringify(persistedOptions, null, 2),
-      )
 
       const localFiles = await cleanUpFiles(
         await recursivelyGatherFiles(projectPath, false),
@@ -70,7 +79,15 @@ export async function addToAppWrapper(
       'Transfer-Encoding': 'chunked',
     })
 
-    environment.startStep = ({ id, type, message }) => {
+    environment.startStep = ({
+      id,
+      type,
+      message,
+    }: {
+      id: string
+      type: string
+      message: string
+    }) => {
       opts.response!.write(
         JSON.stringify({
           msgType: 'start',
@@ -80,7 +97,7 @@ export async function addToAppWrapper(
         }) + '\n',
       )
     }
-    environment.finishStep = (id, message) => {
+    environment.finishStep = (id: string, message: string) => {
       opts.response!.write(
         JSON.stringify({
           msgType: 'finish',
@@ -101,6 +118,7 @@ export async function addToAppWrapper(
     await addToApp(environment, newAddons, projectPath, {
       forced: true,
     })
+    writeConfigFileToEnvironment(environment, options)
     environment.finishRun()
 
     output.files = cleanUpFiles(output.files, projectPath)

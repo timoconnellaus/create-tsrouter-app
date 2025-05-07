@@ -29,6 +29,7 @@ export {
 export {
   writeConfigFileToEnvironment,
   readConfigFileFromEnvironment,
+  readConfigFile,
 } from './config-file.js'
 
 export {

@@ -2,6 +2,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
+import chalk from 'chalk'
+
 import {
   AddOnCompiledSchema,
   StarterCompiledSchema,
@@ -143,7 +145,9 @@ export function launchUI(
   const port = requestedPort || process.env.PORT || 8080
   app.listen(port, () => {
     console.log(
-      `Create TanStack ${launchUI ? 'App' : 'API'} is running on http://localhost:${port}`,
+      `🔥 ${chalk.blueBright(`Create TanStack ${launchUI ? 'App' : 'API'}`)} is running on ${chalk.underline(
+        `http://localhost:${port}`,
+      )}`,
     )
   })
 }

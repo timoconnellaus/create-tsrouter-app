@@ -9,5 +9,5 @@
   "starter": null,
   "version": 1,
   "framework": "react-cra",
-  "existingAddOns": ["tanchat", "start", "store"]
+  "chosenAddOns": ["tanchat", "start", "store"]
 }

@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
-import { basename, resolve } from 'node:path'
+import { basename } from 'node:path'
 
 import {
   createSerializedOptionsFromPersisted,
   getAllAddOns,
   getFrameworkById,
+  readConfigFile,
   recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
 
@@ -44,7 +44,7 @@ export async function generateInitialPayload() {
 
   const forcedRouterMode = getForcedRouterMode()
 
-  function getSerializedOptions() {
+  async function getSerializedOptions() {
     if (applicationMode === 'setup') {
       const projectOptions = getProjectOptions()
       return {
@@ -57,9 +57,10 @@ export async function generateInitialPayload() {
         git: projectOptions.git || true,
       } as SerializedOptions
     } else {
-      const persistedOptions = JSON.parse(
-        readFileSync(resolve(projectPath, '.cta.json')).toString(),
-      )
+      const persistedOptions = await readConfigFile(projectPath)
+      if (!persistedOptions) {
+        throw new Error('No config file found')
+      }
       return createSerializedOptionsFromPersisted(persistedOptions)
     }
   }
@@ -79,7 +80,7 @@ export async function generateInitialPayload() {
     }
   }
 
-  const serializedOptions = getSerializedOptions()
+  const serializedOptions = await getSerializedOptions()
 
   const output = await createAppWrapper(serializedOptions, {
     dryRun: true,

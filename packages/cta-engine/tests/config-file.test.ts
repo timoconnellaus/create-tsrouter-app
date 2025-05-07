@@ -37,7 +37,7 @@ describe('writeConfigFile', () => {
     const persistedOptions = {
       version: 1,
       framework: options.framework.id,
-      existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
+      chosenAddOns: options.chosenAddOns.map((addOn) => addOn.id),
     }
     const env = {
       writeFile: (path, optionsString) => {
@@ -55,7 +55,7 @@ describe('readConfigFileFromEnvironment', () => {
     const persistedOptions = {
       version: 1,
       framework: 'react-cra',
-      existingAddOns: ['add-on-1'],
+      chosenAddOns: ['add-on-1'],
     }
     const { environment } = createMemoryEnvironment()
     environment.writeFile(

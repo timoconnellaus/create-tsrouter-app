@@ -84,7 +84,6 @@ describe('createAppOptionsFromPersisted', () => {
       targetDir: '',
       starter: undefined,
       chosenAddOns: [],
-      existingAddOns: [],
       version: 1,
     } as PersistedOptions
     const appOptions = await createAppOptionsFromPersisted(persistedOptions)
@@ -114,7 +113,6 @@ describe('createSerializedOptionsFromPersisted', () => {
       targetDir: '',
       starter: undefined,
       chosenAddOns: [],
-      existingAddOns: [],
       version: 1,
     } as PersistedOptions
     const appOptions =
@@ -205,14 +203,12 @@ describe('readCurrentProjectOptions', () => {
         targetDir: '',
         starter: undefined,
         chosenAddOns: [],
-        existingAddOns: [],
         version: 1,
       }),
     )
     const options = await readCurrentProjectOptions(environment)
     expect(options).toEqual({
       chosenAddOns: [],
-      existingAddOns: [],
       framework: 'test',
       git: true,
       mode: 'code-router',

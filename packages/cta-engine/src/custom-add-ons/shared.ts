@@ -78,7 +78,7 @@ export async function createAppOptionsFromPersisted(
     framework: framework!,
     starter: json.starter ? await loadStarter(json.starter) : undefined,
     chosenAddOns: await finalizeAddOns(framework!, json.mode as Mode, [
-      ...json.existingAddOns,
+      ...json.chosenAddOns,
     ]),
   }
 }
@@ -100,7 +100,6 @@ export function createSerializedOptionsFromPersisted(
     targetDir: '',
     framework: json.framework,
     starter: json.starter,
-    chosenAddOns: json.existingAddOns,
   }
 }
 

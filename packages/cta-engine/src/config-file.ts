@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 
 import { CONFIG_FILE } from './constants.js'
+import { createDefaultEnvironment } from './environment.js'
 
 import type { Environment, Options } from './types.js'
 
@@ -10,7 +11,7 @@ export type PersistedOptions = Omit<
 > & {
   framework: string
   version: number
-  existingAddOns: Array<string>
+  chosenAddOns: Array<string>
   starter?: string
 }
 
@@ -22,7 +23,7 @@ function createPersistedOptions(options: Options): PersistedOptions {
     ...rest,
     version: 1,
     framework: options.framework.id,
-    existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
+    chosenAddOns: options.chosenAddOns.map((addOn) => addOn.id),
     starter: options.starter?.id ?? undefined,
   }
 }
@@ -51,4 +52,10 @@ export async function readConfigFileFromEnvironment(
   } catch {
     return null
   }
+}
+
+export async function readConfigFile(
+  targetDir: string,
+): Promise<PersistedOptions | null> {
+  return readConfigFileFromEnvironment(createDefaultEnvironment(), targetDir)
 }
