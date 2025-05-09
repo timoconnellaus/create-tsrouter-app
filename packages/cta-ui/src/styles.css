@@ -1,23 +1,38 @@
 @import 'tailwindcss';
+@layer theme, base, components, utilities;
 
 @plugin "tailwindcss-animate";
 
 @source inline("bg-green-500");
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 body {
   @apply m-0;
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    'Inter',
+    ui-sans-serif,
+    system-ui,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    Segoe UI Symbol,
+    'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
+  font-size: 12px;
   font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
 }
 
 :root {
@@ -57,7 +72,7 @@ code {
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: rgb(3, 7, 18);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.141 0.005 285.823);
   --card-foreground: oklch(0.985 0 0);
@@ -155,25 +170,74 @@ code {
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  html,
   body {
-    @apply bg-background text-foreground;
+    @apply text-gray-900 bg-gray-50 dark:bg-black dark:text-gray-200;
+    background: rgb(3, 7, 18);
   }
-}
 
-[data-sidebar='group'] {
-  background-color: hsl(240 5.9% 6%) !important;
-  @apply mb-2 rounded-lg inset-shadow-gray-600 inset-shadow-sm;
-}
+  .using-mouse * {
+    outline: none !important;
+  }
 
-[data-sidebar='content'] {
-  @apply p-2 pt-5;
-}
+  * {
+    scrollbar-color: theme(colors.gray.400) theme(colors.gray.100);
+  }
 
-[data-sidebar='header'] {
-  @apply shadow-gray-700 shadow-md z-50;
+  *::-webkit-scrollbar,
+  * scrollbar {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  *::-webkit-scrollbar-track,
+  * scrollbar-track {
+    background: theme(colors.gray.100);
+  }
+
+  *::-webkit-scrollbar-thumb,
+  * scrollbar-thumb {
+    background: theme(colors.gray.300);
+    border-radius: 0.5rem;
+    border: 3px solid theme(colors.gray.100);
+  }
+
+  html.dark {
+    &,
+    * {
+      color-scheme: dark;
+    }
+
+    &,
+    * {
+      scrollbar-color: theme(colors.gray.700) theme(colors.gray.800);
+    }
+
+    &::-webkit-scrollbar,
+    *::-webkit-scrollbar,
+    * scrollbar {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    & *::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-track,
+    * scrollbar-track {
+      background: theme(colors.gray.800);
+    }
+
+    &::-webkit-scrollbar-thumb,
+    *::-webkit-scrollbar-thumb,
+    * scrollbar-thumb {
+      background: theme(colors.gray.600);
+      border-radius: 0.5rem;
+      border: 3px solid theme(colors.gray.800);
+    }
+  }
+
+  [disabled] {
+    @apply opacity-50 pointer-events-none;
+  }
 }
 
 .cm-changedLine {
@@ -182,4 +246,12 @@ code {
 
 .file-filters {
   background-color: oklch(0.2 0.005 285.823);
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+.font-medium {
+  font-weight: 800;
 }

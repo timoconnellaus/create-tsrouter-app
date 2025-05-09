@@ -184,14 +184,12 @@ export default function FileNavigator() {
   }
 
   return (
-    <div
-      className={`flex flex-row border-1 rounded-md mr-10 p-2 inset-shadow-gray-600 inset-shadow-sm`}
-    >
-      <div className="w-1/4 max-w-1/4 pr-2">
+    <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex">
+      <div className="w-1/4 max-w-1/4 bg-gray-500/10 rounded-l-lg">
         {mode === 'add' && <Filters />}
         <FileTree selectedFile={selectedFile} tree={fileTree} />
       </div>
-      <div className="max-w-3/4 w-3/4 pl-2">
+      <div className="max-w-3/4 w-3/4">
         {selectedFile && modifiedFileContents ? (
           <FileViewer
             filePath={selectedFile}

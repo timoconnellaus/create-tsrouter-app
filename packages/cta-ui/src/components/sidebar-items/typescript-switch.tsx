@@ -22,8 +22,8 @@ export default function TypescriptSwitch() {
   }
 
   return (
-    <div className="flex mt-4">
-      <div className="w-1/2 flex flex-row items-center">
+    <div className="flex">
+      <div className="w-1/2 flex flex-row items-center justify-center">
         <Switch
           id="typescript-switch"
           checked={typescript}
@@ -35,7 +35,7 @@ export default function TypescriptSwitch() {
           TypeScript
         </Label>
       </div>
-      <div className="w-1/2 flex flex-row items-center">
+      <div className="w-1/2 flex flex-row items-center justify-center">
         <Switch
           id="tailwind-switch"
           checked={tailwind}

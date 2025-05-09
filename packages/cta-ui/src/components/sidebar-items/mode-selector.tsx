@@ -21,8 +21,9 @@ export default function ModeSelector() {
   }
 
   return (
-    <>
-      <div className="flex flex-row justify-center items-center mt-4">
+    <div className="flex flex-row gap-2 items-center">
+      <h3 className="font-medium whitespace-nowrap">Router Mode</h3>
+      <div className="flex flex-row justify-center items-center">
         <ToggleGroup
           type="single"
           value={routerMode}
@@ -31,10 +32,11 @@ export default function ModeSelector() {
               setRouterMode(v as Mode)
             }
           }}
+          className="rounded-md border-2 border-gray-500/10"
         >
           <ToggleGroupItem
             value="code-router"
-            className="px-8"
+            className="px-4"
             disabled={!enableMode}
           >
             <CodeIcon className="w-4 h-4" />
@@ -50,6 +52,6 @@ export default function ModeSelector() {
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-    </>
+    </div>
   )
 }

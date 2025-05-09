@@ -1,5 +1,4 @@
 import { Input } from '@/components/ui/input'
-import { SidebarGroupLabel } from '@/components/ui/sidebar'
 
 import {
   setProjectName,
@@ -16,14 +15,14 @@ export default function ProjectName() {
   }
 
   return (
-    <>
-      <SidebarGroupLabel>Project Name</SidebarGroupLabel>
+    <div className="flex flex-row gap-2 items-center">
+      <h3 className="font-medium whitespace-nowrap">Project Name</h3>
       <Input
         value={name}
         placeholder="my-app"
         onChange={(e) => setProjectName(e.target.value)}
-        className="w-full"
+        className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
       />
-    </>
+    </div>
   )
 }
