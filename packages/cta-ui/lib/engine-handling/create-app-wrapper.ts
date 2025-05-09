@@ -14,24 +14,35 @@ import { registerFrameworks } from './framework-registration.js'
 import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
 import { getApplicationMode, getProjectPath } from './server-environment.js'
 
-import type { Options, SerializedOptions, Starter } from '@tanstack/cta-engine'
+import type {
+  Environment,
+  Options,
+  SerializedOptions,
+  Starter,
+} from '@tanstack/cta-engine'
 
 import type { Response } from 'express'
 
 export async function createAppWrapper(
   projectOptions: SerializedOptions,
-  opts: { dryRun?: boolean; response?: Response },
+  opts: {
+    dryRun?: boolean
+    response?: Response
+    environmentFactory?: () => Environment
+  },
 ) {
   registerFrameworks()
 
   const framework = getFrameworkById(projectOptions.framework)!
 
   let starter: Starter | undefined
-  const addOns: Array<string> = [...(projectOptions.chosenAddOns || [])]
+  const addOns: Array<string> = [...projectOptions.chosenAddOns]
   if (projectOptions.starter) {
     starter = await loadStarter(projectOptions.starter)
-    for (const addOn of starter?.dependsOn ?? []) {
-      addOns.push(addOn)
+    if (starter) {
+      for (const addOn of starter.dependsOn ?? []) {
+        addOns.push(addOn)
+      }
     }
   }
   const chosenAddOns = await finalizeAddOns(
@@ -59,7 +70,7 @@ export async function createAppWrapper(
       return createMemoryEnvironment(targetDir)
     }
     return {
-      environment: createDefaultEnvironment(),
+      environment: opts.environmentFactory?.() ?? createDefaultEnvironment(),
       output: { files: {}, deletedFiles: [], commands: [] },
     }
   }

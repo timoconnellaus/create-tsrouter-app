@@ -22,7 +22,7 @@ import { launchUI } from '@tanstack/cta-ui'
 
 import { runMCPServer } from './mcp.js'
 
-import { promptForCreateOptions, promptForAddOns } from './options.js'
+import { promptForAddOns, promptForCreateOptions } from './options.js'
 import { normalizeOptions } from './command-line.js'
 
 import { createUIEnvironment } from './ui-environment.js'
@@ -112,6 +112,7 @@ export function cli({
           projectPath: process.cwd(),
           forcedRouterMode: forcedMode,
           forcedAddOns,
+          environmentFactory: () => createUIEnvironment(appName, false),
         })
       } else if (parsedAddOns.length < 1) {
         const addOns = await promptForAddOns()
@@ -301,6 +302,7 @@ export function cli({
             },
             forcedRouterMode: forcedMode,
             forcedAddOns,
+            environmentFactory: () => createUIEnvironment(appName, false),
           })
           return
         }

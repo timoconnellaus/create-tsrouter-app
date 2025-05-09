@@ -15,10 +15,12 @@ import { generateInitialPayload } from './engine-handling/generate-initial-paylo
 import { setServerEnvironment } from './engine-handling/server-environment.js'
 
 import type { ServerEnvironment } from './engine-handling/server-environment.js'
+import type { Environment } from '@tanstack/cta-engine'
 
 export function launchUI(
   options: Partial<ServerEnvironment> & {
     port?: number
+    environmentFactory?: () => Environment
   },
 ) {
   const { port: requestedPort, ...rest } = options
@@ -39,12 +41,14 @@ export function launchUI(
   app.post('/api/add-to-app', async (req, res) => {
     await addToAppWrapper(req.body.addOns, {
       response: res,
+      environmentFactory: options.environmentFactory,
     })
   })
 
   app.post('/api/create-app', async (req, res) => {
     await createAppWrapper(req.body.options, {
       response: res,
+      environmentFactory: options.environmentFactory,
     })
   })
 
@@ -52,6 +56,7 @@ export function launchUI(
     res.send(
       await addToAppWrapper(req.body.addOns, {
         dryRun: true,
+        environmentFactory: options.environmentFactory,
       }),
     )
   })
@@ -60,6 +65,7 @@ export function launchUI(
     res.send(
       await createAppWrapper(req.body.options, {
         dryRun: true,
+        environmentFactory: options.environmentFactory,
       }),
     )
   })

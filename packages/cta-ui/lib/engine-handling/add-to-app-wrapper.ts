@@ -24,6 +24,7 @@ export async function addToAppWrapper(
   opts: {
     dryRun?: boolean
     response?: Response
+    environmentFactory?: () => Environment
   },
 ) {
   const projectPath = getProjectPath()
@@ -66,7 +67,7 @@ export async function addToAppWrapper(
       return { environment, output }
     }
     return {
-      environment: createDefaultEnvironment(),
+      environment: opts.environmentFactory?.() ?? createDefaultEnvironment(),
       output: { files: {}, deletedFiles: [], commands: [] },
     }
   }
