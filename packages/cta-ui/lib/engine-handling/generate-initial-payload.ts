@@ -4,6 +4,8 @@ import {
   createSerializedOptionsFromPersisted,
   getAllAddOns,
   getFrameworkById,
+  getRawRegistry,
+  getRegistryAddOns,
   readConfigFile,
   recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
@@ -17,18 +19,24 @@ import {
   getForcedRouterMode,
   getProjectOptions,
   getProjectPath,
-  getRegistry,
+  getRegistry as getRegistryURL,
 } from './server-environment.js'
 
-import type { SerializedOptions } from '@tanstack/cta-engine'
-import type { Registry } from '../types.js'
+import type { AddOn, SerializedOptions } from '@tanstack/cta-engine'
+import type { AddOnInfo } from '../types.js'
 
-function absolutizeUrl(originalUrl: string, relativeUrl: string) {
-  if (relativeUrl.startsWith('http') || relativeUrl.startsWith('https')) {
-    return relativeUrl
+function convertAddOnToAddOnInfo(addOn: AddOn): AddOnInfo {
+  return {
+    id: addOn.id,
+    name: addOn.name,
+    description: addOn.description,
+    modes: addOn.modes as Array<'code-router' | 'file-router'>,
+    type: addOn.type,
+    smallLogo: addOn.smallLogo,
+    logo: addOn.logo,
+    link: addOn.link!,
+    dependsOn: addOn.dependsOn,
   }
-  const baseUrl = originalUrl.replace(/registry.json$/, '')
-  return `${baseUrl}${relativeUrl.replace(/^\.\//, '')}`
 }
 
 export async function generateInitialPayload() {
@@ -68,20 +76,8 @@ export async function generateInitialPayload() {
     }
   }
 
-  const registryUrl = getRegistry()
-  let registry: Registry | undefined
-  if (registryUrl) {
-    registry = (await fetch(registryUrl).then((res) => res.json())) as Registry
-    for (const addOn of registry['add-ons']) {
-      addOn.url = absolutizeUrl(registryUrl, addOn.url)
-    }
-    for (const starter of registry.starters) {
-      starter.url = absolutizeUrl(registryUrl, starter.url)
-      if (starter.banner) {
-        starter.banner = absolutizeUrl(registryUrl, starter.banner)
-      }
-    }
-  }
+  const rawRegistry = await getRawRegistry(getRegistryURL())
+  const registryAddOns = await getRegistryAddOns(getRegistryURL())
 
   const serializedOptions = await getSerializedOptions()
 
@@ -91,39 +87,46 @@ export async function generateInitialPayload() {
 
   const framework = await getFrameworkById(serializedOptions.framework)
 
-  const codeRouter = getAllAddOns(framework!, 'code-router').map((addOn) => ({
-    id: addOn.id,
-    name: addOn.name,
-    description: addOn.description,
-    type: addOn.type,
-    smallLogo: addOn.smallLogo,
-    logo: addOn.logo,
-    link: addOn.link,
-    dependsOn: addOn.dependsOn,
-  }))
+  const codeRouterAddOns = getAllAddOns(framework!, 'code-router').map(
+    convertAddOnToAddOnInfo,
+  )
 
-  const fileRouter = getAllAddOns(framework!, 'file-router').map((addOn) => ({
-    id: addOn.id,
-    name: addOn.name,
-    description: addOn.description,
-    type: addOn.type,
-    smallLogo: addOn.smallLogo,
-    logo: addOn.logo,
-    link: addOn.link,
-    dependsOn: addOn.dependsOn,
-  }))
+  const fileRouterAddOns = getAllAddOns(framework!, 'file-router').map(
+    convertAddOnToAddOnInfo,
+  )
+
+  for (const addOnInfo of registryAddOns || []) {
+    const addOnFramework = rawRegistry?.['add-ons'].find(
+      (addOn) => addOn.url === addOnInfo.id,
+    )
+    if (addOnFramework?.framework === serializedOptions.framework) {
+      if (addOnInfo.modes.includes('code-router')) {
+        codeRouterAddOns.push(convertAddOnToAddOnInfo(addOnInfo))
+      }
+      if (addOnInfo.modes.includes('file-router')) {
+        fileRouterAddOns.push(convertAddOnToAddOnInfo(addOnInfo))
+      }
+    }
+  }
+
+  const serializedRegistry = {
+    ['add-ons']: [],
+    starters: (rawRegistry?.starters || []).filter(
+      (starter) => starter.framework === serializedOptions.framework,
+    ),
+  }
 
   return {
     applicationMode,
     localFiles,
     addOns: {
-      'code-router': codeRouter,
-      'file-router': fileRouter,
+      'code-router': codeRouterAddOns,
+      'file-router': fileRouterAddOns,
     },
     options: serializedOptions,
     output,
     forcedRouterMode,
     forcedAddOns: getForcedAddOns(),
-    registry,
+    registry: serializedRegistry,
   }
 }

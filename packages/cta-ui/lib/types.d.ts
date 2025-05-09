@@ -1,17 +1,3 @@
-export type Registry = {
-  starters: Array<{
-    name: string
-    description: string
-    url: string
-    banner?: string
-  }>
-  'add-ons': Array<{
-    name: string
-    description: string
-    url: string
-  }>
-}
-
 export type DryRunOutput = {
   files: Record<string, string>
   commands: Array<{
@@ -19,4 +5,16 @@ export type DryRunOutput = {
     args: Array<string>
   }>
   deletedFiles: Array<string>
+}
+
+export type AddOnInfo = {
+  id: string
+  name: string
+  description: string
+  type: 'add-on' | 'example' | 'starter' | 'toolchain'
+  modes: Array<'code-router' | 'file-router'>
+  smallLogo?: string
+  logo?: string
+  link: string
+  dependsOn?: Array<string>
 }

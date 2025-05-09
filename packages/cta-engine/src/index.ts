@@ -53,6 +53,13 @@ export {
 export { createSerializedOptions } from './options.js'
 
 export {
+  getRawRegistry,
+  getRegistry,
+  getRegistryAddOns,
+  getRegistryStarters,
+} from './registry.js'
+
+export {
   StarterCompiledSchema,
   StatusEvent,
   StatusStepType,

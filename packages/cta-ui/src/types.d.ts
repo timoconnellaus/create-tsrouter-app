@@ -80,7 +80,7 @@ export type InitialData = {
   applicationMode: ApplicationMode
   forcedRouterMode?: Mode
   forcedAddOns?: Array<string>
-  registry: Registry | undefined
+  registry?: Registry | undefined
 }
 
 export type EventItem = {

@@ -1,16 +1,14 @@
 {
-  "id": "mui-add-on-add-on",
-  "name": "mui-add-on-add-on",
+  "id": "mui-add-on",
+  "name": "MUI",
   "version": "0.0.1",
-  "description": "Add-on",
+  "description": "Material UI components",
   "author": "Jane Smith <jane.smith@example.com>",
   "license": "MIT",
   "link": "https://github.com/jane-smith/mui-add-on-add-on",
   "shadcnComponents": [],
   "framework": "react-cra",
-  "modes": [
-    "file-router"
-  ],
+  "modes": ["file-router"],
   "routes": [
     {
       "url": "/demo/mui",

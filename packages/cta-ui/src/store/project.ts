@@ -156,7 +156,7 @@ export function useAddOns() {
 
   const toggleAddOn = useCallback(
     (addOnId: string) => {
-      if (addOnState[addOnId] && addOnState[addOnId].enabled) {
+      if (addOnState[addOnId].enabled) {
         if (addOnState[addOnId].selected) {
           useMutableAddOns.setState((state) => ({
             userSelectedAddOns: state.userSelectedAddOns.filter(
@@ -328,6 +328,11 @@ export function setProjectStarter(starter: StarterInfo | undefined) {
   useProjectStarter.setState(() => ({
     projectStarter: starter,
   }))
+  if (starter) {
+    useProjectOptions.setState({
+      mode: starter.mode,
+    })
+  }
 }
 
 export function useManager() {

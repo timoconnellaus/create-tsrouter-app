@@ -24,7 +24,7 @@ export default function StartupDialog() {
   const registry = useRegistry()
   const { open, setOpen, dontShowAgain, setDontShowAgain } = useStartupDialog()
 
-  if (mode !== 'setup' || !registry) {
+  if (mode !== 'setup' || !registry || registry?.starters?.length === 0) {
     return null
   }
 
@@ -49,11 +49,9 @@ export default function StartupDialog() {
             Would you like to use a starter project?
           </DialogTitle>
         </DialogHeader>
-        {registry?.starters && (
-          <div>
-            <StartersCarousel onImport={onImport} />
-          </div>
-        )}
+        <div>
+          <StartersCarousel onImport={onImport} />
+        </div>
         <DialogFooter className="flex sm:justify-between w-full">
           <div className="flex items-center gap-2">
             <Switch

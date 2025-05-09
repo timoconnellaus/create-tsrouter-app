@@ -2,7 +2,7 @@
   "id": "legend-state-add-on-add-on",
   "name": "Legend State",
   "version": "0.0.1",
-  "description": "Add-on",
+  "description": "Legend State management for React",
   "author": "Jane Smith <jane.smith@example.com>",
   "license": "MIT",
   "link": "https://github.com/jane-smith/legend-state-add-on-add-on",
