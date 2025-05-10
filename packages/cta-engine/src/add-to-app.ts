@@ -272,5 +272,5 @@ export async function addToApp(
   writeConfigFileToEnvironment(environment, newOptions)
   environment.finishStep('write-config-file', 'Config file written')
 
-  environment.outro('Add-ons added successfully!')
+  environment.outro(`Add-ons ${addOns.join(', ')} added!`)
 }
