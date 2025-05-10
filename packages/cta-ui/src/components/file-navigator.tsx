@@ -7,7 +7,7 @@ import FileTree from './file-tree'
 import type { FileTreeItem } from '@/types'
 
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 
 import {
   useApplicationMode,
@@ -24,64 +24,62 @@ export function Filters() {
   const { includedFiles, toggleFilter } = useFilters()
 
   return (
-    <div className="p-2 rounded-md bg-gray-900 file-filters">
-      <div className="text-center text-sm mb-2">File Filters</div>
-      <div className="flex flex-row flex-wrap gap-y-2">
-        <div className="flex flex-row items-center gap-2 w-1/3">
-          <Checkbox
-            id="unchanged"
-            checked={includedFiles.includes('unchanged')}
-            className="w-4 h-4"
-            onCheckedChange={() => toggleFilter('unchanged')}
-          />
-          <Label htmlFor="unchanged" className={twClasses.unchanged}>
-            Unchanged
-          </Label>
-        </div>
-        <div className="flex flex-row items-center gap-2 w-1/3">
-          <Checkbox
-            id="added"
-            checked={includedFiles.includes('added')}
-            className="w-4 h-4"
-            onCheckedChange={() => toggleFilter('added')}
-          />
-          <Label htmlFor="added" className={twClasses.added}>
-            Added
-          </Label>
-        </div>
-        <div className="flex flex-row items-center gap-2 w-1/3">
-          <Checkbox
-            id="modified"
-            checked={includedFiles.includes('modified')}
-            className="w-4 h-4"
-            onCheckedChange={() => toggleFilter('modified')}
-          />
-          <Label htmlFor="modified" className={twClasses.modified}>
-            Modified
-          </Label>
-        </div>
-        <div className="flex flex-row items-center gap-2 w-1/3">
-          <Checkbox
-            id="deleted"
-            checked={includedFiles.includes('deleted')}
-            className="w-4 h-4"
-            onCheckedChange={() => toggleFilter('deleted')}
-          />
-          <Label htmlFor="deleted" className={twClasses.deleted}>
-            Deleted
-          </Label>
-        </div>
-        <div className="flex flex-row items-center gap-2 w-1/3">
-          <Checkbox
-            id="overwritten"
-            checked={includedFiles.includes('overwritten')}
-            className="w-4 h-4"
-            onCheckedChange={() => toggleFilter('overwritten')}
-          />
-          <Label htmlFor="overwritten" className={twClasses.overwritten}>
-            Overwritten
-          </Label>
-        </div>
+    <div className="bg-white dark:bg-black/40 shadow-xl p-4 rounded-lg flex flex-row items-center gap-4 mb-2">
+      <h3 className="font-medium whitespace-nowrap">File Filters</h3>
+      <div className="flex flex-row items-center">
+        <Switch
+          id="unchanged"
+          checked={includedFiles.includes('unchanged')}
+          onCheckedChange={() => toggleFilter('unchanged')}
+          className="mr-2"
+        />
+        <Label htmlFor="unchanged" className={twClasses.unchanged}>
+          Unchanged
+        </Label>
+      </div>
+      <div className="flex flex-row items-center">
+        <Switch
+          id="added"
+          checked={includedFiles.includes('added')}
+          onCheckedChange={() => toggleFilter('added')}
+          className="mr-2"
+        />
+        <Label htmlFor="added" className={twClasses.added}>
+          Added
+        </Label>
+      </div>
+      <div className="flex flex-row items-center">
+        <Switch
+          id="modified"
+          checked={includedFiles.includes('modified')}
+          onCheckedChange={() => toggleFilter('modified')}
+          className="mr-2"
+        />
+        <Label htmlFor="modified" className={twClasses.modified}>
+          Modified
+        </Label>
+      </div>
+      <div className="flex flex-row items-center">
+        <Switch
+          id="deleted"
+          checked={includedFiles.includes('deleted')}
+          onCheckedChange={() => toggleFilter('deleted')}
+          className="mr-2"
+        />
+        <Label htmlFor="deleted" className={twClasses.deleted}>
+          Deleted
+        </Label>
+      </div>
+      <div className="flex flex-row items-center">
+        <Switch
+          id="overwritten"
+          checked={includedFiles.includes('overwritten')}
+          onCheckedChange={() => toggleFilter('overwritten')}
+          className="mr-2"
+        />
+        <Label htmlFor="overwritten" className={twClasses.overwritten}>
+          Overwritten
+        </Label>
       </div>
     </div>
   )
@@ -184,19 +182,21 @@ export default function FileNavigator() {
   }
 
   return (
-    <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex">
-      <div className="w-1/4 max-w-1/4 bg-gray-500/10 rounded-l-lg">
-        {mode === 'add' && <Filters />}
-        <FileTree selectedFile={selectedFile} tree={fileTree} />
-      </div>
-      <div className="max-w-3/4 w-3/4">
-        {selectedFile && modifiedFileContents ? (
-          <FileViewer
-            filePath={selectedFile}
-            originalFile={originalFileContents}
-            modifiedFile={modifiedFileContents}
-          />
-        ) : null}
+    <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4">
+      {mode === 'add' && <Filters />}
+      <div className="flex flex-row">
+        <div className="w-1/4 max-w-1/4 bg-gray-500/10 rounded-l-lg">
+          <FileTree selectedFile={selectedFile} tree={fileTree} />
+        </div>
+        <div className="max-w-3/4 w-3/4">
+          {selectedFile && modifiedFileContents ? (
+            <FileViewer
+              filePath={selectedFile}
+              originalFile={originalFileContents}
+              modifiedFile={modifiedFileContents}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   )

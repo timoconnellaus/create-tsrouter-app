@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 
 import {
+  CONFIG_FILE,
   addToApp,
   createAppOptionsFromPersisted,
   createDefaultEnvironment,
@@ -116,6 +117,10 @@ export async function addToAppWrapper(
     opts.response.end()
   } else {
     environment.startRun()
+    environment.writeFile(
+      resolve(projectPath, CONFIG_FILE),
+      JSON.stringify(persistedOptions, null, 2),
+    )
     await addToApp(environment, newAddons, projectPath, {
       forced: true,
     })
