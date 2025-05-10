@@ -15,20 +15,15 @@ function Content() {
   useManager()
 
   return (
-    <main>
+    <main className="min-w-[1280px]">
       <BackgroundAnimation />
-      <div
-        className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4"
-        style={{
-          background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-        }}
-      >
+      <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4 @container">
         <AppHeader />
         <div className="flex flex-row">
-          <div className="w-full sm:w-1/3 lg:w-1/4 pr-1 sm:pr-2">
+          <div className="w-1/2 @7xl:w-1/4 pr-1">
             <AppSidebar />
           </div>
-          <div className="w-full sm:w-2/3 lg:w-3/4 pl-1 sm:pl-2">
+          <div className="w-1/2 @7xl:w-3/4 pl-1">
             <FileNavigator />
           </div>
         </div>

@@ -20,13 +20,13 @@ export function AppSidebar() {
         <>
           {mode === 'setup' && (
             <div className="bg-white dark:bg-black/40 shadow-xl p-4 space-y-2 rounded-lg">
-              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active">
+              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active @container">
                 <ProjectName />
               </div>
-              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active">
+              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active @container">
                 <ModeSelector />
               </div>
-              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active">
+              <div className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active @container">
                 <TypescriptSwitch />
               </div>
             </div>

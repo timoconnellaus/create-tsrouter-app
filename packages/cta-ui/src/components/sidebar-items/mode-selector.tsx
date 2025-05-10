@@ -21,7 +21,7 @@ export default function ModeSelector() {
   }
 
   return (
-    <div className="flex flex-row gap-2 items-center">
+    <div className="flex flex-col @md:flex-row @md:items-center gap-2 items-start">
       <h3 className="font-medium whitespace-nowrap">Router Mode</h3>
       <div className="flex flex-row justify-center items-center">
         <ToggleGroup
