@@ -39,11 +39,10 @@ export async function createAppWrapper(
   const addOns: Array<string> = [...projectOptions.chosenAddOns]
   if (projectOptions.starter) {
     starter = await loadStarter(projectOptions.starter)
-    if (starter) {
+    if (starter)
       for (const addOn of starter.dependsOn ?? []) {
         addOns.push(addOn)
       }
-    }
   }
   const chosenAddOns = await finalizeAddOns(
     framework,

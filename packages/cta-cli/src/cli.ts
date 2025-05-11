@@ -109,7 +109,7 @@ export function cli({
         launchUI({
           mode: 'add',
           addOns: parsedAddOns,
-          projectPath: process.cwd(),
+          projectPath: resolve(process.cwd()),
           forcedRouterMode: forcedMode,
           forcedAddOns,
           environmentFactory: () => createUIEnvironment(appName, false),
@@ -117,12 +117,12 @@ export function cli({
       } else if (parsedAddOns.length < 1) {
         const addOns = await promptForAddOns()
         if (addOns.length) {
-          await addToApp(environment, addOns, process.cwd(), {
+          await addToApp(environment, addOns, resolve(process.cwd()), {
             forced: program.opts().forced,
           })
         }
       } else {
-        await addToApp(environment, parsedAddOns, process.cwd(), {
+        await addToApp(environment, parsedAddOns, resolve(process.cwd()), {
           forced: program.opts().forced,
         })
       }

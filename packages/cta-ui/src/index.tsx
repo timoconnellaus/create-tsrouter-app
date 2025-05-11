@@ -20,10 +20,10 @@ function Content() {
       <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4 @container">
         <AppHeader />
         <div className="flex flex-row">
-          <div className="w-1/3 @8xl:w-1/4 pr-1">
+          <div className="w-1/3 @8xl:w-1/4 pr-2">
             <AppSidebar />
           </div>
-          <div className="w-2/3 @8xl:w-3/4 pl-1">
+          <div className="w-2/3 @8xl:w-3/4 pl-2">
             <FileNavigator />
           </div>
         </div>
