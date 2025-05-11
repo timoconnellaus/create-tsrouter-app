@@ -6,6 +6,7 @@ settings:
 
 overrides:
   create-start-app: workspace:*
+  create-tanstack-app: workspace:*
   create-tanstack: workspace:*
   create-tsrouter-app: workspace:*
   '@tanstack/cta-cli': workspace:*
@@ -61,6 +62,25 @@ importers:
         version: 5.8.3
 
   cli/create-tanstack:
+    dependencies:
+      '@tanstack/cta-cli':
+        specifier: workspace:*
+        version: link:../../packages/cta-cli
+      '@tanstack/cta-framework-react-cra':
+        specifier: workspace:*
+        version: link:../../frameworks/react-cra
+      '@tanstack/cta-framework-solid':
+        specifier: workspace:*
+        version: link:../../frameworks/solid
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.15.3
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
+  cli/create-tanstack-app:
     dependencies:
       '@tanstack/cta-cli':
         specifier: workspace:*
