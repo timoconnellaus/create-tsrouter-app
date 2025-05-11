@@ -17,10 +17,6 @@ await publish({
       packageDir: './cli/create-start-app',
     },
     {
-      name: 'create-tanstack-app',
-      packageDir: './cli/create-tanstack-app',
-    },
-    {
       name: 'create-tanstack',
       packageDir: './cli/create-tanstack',
     },
