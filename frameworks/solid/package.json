@@ -1,6 +1,6 @@
 {
   "name": "@tanstack/cta-framework-solid",
-  "version": "0.10.0-alpha.30",
+  "version": "0.10.0-alpha.31",
   "description": "CTA Framework for Solid",
   "type": "module",
   "main": "./dist/index.js",
