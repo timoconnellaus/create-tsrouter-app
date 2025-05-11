@@ -7,6 +7,7 @@ import chalk from 'chalk'
 import {
   AddOnCompiledSchema,
   StarterCompiledSchema,
+  handleSpecialURL,
 } from '@tanstack/cta-engine'
 
 import { addToAppWrapper } from './engine-handling/add-to-app-wrapper.js'
@@ -81,14 +82,15 @@ export function launchUI(
       return
     }
     try {
-      const response = await fetch(url as string)
+      const fixedUrl = handleSpecialURL(url as string)
+      const response = await fetch(fixedUrl)
       const data = await response.json()
       const parsed = AddOnCompiledSchema.safeParse(data)
       if (!parsed.success) {
         res.status(400).json({ error: 'Invalid add-on data' })
       } else {
         res.json({
-          id: url,
+          id: fixedUrl,
           name: parsed.data.name,
           description: parsed.data.description,
           version: parsed.data.version,
@@ -113,14 +115,15 @@ export function launchUI(
       return
     }
     try {
-      const response = await fetch(url as string)
+      const fixedUrl = handleSpecialURL(url as string)
+      const response = await fetch(fixedUrl)
       const data = await response.json()
       const parsed = StarterCompiledSchema.safeParse(data)
       if (!parsed.success) {
         res.status(400).json({ error: 'Invalid starter data' })
       } else {
         res.json({
-          url,
+          url: fixedUrl,
           id: parsed.data.id,
           name: parsed.data.name,
           description: parsed.data.description,
@@ -132,7 +135,7 @@ export function launchUI(
           typescript: parsed.data.typescript,
           tailwind: parsed.data.tailwind,
           banner: parsed.data.banner
-            ? (url as string).replace('starter.json', parsed.data.banner)
+            ? fixedUrl.replace('starter.json', parsed.data.banner)
             : undefined,
         })
       }

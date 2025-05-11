@@ -25,3 +25,18 @@ export function formatCommand({
 }) {
   return `${command} ${args.join(' ')}`.trim()
 }
+
+// Turn GitHub URLs into raw URLs
+export function handleSpecialURL(url: string) {
+  if (url.startsWith('https://github.com/') && url.includes('blob')) {
+    return url
+      .replace('https://github.com/', 'https://raw.githubusercontent.com/')
+      .replace('/blob/', '/refs/heads/')
+  }
+  if (url.startsWith('https://github.com/') && url.includes('tree')) {
+    return url
+      .replace('https://github.com/', 'https://raw.githubusercontent.com/')
+      .replace('/tree/', '/refs/heads/')
+  }
+  return url
+}

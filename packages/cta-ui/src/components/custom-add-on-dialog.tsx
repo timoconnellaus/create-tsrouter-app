@@ -51,7 +51,7 @@ export default function CustomAddOnDialog() {
         <TicketPlusIcon className="w-4 h-4" />
         Import Custom Add-On
       </Button>
-      <Dialog modal open={open}>
+      <Dialog modal open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:min-w-[425px] sm:max-w-fit">
           <DialogHeader>
             <DialogTitle>Import Custom Add-On</DialogTitle>

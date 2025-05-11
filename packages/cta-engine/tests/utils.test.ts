@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatCommand, jsSafeName, sortObject } from '../src/utils.js'
+import {
+  formatCommand,
+  handleSpecialURL,
+  jsSafeName,
+  sortObject,
+} from '../src/utils.js'
 
 describe('formatCommand', () => {
   it('should format a command', () => {
@@ -19,5 +24,25 @@ describe('jsSafeName', () => {
 describe('sortObject', () => {
   it('should sort an object', () => {
     expect(sortObject({ b: 'b', a: 'a' })).toEqual({ a: 'a', b: 'b' })
+  })
+})
+
+describe('handleSpecialURL', () => {
+  it('should handle special URLs', () => {
+    expect(
+      handleSpecialURL(
+        'https://github.com/TanStack/create-tsrouter-app/blob/main/examples/react-cra/registry.json',
+      ),
+    ).toEqual(
+      'https://raw.githubusercontent.com/TanStack/create-tsrouter-app/refs/heads/main/examples/react-cra/registry.json',
+    )
+
+    expect(
+      handleSpecialURL(
+        'https://github.com/TanStack/create-tsrouter-app/tree/alpha/packages/cta-cli/tsconfig.json',
+      ),
+    ).toEqual(
+      'https://raw.githubusercontent.com/TanStack/create-tsrouter-app/refs/heads/alpha/packages/cta-cli/tsconfig.json',
+    )
   })
 })

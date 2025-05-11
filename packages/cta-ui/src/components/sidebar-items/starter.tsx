@@ -96,7 +96,7 @@ export default function Starter() {
             </DialogHeader>
             {registry?.starters && (
               <div>
-                <StartersCarousel onImport={onImport} />
+                <StartersCarousel onImport={(url) => onImport(url)} />
               </div>
             )}
             <div>
@@ -113,7 +113,7 @@ export default function Starter() {
               />
             </div>
             <DialogFooter>
-              <Button onClick={onImport}>Load</Button>
+              <Button onClick={() => onImport()}>Load</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { loadRemoteAddOn } from './custom-add-ons/add-on.js'
 import { loadStarter } from './custom-add-ons/starter.js'
+import { handleSpecialURL } from './utils.js'
 
 import type { AddOn, Starter } from './types'
 
@@ -45,15 +46,16 @@ export async function getRawRegistry(
 ): Promise<Registry | undefined> {
   const regUrl = registryUrl || process.env.CTA_REGISTRY
   if (regUrl) {
-    const registry = (await fetch(regUrl).then((res) => res.json())) as Registry
+    const url = handleSpecialURL(regUrl)
+    const registry = (await fetch(url).then((res) => res.json())) as Registry
     const parsedRegistry = registrySchema.parse(registry)
     for (const addOn of parsedRegistry['add-ons'] || []) {
-      addOn.url = absolutizeUrl(regUrl, addOn.url)
+      addOn.url = absolutizeUrl(url, addOn.url)
     }
     for (const starter of parsedRegistry.starters || []) {
-      starter.url = absolutizeUrl(regUrl, starter.url)
+      starter.url = absolutizeUrl(url, starter.url)
       if (starter.banner) {
-        starter.banner = absolutizeUrl(regUrl, starter.banner)
+        starter.banner = absolutizeUrl(url, starter.banner)
       }
     }
     return parsedRegistry

@@ -41,7 +41,7 @@ export {
   relativePath,
 } from './file-helpers.js'
 
-export { formatCommand } from './utils.js'
+export { formatCommand, handleSpecialURL } from './utils.js'
 
 export { initStarter, compileStarter } from './custom-add-ons/starter.js'
 export { initAddOn, compileAddOn } from './custom-add-ons/add-on.js'
