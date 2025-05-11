@@ -1,0 +1,9 @@
+{
+  "name": "tRPC",
+  "description": "Integrate tRPC into your application.",
+  "phase": "add-on",
+  "modes": ["file-router"],
+  "link": "https://trpc.io/",
+  "dependsOn": ["tanstack-query", "start"],
+  "type": "add-on"
+}

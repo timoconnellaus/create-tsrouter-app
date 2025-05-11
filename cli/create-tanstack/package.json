@@ -1,6 +1,6 @@
 {
   "name": "create-tanstack",
-  "version": "0.10.0-alpha.25",
+  "version": "0.10.0-alpha.31",
   "description": "Tanstack Application Builder",
   "bin": "./dist/index.js",
   "type": "module",
@@ -28,7 +28,9 @@
   "license": "MIT",
   "packageManager": "pnpm@9.15.5",
   "dependencies": {
-    "@tanstack/cta-engine": "workspace:*"
+    "@tanstack/cta-cli": "workspace:*",
+    "@tanstack/cta-framework-react-cra": "workspace:*",
+    "@tanstack/cta-framework-solid": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

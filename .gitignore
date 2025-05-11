@@ -5,8 +5,14 @@ my-app
 .DS_Store
 **/node_modules
 **/dist
-
+.vinxi
+**/lib-dist
+**/api-server-dist
 .vscode
 
 .nx/cache
 .nx/workspace-data
+
+.content-collections
+
+coverage

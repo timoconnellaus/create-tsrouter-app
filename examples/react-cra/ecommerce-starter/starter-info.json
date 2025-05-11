@@ -1,0 +1,20 @@
+{
+  "id": "my-commerce-app-starter",
+  "name": "my-commerce-app-starter",
+  "version": "0.0.1",
+  "description": "Project starter",
+  "author": "Jane Smith <jane.smith@example.com>",
+  "license": "MIT",
+  "link": "https://github.com/jane-smith/my-commerce-app-starter",
+  "shadcnComponents": [],
+  "framework": "react-cra",
+  "mode": "file-router",
+  "routes": [],
+  "warning": "",
+  "type": "starter",
+  "packageAdditions": {},
+  "dependsOn": ["tanchat", "start", "store"],
+  "typescript": true,
+  "tailwind": true,
+  "banner": ".starter/banner.png"
+}

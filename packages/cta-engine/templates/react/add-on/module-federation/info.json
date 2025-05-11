@@ -1,7 +1,0 @@
-{
-  "name": "Module Federation",
-  "description": "Module Federation",
-  "phase": "add-on",
-  "templates": ["code-router"],
-  "link": "https://module-federation.io/"
-}

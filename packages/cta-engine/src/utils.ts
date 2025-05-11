@@ -8,3 +8,20 @@ export function sortObject(
       return acc
     }, {})
 }
+
+export function jsSafeName(name: string) {
+  return name
+    .split(/[^a-zA-Z0-9]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+}
+
+export function formatCommand({
+  command,
+  args,
+}: {
+  command: string
+  args: Array<string>
+}) {
+  return `${command} ${args.join(' ')}`.trim()
+}

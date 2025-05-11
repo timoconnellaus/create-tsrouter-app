@@ -1,45 +1,76 @@
-import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 import { CONFIG_FILE } from './constants.js'
+import { createDefaultEnvironment } from './environment.js'
 
-import type { Environment, Options } from './types'
+import type { Environment, Options } from './types.js'
 
-export type PersistedOptions = Exclude<
+export type PersistedOptions = Omit<
   Partial<Options>,
-  'addOns' | 'chosenAddOns'
+  'addOns' | 'chosenAddOns' | 'framework' | 'starter' | 'targetDir'
 > & {
+  framework: string
   version: number
-  existingAddOns: Array<string>
+  chosenAddOns: Array<string>
+  starter?: string
 }
 
-export async function writeConfigFile(
+function createPersistedOptions(options: Options): PersistedOptions {
+  /* eslint-disable unused-imports/no-unused-vars */
+  const { chosenAddOns, framework, targetDir, ...rest } = options
+  /* eslint-enable unused-imports/no-unused-vars */
+  return {
+    ...rest,
+    version: 1,
+    framework: options.framework.id,
+    chosenAddOns: options.chosenAddOns.map((addOn) => addOn.id),
+    starter: options.starter?.id ?? undefined,
+  }
+}
+
+export async function writeConfigFileToEnvironment(
   environment: Environment,
-  targetDir: string,
   options: Options,
 ) {
-  const persistedOptions: PersistedOptions = {
-    ...options,
-    version: 1,
-    existingAddOns: options.chosenAddOns.map((addOn) => addOn.id),
-  }
-  delete persistedOptions.addOns
-  delete persistedOptions.chosenAddOns
-
   await environment.writeFile(
-    resolve(targetDir, CONFIG_FILE),
-    JSON.stringify(persistedOptions, null, 2),
+    resolve(options.targetDir, CONFIG_FILE),
+    JSON.stringify(createPersistedOptions(options), null, 2),
   )
+}
+
+export async function readConfigFileFromEnvironment(
+  environment: Environment,
+  targetDir: string,
+): Promise<PersistedOptions | null> {
+  try {
+    const configFile = resolve(targetDir, CONFIG_FILE)
+    const config = await environment.readFile(configFile)
+
+    const originalJSON = JSON.parse(config)
+
+    // Look for markers out outdated config files and upgrade the format on the fly (it will be written in the updated version after we add add-ons)
+    if (originalJSON.existingAddOns) {
+      if (originalJSON.framework === 'react') {
+        originalJSON.framework = 'react-cra'
+      }
+      originalJSON.chosenAddOns = originalJSON.existingAddOns
+      delete originalJSON.existingAddOns
+      delete originalJSON.addOns
+      if (originalJSON.toolchain && originalJSON.toolchain !== 'none') {
+        originalJSON.chosenAddOns.push(originalJSON.toolchain)
+      }
+      delete originalJSON.toolchain
+      delete originalJSON.variableValues
+    }
+
+    return originalJSON
+  } catch {
+    return null
+  }
 }
 
 export async function readConfigFile(
   targetDir: string,
 ): Promise<PersistedOptions | null> {
-  try {
-    const configFile = resolve(targetDir, CONFIG_FILE)
-    const config = await readFile(configFile, 'utf8')
-    return JSON.parse(config)
-  } catch {
-    return null
-  }
+  return readConfigFileFromEnvironment(createDefaultEnvironment(), targetDir)
 }

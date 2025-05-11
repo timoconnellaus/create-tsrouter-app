@@ -1,124 +1,212 @@
+import z from 'zod'
+
 import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
-import type { ToolChain } from './toolchain.js'
-
-export type Framework = 'solid' | 'react'
-
-export type TemplateOptions = 'typescript' | 'javascript' | 'file-router'
 
 export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
-export interface Options {
-  framework: Framework
-  projectName: string
-  typescript: boolean
-  tailwind: boolean
-  packageManager: PackageManager
-  toolchain: ToolChain
-  mode: Mode
-  addOns: boolean
-  chosenAddOns: Array<AddOn>
-  git: boolean
-  variableValues: Record<string, string | number | boolean>
-  overlay?: AddOn | undefined
+export type StatusStepType =
+  | 'file'
+  | 'command'
+  | 'info'
+  | 'package-manager'
+  | 'other'
+
+export const AddOnBaseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  author: z.string().optional(),
+  version: z.string().optional(),
+  link: z.string().optional(),
+  license: z.string().optional(),
+  warning: z.string().optional(),
+  type: z.enum(['add-on', 'example', 'starter', 'toolchain']),
+  command: z
+    .object({
+      command: z.string(),
+      args: z.array(z.string()).optional(),
+    })
+    .optional(),
+  routes: z
+    .array(
+      z.object({
+        url: z.string().optional(),
+        name: z.string().optional(),
+        path: z.string(),
+        jsName: z.string(),
+      }),
+    )
+    .optional(),
+  packageAdditions: z
+    .object({
+      dependencies: z.record(z.string(), z.string()).optional(),
+      devDependencies: z.record(z.string(), z.string()).optional(),
+      scripts: z.record(z.string(), z.string()).optional(),
+    })
+    .optional(),
+  shadcnComponents: z.array(z.string()).optional(),
+  dependsOn: z.array(z.string()).optional(),
+  smallLogo: z.string().optional(),
+  logo: z.string().optional(),
+  addOnSpecialSteps: z.array(z.string()).optional(),
+  createSpecialSteps: z.array(z.string()).optional(),
+})
+
+export const StarterSchema = AddOnBaseSchema.extend({
+  framework: z.string(),
+  mode: z.string(),
+  typescript: z.boolean(),
+  tailwind: z.boolean(),
+  banner: z.string().optional(),
+})
+
+export const StarterCompiledSchema = StarterSchema.extend({
+  files: z.record(z.string(), z.string()),
+  deletedFiles: z.array(z.string()),
+})
+
+export const IntegrationSchema = z.object({
+  type: z.string(),
+  path: z.string(),
+  jsName: z.string(),
+})
+
+export const AddOnInfoSchema = AddOnBaseSchema.extend({
+  modes: z.array(z.string()),
+  integrations: z.array(IntegrationSchema).optional(),
+  phase: z.enum(['setup', 'add-on']),
+  readme: z.string().optional(),
+})
+
+export const AddOnCompiledSchema = AddOnInfoSchema.extend({
+  files: z.record(z.string(), z.string()),
+  deletedFiles: z.array(z.string()),
+})
+
+export type Integration = z.infer<typeof IntegrationSchema>
+
+export type AddOnBase = z.infer<typeof AddOnBaseSchema>
+
+export type StarterInfo = z.infer<typeof StarterSchema>
+
+export type StarterCompiled = z.infer<typeof StarterCompiledSchema>
+
+export type AddOnInfo = z.infer<typeof AddOnInfoSchema>
+
+export type AddOnCompiled = z.infer<typeof AddOnCompiledSchema>
+
+export type FileBundleHandler = {
+  getFiles: () => Promise<Array<string>>
+  getFileContents: (path: string) => Promise<string>
+  getDeletedFiles: () => Promise<Array<string>>
 }
 
-export interface CliOptions {
-  template?: TemplateOptions
-  framework?: Framework
-  tailwind?: boolean
-  packageManager?: PackageManager
-  toolchain?: ToolChain
-  projectName?: string
-  git?: boolean
-  addOns?: Array<string> | boolean
-  listAddOns?: boolean
-  mcp?: boolean
-  mcpSse?: boolean
-  overlay?: string
-  targetDir?: string
-  interactive?: boolean
-}
+export type AddOn = AddOnInfo & FileBundleHandler
 
-export type Environment = {
-  startRun: () => void
-  finishRun: () => void
-  getErrors: () => Array<string>
+export type Starter = StarterCompiled & FileBundleHandler
 
-  appendFile: (path: string, contents: string) => Promise<void>
-  copyFile: (from: string, to: string) => Promise<void>
-  writeFile: (path: string, contents: string) => Promise<void>
-  execute: (command: string, args: Array<string>, cwd: string) => Promise<void>
-  deleteFile: (path: string) => Promise<void>
-
-  readFile: (path: string, encoding?: BufferEncoding) => Promise<string>
-  exists: (path: string) => boolean
-  readdir: (path: string) => Array<string>
-  isDirectory: (path: string) => boolean
-}
-
-type BooleanVariable = {
-  name: string
-  default: boolean
-  description: string
-  type: 'boolean'
-}
-
-type NumberVariable = {
-  name: string
-  default: number
-  description: string
-  type: 'number'
-}
-
-type StringVariable = {
-  name: string
-  default: string
-  description: string
-  type: 'string'
-}
-
-export type Variable = BooleanVariable | NumberVariable | StringVariable
-
-export type AddOn = {
+export type FrameworkDefinition = {
   id: string
   name: string
   description: string
-  type: 'add-on' | 'example' | 'overlay'
-  link: string
-  templates: Array<string>
-  routes: Array<{
-    url: string
-    name: string
-  }>
-  packageAdditions: {
-    dependencies?: Record<string, string>
-    devDependencies?: Record<string, string>
-    scripts?: Record<string, string>
-  }
-  command?: {
-    command: string
-    args?: Array<string>
-  }
-  readme?: string
-  phase: 'setup' | 'add-on'
-  shadcnComponents?: Array<string>
-  warning?: string
-  dependsOn?: Array<string>
-  variables?: Array<Variable>
+  version: string
 
-  files?: Record<string, string>
-  deletedFiles?: Array<string>
+  baseDirectory: string
+  addOnsDirectories: Array<string>
+  examplesDirectory: string
 }
 
-export type Overlay = AddOn & {
-  type: 'overlay'
-  version: string
-  author: string
-  link: string
-  license: string
-  mode: Mode
+export type Framework = FrameworkDefinition &
+  FileBundleHandler & {
+    basePackageJSON: Record<string, any>
+    optionalPackages: Record<string, any>
+
+    getAddOns: () => Array<AddOn>
+  }
+
+export interface Options {
+  projectName: string
+  targetDir: string
+
   framework: Framework
+  mode: Mode
+
   typescript: boolean
   tailwind: boolean
+
+  packageManager: PackageManager
+  git: boolean
+
+  chosenAddOns: Array<AddOn>
+  starter?: Starter | undefined
 }
+
+export type SerializedOptions = Omit<
+  Options,
+  'chosenAddOns' | 'starter' | 'framework'
+> & {
+  chosenAddOns: Array<string>
+  starter?: string | undefined
+  framework: string
+}
+
+type ProjectEnvironment = {
+  startRun: () => void
+  finishRun: () => void
+  getErrors: () => Array<string>
+}
+
+type FileEnvironment = {
+  appendFile: (path: string, contents: string) => Promise<void>
+  copyFile: (from: string, to: string) => Promise<void>
+  writeFile: (path: string, contents: string) => Promise<void>
+  writeFileBase64: (path: string, base64Contents: string) => Promise<void>
+  execute: (
+    command: string,
+    args: Array<string>,
+    cwd: string,
+  ) => Promise<{ stdout: string }>
+  deleteFile: (path: string) => Promise<void>
+
+  exists: (path: string) => boolean
+  isDirectory: (path: string) => boolean
+  readFile: (path: string) => Promise<string>
+  readdir: (path: string) => Promise<Array<string>>
+  rimraf: (path: string) => Promise<void>
+}
+
+export type StatusEvent = {
+  id: string
+  type: StatusStepType
+  message: string
+}
+export type StopEvent = {
+  id: string
+}
+
+type UIEnvironment = {
+  appName: string
+
+  startStep: (info: {
+    id: string
+    type: StatusStepType
+    message: string
+  }) => void
+  finishStep: (id: string, finalMessage: string) => void
+
+  intro: (message: string) => void
+  outro: (message: string) => void
+
+  info: (title?: string, message?: string) => void
+  error: (title?: string, message?: string) => void
+  warn: (title?: string, message?: string) => void
+
+  spinner: () => {
+    start: (message: string) => void
+    stop: (message: string) => void
+  }
+  confirm: (message: string) => Promise<boolean>
+}
+
+export type Environment = ProjectEnvironment & FileEnvironment & UIEnvironment

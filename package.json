@@ -4,10 +4,12 @@
   "bin": "./dist/index.js",
   "type": "module",
   "scripts": {
-    "cleanNodeModules": "pnpm -r exec rm -rf node_modules",
-    "build": "nx run-many --target=build",
+    "cleanNodeModules": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
+    "build": "nx run-many --target=build --parallel 5",
     "cipublish": "node scripts/publish.js",
-    "test": "nx run-many -t test"
+    "dev": "nx run-many --target=dev --parallel 10",
+    "test": "nx run-many -t test",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -19,19 +21,26 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "nx": "20.6.4",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "husky": "^8.0.0"
   },
   "packageManager": "pnpm@9.15.5",
   "pnpm": {
     "overrides": {
       "create-start-app": "workspace:*",
+      "create-tanstack": "workspace:*",
       "create-tsrouter-app": "workspace:*",
-      "@tanstack/cta-engine": "workspace:*"
+      "@tanstack/cta-cli": "workspace:*",
+      "@tanstack/cta-engine": "workspace:*",
+      "@tanstack/cta-ui": "workspace:*",
+      "@tanstack/cta-framework-react-cra": "workspace:*",
+      "@tanstack/cta-framework-solid": "workspace:*"
     }
   },
   "workspaces": [
     "./cli/*",
-    "./packages/*"
+    "./packages/*",
+    "./frameworks/*"
   ],
   "dependencies": {
     "@tanstack/config": "^0.16.2"

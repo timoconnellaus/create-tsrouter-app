@@ -1,0 +1,31 @@
+{
+  "name": "Form",
+  "description": "TanStack Form",
+  "phase": "add-on",
+  "type": "add-on",
+  "modes": ["file-router", "code-router"],
+  "link": "https://tanstack.com/form/latest",
+  "routes": [
+    {
+      "url": "/demo/form/simple",
+      "name": "Simple Form",
+      "path": "src/routes/demo.form.simple.tsx",
+      "jsName": "FormSimpleDemo"
+    },
+    {
+      "url": "/demo/form/address",
+      "name": "Address Form",
+      "path": "src/routes/demo.form.address.tsx",
+      "jsName": "FormAddressDemo"
+    }
+  ],
+  "shadcnComponents": [
+    "button",
+    "select",
+    "input",
+    "textarea",
+    "slider",
+    "switch",
+    "label"
+  ]
+}
