@@ -1,25 +1,36 @@
+import { z } from 'zod'
 import { loadRemoteAddOn } from './custom-add-ons/add-on.js'
 import { loadStarter } from './custom-add-ons/starter.js'
 
-import type { AddOn, Mode, Starter } from './types'
+import type { AddOn, Starter } from './types'
 
-export type Registry = {
-  starters: Array<{
-    name: string
-    description: string
-    url: string
-    banner?: string
-    mode: Mode
-    framework: string
-  }>
-  'add-ons': Array<{
-    name: string
-    description: string
-    url: string
-    modes: Array<Mode>
-    framework: string
-  }>
-}
+const registrySchema = z.object({
+  starters: z
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        url: z.string(),
+        banner: z.string().optional(),
+        mode: z.enum(['code-router', 'file-router']),
+        framework: z.string(),
+      }),
+    )
+    .optional(),
+  'add-ons': z
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        url: z.string(),
+        modes: z.array(z.enum(['code-router', 'file-router'])),
+        framework: z.string(),
+      }),
+    )
+    .optional(),
+})
+
+export type Registry = z.infer<typeof registrySchema>
 
 function absolutizeUrl(originalUrl: string, relativeUrl: string) {
   if (relativeUrl.startsWith('http') || relativeUrl.startsWith('https')) {
@@ -35,22 +46,23 @@ export async function getRawRegistry(
   const regUrl = registryUrl || process.env.CTA_REGISTRY
   if (regUrl) {
     const registry = (await fetch(regUrl).then((res) => res.json())) as Registry
-    for (const addOn of registry['add-ons']) {
+    const parsedRegistry = registrySchema.parse(registry)
+    for (const addOn of parsedRegistry['add-ons'] || []) {
       addOn.url = absolutizeUrl(regUrl, addOn.url)
     }
-    for (const starter of registry.starters) {
+    for (const starter of parsedRegistry.starters || []) {
       starter.url = absolutizeUrl(regUrl, starter.url)
       if (starter.banner) {
         starter.banner = absolutizeUrl(regUrl, starter.banner)
       }
     }
-    return registry
+    return parsedRegistry
   }
 }
 
 async function getAddOns(registry: Registry): Promise<Array<AddOn>> {
   const addOns: Array<AddOn> = []
-  for (const addOnInfo of registry['add-ons']) {
+  for (const addOnInfo of registry['add-ons'] || []) {
     const addOn = await loadRemoteAddOn(addOnInfo.url)
     addOns.push(addOn)
   }
@@ -66,7 +78,7 @@ export async function getRegistryAddOns(
 
 async function getStarters(registry: Registry): Promise<Array<Starter>> {
   const starters: Array<Starter> = []
-  for (const starterInfo of registry.starters) {
+  for (const starterInfo of registry.starters || []) {
     const starter = await loadStarter(starterInfo.url)
     starters.push(starter)
   }

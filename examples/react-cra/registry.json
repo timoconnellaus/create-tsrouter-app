@@ -5,7 +5,7 @@
       "description": "A starter project for React with CRA",
       "url": "./ecommerce-starter/starter.json",
       "banner": "./ecommerce-starter/.starter/banner.png",
-      "modes": "file-router",
+      "mode": "file-router",
       "framework": "react-cra"
     },
     {
@@ -13,7 +13,7 @@
       "description": "A blog starter for Tanstack React Start",
       "url": "./blog-starter/starter.json",
       "banner": "./blog-starter/.starter/banner.png",
-      "modes": "file-router",
+      "mode": "file-router",
       "framework": "react-cra"
     },
     {
@@ -21,7 +21,7 @@
       "description": "A resume starter for Tanstack React Start",
       "url": "./resume-starter/starter.json",
       "banner": "./resume-starter/.starter/banner.png",
-      "modes": "file-router",
+      "mode": "file-router",
       "framework": "react-cra"
     }
   ]

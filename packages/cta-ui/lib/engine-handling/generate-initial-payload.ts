@@ -95,8 +95,8 @@ export async function generateInitialPayload() {
     convertAddOnToAddOnInfo,
   )
 
-  for (const addOnInfo of registryAddOns || []) {
-    const addOnFramework = rawRegistry?.['add-ons'].find(
+  for (const addOnInfo of registryAddOns) {
+    const addOnFramework = rawRegistry?.['add-ons']?.find(
       (addOn) => addOn.url === addOnInfo.id,
     )
     if (addOnFramework?.framework === serializedOptions.framework) {
