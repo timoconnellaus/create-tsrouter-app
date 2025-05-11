@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { resolve, sep } from 'node:path'
 import { render } from 'ejs'
 import { format } from 'prettier'
 
@@ -14,9 +14,9 @@ import type { AddOn, Environment, Options } from './types.js'
 
 function convertDotFilesAndPaths(path: string) {
   return path
-    .split('/')
+    .split(sep)
     .map((segment) => segment.replace(/^_dot_/, '.'))
-    .join('/')
+    .join(sep)
 }
 
 export function createTemplateFile(environment: Environment, options: Options) {
