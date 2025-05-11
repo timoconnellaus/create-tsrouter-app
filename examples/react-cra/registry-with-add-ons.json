@@ -24,5 +24,21 @@
       "modes": "file-router",
       "framework": "react-cra"
     }
+  ],
+  "add-ons": [
+    {
+      "name": "Legend State",
+      "description": "A Legend State add-on for Tanstack React Start",
+      "url": "./legend-state-add-on/add-on.json",
+      "modes": ["code-router", "file-router"],
+      "framework": "react-cra"
+    },
+    {
+      "name": "MUI",
+      "description": "A MUI add-on for Tanstack React Start",
+      "url": "./mui-add-on/add-on.json",
+      "modes": ["code-router", "file-router"],
+      "framework": "react-cra"
+    }
   ]
 }
