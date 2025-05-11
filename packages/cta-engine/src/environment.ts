@@ -111,23 +111,14 @@ export function createMemoryEnvironment(returnPathsRelativeTo: string = '') {
 
   const { fs, vol } = memfs({})
 
-  const cwd = process.cwd()
-  const isInCwd = (path: string) => path.startsWith(cwd)
-  const isTemplatePath = (path: string) => !isInCwd(path)
-
   environment.appendFile = async (path: string, contents: string) => {
     fs.mkdirSync(dirname(path), { recursive: true })
     await fs.appendFileSync(path, contents)
   }
   environment.copyFile = async (from: string, to: string) => {
-    if (isTemplatePath(from)) {
-      const contents = (await readFile(from)).toString()
-      fs.mkdirSync(dirname(to), { recursive: true })
-      fs.writeFileSync(to, contents)
-    } else {
-      fs.mkdirSync(dirname(to), { recursive: true })
-      fs.copyFileSync(from, to)
-    }
+    fs.mkdirSync(dirname(to), { recursive: true })
+    fs.copyFileSync(from, to)
+    return Promise.resolve()
   }
   environment.execute = async (command: string, args: Array<string>) => {
     output.commands.push({

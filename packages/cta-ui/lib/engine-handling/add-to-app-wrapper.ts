@@ -12,6 +12,8 @@ import {
   writeConfigFileToEnvironment,
 } from '@tanstack/cta-engine'
 
+import { TMP_TARGET_DIR } from '../constants.js'
+
 import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
 import { getProjectPath } from './server-environment.js'
 import { createAppWrapper } from './create-app-wrapper.js'
@@ -37,7 +39,7 @@ export async function addToAppWrapper(
   }
 
   const options = await createAppOptionsFromPersisted(persistedOptions)
-  options.targetDir = projectPath
+  options.targetDir = opts.dryRun ? TMP_TARGET_DIR : projectPath
 
   const newAddons: Array<string> = []
   for (const addOn of addOns) {

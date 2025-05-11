@@ -22,8 +22,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-size: 12px;
+code,
+.cm-theme,
+.cm-merge-theme {
+  font-size: 16px;
   font-family:
     'JetBrains Mono',
     Menlo,

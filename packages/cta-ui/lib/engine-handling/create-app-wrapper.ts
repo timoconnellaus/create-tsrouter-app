@@ -9,6 +9,8 @@ import {
   loadStarter,
 } from '@tanstack/cta-engine'
 
+import { TMP_TARGET_DIR } from '../constants.js'
+
 import { registerFrameworks } from './framework-registration.js'
 
 import { cleanUpFileArray, cleanUpFiles } from './file-helpers.js'
@@ -51,8 +53,9 @@ export async function createAppWrapper(
   )
 
   const projectPath = getProjectPath()
-  const targetDir =
-    getApplicationMode() === 'add'
+  const targetDir = opts.dryRun
+    ? TMP_TARGET_DIR
+    : getApplicationMode() === 'add'
       ? projectOptions.targetDir
       : resolve(projectPath, projectOptions.projectName)
 
