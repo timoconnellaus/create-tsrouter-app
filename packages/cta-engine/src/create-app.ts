@@ -233,7 +233,7 @@ Use the following commands to start your app:
       getPackageManagerScriptCommand(options.packageManager, ['dev']),
     )}
 
-Please check the README.md for more information on testing, styling, adding routes, etc.${errorStatement}`,
+Please check the README.md for information on testing, styling, adding routes, etc.${errorStatement}`,
   )
 }
 
