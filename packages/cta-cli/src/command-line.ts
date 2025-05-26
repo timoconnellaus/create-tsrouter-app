@@ -1,22 +1,20 @@
 import { resolve } from 'node:path'
 
 import {
-  CODE_ROUTER,
   DEFAULT_PACKAGE_MANAGER,
-  FILE_ROUTER,
   finalizeAddOns,
   getFrameworkById,
   getPackageManager,
   loadStarter,
 } from '@tanstack/cta-engine'
 
-import type { Mode, Options } from '@tanstack/cta-engine'
+import type { Options } from '@tanstack/cta-engine'
 
 import type { CliOptions } from './types.js'
 
 export async function normalizeOptions(
   cliOptions: CliOptions,
-  forcedMode?: Mode,
+  forcedMode?: string,
   forcedAddOns?: Array<string>,
   opts?: {
     disableNameCheck?: boolean
@@ -27,20 +25,27 @@ export async function normalizeOptions(
     return undefined
   }
 
+  const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+
+  // TODO: Make this declarative
   let typescript =
     cliOptions.template === 'typescript' ||
     cliOptions.template === 'file-router' ||
     cliOptions.framework === 'solid'
+
+  if (forcedMode && framework.supportedModes[forcedMode].forceTypescript) {
+    typescript = true
+  }
 
   let tailwind = !!cliOptions.tailwind
   if (cliOptions.framework === 'solid') {
     tailwind = true
   }
 
-  let mode: typeof FILE_ROUTER | typeof CODE_ROUTER =
+  let mode: string =
     forcedMode || cliOptions.template === 'file-router'
-      ? FILE_ROUTER
-      : CODE_ROUTER
+      ? 'file-router'
+      : 'code-router'
 
   const starter = cliOptions.starter
     ? await loadStarter(cliOptions.starter)
@@ -50,10 +55,8 @@ export async function normalizeOptions(
     tailwind = starter.tailwind
     typescript = starter.typescript
     cliOptions.framework = starter.framework
-    mode = starter.mode as Mode
+    mode = starter.mode
   }
-
-  const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
 
   async function selectAddOns() {
     // Edge case for Windows Powershell

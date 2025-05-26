@@ -28,33 +28,10 @@ import { normalizeOptions } from './command-line.js'
 import { createUIEnvironment } from './ui-environment.js'
 import { convertTemplateToMode } from './utils.js'
 
-import type { Mode, Options, PackageManager } from '@tanstack/cta-engine'
-
 import type { CliOptions, TemplateOptions } from './types.js'
+import type { Options, PackageManager } from '@tanstack/cta-engine'
 
-async function listAddOns(
-  options: CliOptions,
-  {
-    forcedMode,
-    forcedAddOns,
-    defaultTemplate,
-  }: {
-    forcedMode?: Mode
-    forcedAddOns: Array<string>
-    defaultTemplate?: TemplateOptions
-  },
-) {
-  const addOns = await getAllAddOns(
-    getFrameworkById(options.framework || 'react-cra')!,
-    forcedMode ||
-      convertTemplateToMode(
-        options.template || defaultTemplate || 'javascript',
-      ),
-  )
-  for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
-    console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
-  }
-}
+// This CLI assumes that all of the registered frameworks have the same set of toolchains, modes, etc.
 
 export function cli({
   name,
@@ -62,12 +39,16 @@ export function cli({
   forcedMode,
   forcedAddOns = [],
   defaultTemplate = 'javascript',
+  defaultFramework,
+  craCompatible = false,
 }: {
   name: string
   appName: string
-  forcedMode?: Mode
+  forcedMode?: string
   forcedAddOns?: Array<string>
   defaultTemplate?: TemplateOptions
+  defaultFramework?: string
+  craCompatible?: boolean
 }) {
   const environment = createUIEnvironment(appName, false)
 
@@ -82,6 +63,24 @@ export function cli({
         toolchains.add(addOn.id)
       }
     }
+  }
+
+  let defaultMode: string | undefined = forcedMode
+  const supportedModes = new Set<string>()
+  for (const framework of getFrameworks()) {
+    for (const mode of Object.keys(framework.supportedModes)) {
+      supportedModes.add(mode)
+    }
+  }
+  if (defaultMode && !supportedModes.has(defaultMode)) {
+    throw new InvalidArgumentError(
+      `Invalid mode: ${defaultMode}. The following are allowed: ${Array.from(
+        supportedModes,
+      ).join(', ')}`,
+    )
+  }
+  if (supportedModes.size < 2) {
+    defaultMode = Array.from(supportedModes)[0]
   }
 
   program.name(name).description(`CLI to create a new ${appName} application`)
@@ -110,7 +109,7 @@ export function cli({
           mode: 'add',
           addOns: parsedAddOns,
           projectPath: resolve(process.cwd()),
-          forcedRouterMode: forcedMode,
+          forcedRouterMode: defaultMode,
           forcedAddOns,
           environmentFactory: () => createUIEnvironment(appName, false),
         })
@@ -158,7 +157,7 @@ export function cli({
 
   program.argument('[project-name]', 'name of the project')
 
-  if (!forcedMode) {
+  if (!defaultMode && craCompatible) {
     program.option<'typescript' | 'javascript' | 'file-router'>(
       '--template <type>',
       'project template (typescript, javascript, file-router)',
@@ -177,8 +176,8 @@ export function cli({
     )
   }
 
-  program
-    .option<string>(
+  if (!defaultFramework) {
+    program.option<string>(
       '--framework <type>',
       `project framework (${availableFrameworks.join(', ')})`,
       (value) => {
@@ -189,8 +188,11 @@ export function cli({
         }
         return value
       },
-      'react',
+      defaultFramework || 'react',
     )
+  }
+
+  program
     .option(
       '--starter [url]',
       'initialize this project from a starter URL',
@@ -210,7 +212,9 @@ export function cli({
         return value as PackageManager
       },
     )
-    .option<string>(
+
+  if (toolchains.size > 0) {
+    program.option<string>(
       `--toolchain <${Array.from(toolchains).join('|')}>`,
       `Explicitly tell the CLI to use this toolchain`,
       (value) => {
@@ -224,6 +228,9 @@ export function cli({
         return value
       },
     )
+  }
+
+  program
     .option('--interactive', 'interactive mode', false)
     .option('--tailwind', 'add Tailwind CSS', false)
     .option<Array<string> | boolean>(
@@ -249,14 +256,17 @@ export function cli({
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
-      await listAddOns(options, {
-        forcedMode,
-        forcedAddOns,
-        defaultTemplate,
-      })
+      const addOns = await getAllAddOns(
+        getFrameworkById(options.framework || defaultFramework || 'react-cra')!,
+        defaultMode ||
+          convertTemplateToMode(options.template || defaultTemplate),
+      )
+      for (const addOn of addOns.filter((a) => !forcedAddOns.includes(a.id))) {
+        console.log(`${chalk.bold(addOn.id)}: ${addOn.description}`)
+      }
     } else if (options.mcp || options.mcpSse) {
       await runMCPServer(!!options.mcpSse, {
-        forcedMode,
+        forcedMode: defaultMode,
         forcedAddOns,
         appName,
       })
@@ -268,11 +278,11 @@ export function cli({
         } as CliOptions
 
         cliOptions.framework = getFrameworkByName(
-          options.framework || 'react',
+          options.framework || defaultFramework || 'react',
         )!.id
 
-        if (forcedMode) {
-          cliOptions.template = forcedMode as TemplateOptions
+        if (defaultMode) {
+          cliOptions.template = defaultMode as TemplateOptions
         }
 
         let finalOptions: Options | undefined
@@ -281,7 +291,7 @@ export function cli({
         } else {
           finalOptions = await normalizeOptions(
             cliOptions,
-            forcedMode,
+            defaultMode,
             forcedAddOns,
           )
         }
@@ -289,7 +299,7 @@ export function cli({
         if (options.ui) {
           const optionsFromCLI = await normalizeOptions(
             cliOptions,
-            forcedMode,
+            defaultMode,
             forcedAddOns,
             { disableNameCheck: true },
           )
@@ -300,7 +310,7 @@ export function cli({
               projectName: 'my-app',
               targetDir: resolve(process.cwd(), 'my-app'),
             },
-            forcedRouterMode: forcedMode,
+            forcedRouterMode: defaultMode,
             forcedAddOns,
             environmentFactory: () => createUIEnvironment(appName, false),
           })
@@ -312,7 +322,7 @@ export function cli({
         } else {
           intro(`Let's configure your ${appName} application`)
           finalOptions = await promptForCreateOptions(cliOptions, {
-            forcedMode,
+            forcedMode: defaultMode,
             forcedAddOns,
           })
         }

@@ -117,6 +117,22 @@ importers:
         specifier: ^5.6.3
         version: 5.8.3
 
+  examples/custom-cli/create-qwik-app:
+    dependencies:
+      '@tanstack/cta-cli':
+        specifier: workspace:*
+        version: link:../../../packages/cta-cli
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../../../packages/cta-engine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.15.3
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   frameworks/react-cra:
     dependencies:
       '@tanstack/cta-engine':

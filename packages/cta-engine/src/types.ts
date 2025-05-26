@@ -1,9 +1,6 @@
 import z from 'zod'
 
-import type { CODE_ROUTER, FILE_ROUTER } from './constants.js'
 import type { PackageManager } from './package-manager.js'
-
-export type Mode = typeof CODE_ROUTER | typeof FILE_ROUTER
 
 export type StatusStepType =
   | 'file'
@@ -114,7 +111,15 @@ export type FrameworkDefinition = {
 
   baseDirectory: string
   addOnsDirectories: Array<string>
-  examplesDirectory: string
+
+  supportedModes: Record<
+    string,
+    {
+      displayName: string
+      description: string
+      forceTypescript: boolean
+    }
+  >
 }
 
 export type Framework = FrameworkDefinition &
@@ -130,7 +135,7 @@ export interface Options {
   targetDir: string
 
   framework: Framework
-  mode: Mode
+  mode: string
 
   typescript: boolean
   tailwind: boolean

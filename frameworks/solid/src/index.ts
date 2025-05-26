@@ -18,9 +18,15 @@ export function register() {
       join(dirname(dirname(fileURLToPath(import.meta.url))), 'toolchains'),
       join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples'),
     ],
-    examplesDirectory: join(
-      dirname(dirname(fileURLToPath(import.meta.url))),
-      'examples',
-    ),
+    supportedModes: {
+      'code-router': {
+        displayName: 'Code Router',
+        description: 'TanStack Router using code to define the routes',
+      },
+      'file-router': {
+        displayName: 'File Router',
+        description: 'TanStack Router using files to define the routes',
+      },
+    },
   })
 }

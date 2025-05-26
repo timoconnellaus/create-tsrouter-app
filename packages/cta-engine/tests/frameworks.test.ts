@@ -71,7 +71,6 @@ describe('registerFramework', () => {
       description: 'Test',
       version: '1.0.0',
       baseDirectory: '/test/project',
-      examplesDirectory: '/test/examples',
     })
 
     const f = getFrameworkById('test')!
