@@ -25,7 +25,15 @@ export async function normalizeOptions(
     return undefined
   }
 
-  const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+  let tailwind = !!cliOptions.tailwind
+
+  let mode: string =
+    forcedMode ||
+    (cliOptions.template === 'file-router' ? 'file-router' : 'code-router')
+
+  const starter = cliOptions.starter
+    ? await loadStarter(cliOptions.starter)
+    : undefined
 
   // TODO: Make this declarative
   let typescript =
@@ -33,29 +41,24 @@ export async function normalizeOptions(
     cliOptions.template === 'file-router' ||
     cliOptions.framework === 'solid'
 
-  if (forcedMode && framework.supportedModes[forcedMode].forceTypescript) {
-    typescript = true
-  }
-
-  let tailwind = !!cliOptions.tailwind
-  if (cliOptions.framework === 'solid') {
-    tailwind = true
-  }
-
-  let mode: string =
-    forcedMode || cliOptions.template === 'file-router'
-      ? 'file-router'
-      : 'code-router'
-
-  const starter = cliOptions.starter
-    ? await loadStarter(cliOptions.starter)
-    : undefined
-
   if (starter) {
     tailwind = starter.tailwind
     typescript = starter.typescript
     cliOptions.framework = starter.framework
     mode = starter.mode
+  }
+
+  const framework = getFrameworkById(cliOptions.framework || 'react-cra')!
+
+  if (
+    forcedMode &&
+    framework.supportedModes?.[forcedMode]?.forceTypescript !== undefined
+  ) {
+    typescript = true
+  }
+
+  if (cliOptions.framework === 'solid') {
+    tailwind = true
   }
 
   async function selectAddOns() {

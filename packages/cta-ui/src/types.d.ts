@@ -1,4 +1,4 @@
-import type { Mode, StatusStepType } from '@tanstack/cta-engine'
+import type { StatusStepType } from '@tanstack/cta-engine'
 
 export type ApplicationMode = 'add' | 'setup' | 'none'
 
@@ -10,7 +10,7 @@ export type StarterInfo = {
   version: string
   author: string
   license: string
-  mode: Mode
+  mode: string
   typescript: boolean
   tailwind: boolean
   banner?: string
@@ -33,7 +33,7 @@ export type AddOnInfo = {
   name: string
   description: string
   type: 'add-on' | 'example' | 'starter' | 'toolchain'
-  modes: Array<'code-router' | 'file-router'>
+  modes: Array<string>
   smallLogo?: string
   logo?: string
   link: string
@@ -70,15 +70,20 @@ export type Registry = {
 }
 
 export type InitialData = {
+  supportedModes: Record<
+    string,
+    {
+      displayName: string
+      description: string
+      forceTypescript: boolean
+    }
+  >
   options: SerializedOptions
   output: GeneratorOutput
   localFiles: Record<string, string>
-  addOns: {
-    'code-router': Array<AddOnInfo>
-    'file-router': Array<AddOnInfo>
-  }
+  addOns: Record<string, Array<AddOnInfo>>
   applicationMode: ApplicationMode
-  forcedRouterMode?: Mode
+  forcedRouterMode?: string
   forcedAddOns?: Array<string>
   registry?: Registry | undefined
 }

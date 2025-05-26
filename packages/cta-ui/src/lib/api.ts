@@ -52,8 +52,10 @@ export async function loadRemoteStarter(url: string) {
   return (await response.json()) as StarterInfo | { error: string }
 }
 
+const initialDataRequest = fetch(`${baseUrl}/api/initial-payload`)
+
 export async function loadInitialData() {
-  const payloadReq = await fetch(`${baseUrl}/api/initial-payload`)
+  const payloadReq = await initialDataRequest
   return (await payloadReq.json()) as InitialData
 }
 

@@ -7,12 +7,13 @@ import { Toaster } from '@/components/toaster'
 import { AppSidebar } from '@/components/cta-sidebar'
 import { AppHeader } from '@/components/header'
 import { BackgroundAnimation } from '@/components/background-animation'
-import { useManager } from '@/store/project'
+import { useManager, useReady } from '@/store/project'
 
 const queryClient = new QueryClient()
 
 function Content() {
   useManager()
+  const ready = useReady()
 
   return (
     <main className="min-w-[1280px]">

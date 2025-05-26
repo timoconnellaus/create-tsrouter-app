@@ -33,9 +33,10 @@ export function launchUI(
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
+  const packagePath = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+
   const launchUI = !process.env.CTA_DISABLE_UI
   if (launchUI) {
-    const packagePath = resolve(dirname(fileURLToPath(import.meta.url)), '..')
     app.use(express.static(resolve(packagePath, 'dist')))
   }
 
@@ -54,21 +55,37 @@ export function launchUI(
   })
 
   app.post('/api/dry-run-add-to-app', async (req, res) => {
-    res.send(
-      await addToAppWrapper(req.body.addOns, {
-        dryRun: true,
-        environmentFactory: options.environmentFactory,
-      }),
-    )
+    try {
+      res.send(
+        await addToAppWrapper(req.body.addOns, {
+          dryRun: true,
+          environmentFactory: options.environmentFactory,
+        }),
+      )
+    } catch {
+      res.send({
+        files: {},
+        commands: [],
+        deletedFiles: [],
+      })
+    }
   })
 
   app.post('/api/dry-run-create-app', async (req, res) => {
-    res.send(
-      await createAppWrapper(req.body.options, {
-        dryRun: true,
-        environmentFactory: options.environmentFactory,
-      }),
-    )
+    try {
+      res.send(
+        await createAppWrapper(req.body.options, {
+          dryRun: true,
+          environmentFactory: options.environmentFactory,
+        }),
+      )
+    } catch {
+      res.send({
+        files: {},
+        commands: [],
+        deletedFiles: [],
+      })
+    }
   })
 
   app.get('/api/initial-payload', async (_req, res) => {

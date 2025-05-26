@@ -5,16 +5,19 @@ import { useQuery } from '@tanstack/react-query'
 
 import { getAddOnStatus } from './add-ons'
 
-import type { Mode, SerializedOptions } from '@tanstack/cta-engine'
+import type { SerializedOptions } from '@tanstack/cta-engine'
 
 import type { AddOnInfo, DryRunOutput, StarterInfo } from '@/types.js'
 import { dryRunAddToApp, dryRunCreateApp, loadInitialData } from '@/lib/api'
 
-export const useProjectOptions = create<SerializedOptions>(() => ({
-  framework: 'react-cra',
-  mode: 'file-router',
-  projectName: 'my-app',
-  targetDir: 'my-app',
+export const useProjectOptions = create<
+  SerializedOptions & { initialized: boolean }
+>(() => ({
+  initialized: false,
+  framework: '',
+  mode: '',
+  projectName: '',
+  targetDir: '',
   typescript: true,
   tailwind: true,
   git: true,
@@ -25,51 +28,26 @@ export const useProjectOptions = create<SerializedOptions>(() => ({
 const useInitialData = () =>
   useQuery({
     queryKey: ['initial-data'],
-    queryFn: async () => loadInitialData(),
-    initialData: {
-      options: {
-        framework: 'react-cra',
-        mode: 'file-router',
-        projectName: 'my-app',
-        targetDir: 'my-app',
-        typescript: true,
-        tailwind: true,
-        git: true,
-        chosenAddOns: [],
-        packageManager: 'pnpm',
-      },
-      localFiles: {},
-      output: {
-        files: {},
-        commands: [],
-        deletedFiles: [],
-      },
-      addOns: {
-        'code-router': [],
-        'file-router': [],
-      },
-      applicationMode: 'none',
-      forcedRouterMode: undefined,
-      forcedAddOns: [],
-      registry: undefined,
-    },
+    queryFn: loadInitialData,
   })
 
-const useForcedRouterMode = () => useInitialData().data.forcedRouterMode
-const useForcedAddOns = () => useInitialData().data.forcedAddOns
+export const useReady = () => {
+  const { data } = useInitialData()
+  return data !== undefined
+}
 
-export const useRegistry = () => useInitialData().data.registry
+const useForcedRouterMode = () => useInitialData().data?.forcedRouterMode
+const useForcedAddOns = () => useInitialData().data?.forcedAddOns
 
-export const useProjectLocalFiles = () => useInitialData().data.localFiles
-export const useOriginalOutput = () => useInitialData().data.output
-export const useOriginalOptions = () => useInitialData().data.options
-export const useOriginalSelectedAddOns = () => useOriginalOptions().chosenAddOns
-export const useApplicationMode = () => useInitialData().data.applicationMode
-export const useReady = () => useInitialData().isFetched
-export const useCodeRouterAddOns = () =>
-  useInitialData().data.addOns['code-router']
-export const useFileRouterAddOns = () =>
-  useInitialData().data.addOns['file-router']
+export const useRegistry = () => useInitialData().data?.registry
+export const useProjectLocalFiles = () => useInitialData().data?.localFiles
+export const useOriginalOutput = () => useInitialData().data?.output
+export const useOriginalOptions = () => useInitialData().data?.options
+export const useOriginalSelectedAddOns = () =>
+  useOriginalOptions()?.chosenAddOns
+export const useApplicationMode = () => useInitialData().data?.applicationMode
+export const useAddOnsByMode = () => useInitialData().data?.addOns
+export const useSupportedModes = () => useInitialData().data?.supportedModes
 
 const useApplicationSettings = create<{
   includeFiles: Array<string>
@@ -103,24 +81,26 @@ export function addCustomAddOn(addOn: AddOnInfo) {
 }
 
 export function useAddOns() {
+  const ready = useReady()
+
   const routerMode = useRouterMode()
   const originalSelectedAddOns = useOriginalSelectedAddOns()
-  const codeRouterAddOns = useCodeRouterAddOns()
-  const fileRouterAddOns = useFileRouterAddOns()
+  const addOnsByMode = useAddOnsByMode()
   const forcedAddOns = useForcedAddOns()
   const { userSelectedAddOns, customAddOns } = useMutableAddOns()
   const projectStarter = useProjectStarter().projectStarter
 
   const availableAddOns = useMemo(() => {
-    const baseAddOns =
-      routerMode === 'code-router' ? codeRouterAddOns : fileRouterAddOns
+    if (!ready) return []
+    const baseAddOns = addOnsByMode[routerMode] || []
     return [
       ...baseAddOns,
       ...customAddOns.filter((addOn) => addOn.modes.includes(routerMode)),
     ]
-  }, [routerMode, codeRouterAddOns, fileRouterAddOns, customAddOns])
+  }, [ready, routerMode, addOnsByMode, customAddOns])
 
   const addOnState = useMemo(() => {
+    if (!ready) return {}
     const originalAddOns: Set<string> = new Set()
     for (const addOn of projectStarter?.dependsOn || []) {
       originalAddOns.add(addOn)
@@ -137,6 +117,7 @@ export function useAddOns() {
       Array.from(originalAddOns),
     )
   }, [
+    ready,
     availableAddOns,
     userSelectedAddOns,
     originalSelectedAddOns,
@@ -145,6 +126,7 @@ export function useAddOns() {
   ])
 
   const chosenAddOns = useMemo(() => {
+    if (!ready) return []
     const addOns = new Set(
       Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected),
     )
@@ -152,10 +134,11 @@ export function useAddOns() {
       addOns.add(addOn)
     }
     return Array.from(addOns)
-  }, [addOnState, forcedAddOns])
+  }, [ready, addOnState, forcedAddOns])
 
   const toggleAddOn = useCallback(
     (addOnId: string) => {
+      if (!ready) return
       if (addOnState[addOnId].enabled) {
         if (addOnState[addOnId].selected) {
           useMutableAddOns.setState((state) => ({
@@ -170,7 +153,7 @@ export function useAddOns() {
         }
       }
     },
-    [addOnState],
+    [ready, addOnState],
   )
 
   return {
@@ -187,42 +170,51 @@ const useHasProjectStarter = () =>
   useProjectStarter((state) => state.projectStarter === undefined)
 
 export const useModeEditable = () => {
+  const ready = useReady()
   const forcedRouterMode = useForcedRouterMode()
   const hasProjectStarter = useHasProjectStarter()
-  return !forcedRouterMode && hasProjectStarter
+  return ready ? !forcedRouterMode && hasProjectStarter : false
 }
 
 export const useTypeScriptEditable = () => {
+  const ready = useReady()
   const hasProjectStarter = useHasProjectStarter()
   const routerMode = useRouterMode()
-  return hasProjectStarter && routerMode === 'code-router'
+  return ready ? hasProjectStarter && routerMode === 'code-router' : false
 }
 
 export const useTailwindEditable = () => {
+  const ready = useReady()
   const hasProjectStarter = useHasProjectStarter()
   const routerMode = useRouterMode()
-  return hasProjectStarter && routerMode === 'code-router'
+  return ready ? hasProjectStarter && routerMode === 'code-router' : false
 }
 
 export const useProjectName = () =>
   useProjectOptions((state) => state.projectName)
 
 export const useRouterMode = () => {
+  const ready = useReady()
   const forcedRouterMode = useForcedRouterMode()
   const userMode = useProjectOptions((state) => state.mode)
-  return forcedRouterMode || userMode
+  return ready ? forcedRouterMode || userMode : 'file-router'
 }
 
 export function useFilters() {
+  const ready = useReady()
   const includedFiles = useApplicationSettings((state) => state.includeFiles)
 
-  const toggleFilter = useCallback((filter: string) => {
-    useApplicationSettings.setState((state) => ({
-      includeFiles: state.includeFiles.includes(filter)
-        ? state.includeFiles.filter((f) => f !== filter)
-        : [...state.includeFiles, filter],
-    }))
-  }, [])
+  const toggleFilter = useCallback(
+    (filter: string) => {
+      if (!ready) return
+      useApplicationSettings.setState((state) => ({
+        includeFiles: state.includeFiles.includes(filter)
+          ? state.includeFiles.filter((f) => f !== filter)
+          : [...state.includeFiles, filter],
+      }))
+    },
+    [ready],
+  )
 
   return {
     includedFiles,
@@ -231,8 +223,9 @@ export function useFilters() {
 }
 
 export function useDryRun() {
+  const ready = useReady()
   const applicationMode = useApplicationMode()
-  const projectOptions = useProjectOptions()
+  const { initialized, ...projectOptions } = useProjectOptions()
   const { userSelectedAddOns, chosenAddOns } = useAddOns()
   const projectStarter = useProjectStarter().projectStarter
 
@@ -245,7 +238,7 @@ export function useDryRun() {
       projectStarter?.url,
     ],
     queryFn: async () => {
-      if (applicationMode === 'none') {
+      if (applicationMode === 'none' || !ready || !initialized) {
         return {
           files: {},
           commands: [],
@@ -257,6 +250,7 @@ export function useDryRun() {
         return dryRunAddToApp(userSelectedAddOns)
       }
     },
+    enabled: ready,
     initialData: {
       files: {},
       commands: [],
@@ -307,7 +301,7 @@ export const setProjectName = (projectName: string) =>
     projectName,
   })
 
-export const setRouterMode = (mode: Mode) =>
+export const setRouterMode = (mode: string) =>
   useProjectOptions.setState({
     mode,
   })
@@ -341,7 +335,10 @@ export function useManager() {
 
   useEffect(() => {
     if (ready) {
-      useProjectOptions.setState(originalOptions)
+      useProjectOptions.setState({
+        ...originalOptions,
+        initialized: true,
+      })
     }
   }, [ready])
 }

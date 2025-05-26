@@ -4,7 +4,7 @@ import { FileText, Folder } from 'lucide-react'
 import FileViewer from './file-viewer'
 import FileTree from './file-tree'
 
-import type { FileTreeItem } from '@/types'
+import type { DryRunOutput, FileTreeItem } from '@/types'
 
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -97,8 +97,8 @@ export default function FileNavigator() {
   const mode = useApplicationMode()
 
   const tree = dryRunOutput.files
-  const originalTree =
-    mode === 'setup' ? dryRunOutput.files : projectFiles.files
+  const originalTree: DryRunOutput | undefined =
+    mode === 'setup' ? dryRunOutput.files : projectFiles?.files
   const deletedFiles = dryRunOutput.deletedFiles
 
   const [originalFileContents, setOriginalFileContents] = useState<string>()
@@ -108,6 +108,10 @@ export default function FileNavigator() {
 
   const fileTree = useMemo(() => {
     const treeData: Array<FileTreeItem> = []
+
+    if (!originalTree || !localTree) {
+      return treeData
+    }
 
     const allFileSet = Array.from(
       new Set([
