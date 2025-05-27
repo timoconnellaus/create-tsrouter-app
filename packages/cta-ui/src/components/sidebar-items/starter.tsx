@@ -3,23 +3,23 @@ import { FileBoxIcon, TrashIcon } from 'lucide-react'
 
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '../ui/dialog'
 import {
   setProjectStarter,
   useApplicationMode,
   useProjectStarter,
   useRegistry,
-} from '@/store/project'
-import { loadRemoteStarter } from '@/lib/api'
-import { StartersCarousel } from '@/components/starters-carousel'
+} from '../../store/project'
+import { loadRemoteStarter } from '../../lib/api'
+import { StartersCarousel } from '../starters-carousel'
 
 export default function Starter() {
   const [url, setUrl] = useState('')

@@ -3,12 +3,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useQuery } from '@tanstack/react-query'
 
+import { dryRunAddToApp, dryRunCreateApp, loadInitialData } from '../lib/api'
+
 import { getAddOnStatus } from './add-ons'
 
 import type { SerializedOptions } from '@tanstack/cta-engine'
 
-import type { AddOnInfo, DryRunOutput, StarterInfo } from '@/types.js'
-import { dryRunAddToApp, dryRunCreateApp, loadInitialData } from '@/lib/api'
+import type { AddOnInfo, DryRunOutput, StarterInfo } from '../types'
 
 export const useProjectOptions = create<
   SerializedOptions & { initialized: boolean }
@@ -92,7 +93,7 @@ export function useAddOns() {
 
   const availableAddOns = useMemo(() => {
     if (!ready) return []
-    const baseAddOns = addOnsByMode[routerMode] || []
+    const baseAddOns = addOnsByMode?.[routerMode] || []
     return [
       ...baseAddOns,
       ...customAddOns.filter((addOn) => addOn.modes.includes(routerMode)),

@@ -1,23 +1,24 @@
 import { toast } from 'sonner'
 
 import {
+  setProjectStarter,
+  useApplicationMode,
+  useRegistry,
+  useStartupDialog,
+} from '../store/project'
+import { loadRemoteStarter } from '../lib/api'
+
+import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { StartersCarousel } from '@/components/starters-carousel'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import {
-  setProjectStarter,
-  useApplicationMode,
-  useRegistry,
-  useStartupDialog,
-} from '@/store/project'
-import { loadRemoteStarter } from '@/lib/api'
+} from './ui/dialog'
+import { StartersCarousel } from './starters-carousel'
+import { Button } from './ui/button'
+import { Switch } from './ui/switch'
+import { Label } from './ui/label'
 
 export default function StartupDialog() {
   const mode = useApplicationMode()

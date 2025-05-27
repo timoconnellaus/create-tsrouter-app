@@ -1,10 +1,6 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel'
+import { useRegistry } from '../store/project'
 
-import { useRegistry } from '@/store/project'
+import { Carousel, CarouselContent, CarouselItem } from './ui/carousel'
 
 export function StartersCarousel({
   onImport,

@@ -1,4 +1,4 @@
-import type { AddOnInfo } from '@/types'
+import type { AddOnInfo } from '../types'
 
 export function getAddOnStatus(
   availableAddOns: Array<AddOnInfo>,

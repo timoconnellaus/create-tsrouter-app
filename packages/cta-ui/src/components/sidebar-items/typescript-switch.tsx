@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
+import { Label } from '../ui/label'
+import { Switch } from '../ui/switch'
 
 import {
   setTailwind,
@@ -8,7 +8,7 @@ import {
   useProjectOptions,
   useTailwindEditable,
   useTypeScriptEditable,
-} from '@/store/project'
+} from '../../store/project'
 
 export default function TypescriptSwitch() {
   const typescript = useProjectOptions((state) => state.typescript)

@@ -2,7 +2,7 @@ import React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronRight } from 'lucide-react'
 import { cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/utils'
 
 const treeVariants = cva(
   'group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 px-2 before:w-full before:opacity-0 before:bg-accent/70 before:h-[2rem] before:-z-10',
@@ -118,7 +118,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
         }
       }
 
-      walkTreeItems(data, initialSelectedItemId)
+      walkTreeItems(data, initialSelectedItemId ?? '')
       return ids
     }, [data, expandAll, initialSelectedItemId, initialExpandedItemIds])
 
@@ -139,7 +139,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
         />
         <div
           className="w-full h-[48px]"
-          onDrop={(e) => {
+          onDrop={() => {
             handleDrop({ id: '', name: 'parent_div' })
           }}
         ></div>

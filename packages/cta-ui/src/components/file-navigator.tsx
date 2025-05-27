@@ -1,14 +1,6 @@
 import { useMemo, useState } from 'react'
 import { FileText, Folder } from 'lucide-react'
 
-import FileViewer from './file-viewer'
-import FileTree from './file-tree'
-
-import type { DryRunOutput, FileTreeItem } from '@/types'
-
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-
 import {
   useApplicationMode,
   useDryRun,
@@ -16,9 +8,17 @@ import {
   useOriginalOutput,
   useProjectLocalFiles,
   useReady,
-} from '@/store/project'
+} from '../store/project'
 
-import { getFileClass, twClasses } from '@/file-classes'
+import { getFileClass, twClasses } from '../file-classes'
+
+import FileViewer from './file-viewer'
+import FileTree from './file-tree'
+
+import { Label } from './ui/label'
+import { Switch } from './ui/switch'
+
+import type { DryRunOutput, FileTreeItem } from '../types'
 
 export function Filters() {
   const { includedFiles, toggleFilter } = useFilters()

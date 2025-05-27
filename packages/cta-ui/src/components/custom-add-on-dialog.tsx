@@ -2,18 +2,18 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { TicketPlusIcon } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { addCustomAddOn, useAddOns, useRouterMode } from '../store/project'
+import { loadRemoteAddOn } from '../lib/api'
+
+import { Button } from './ui/button'
+import { Input } from './ui/input'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-
-import { addCustomAddOn, useAddOns, useRouterMode } from '@/store/project'
-import { loadRemoteAddOn } from '@/lib/api'
+} from './ui/dialog'
 
 export default function CustomAddOnDialog() {
   const [url, setUrl] = useState('')

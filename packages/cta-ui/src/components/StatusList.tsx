@@ -1,4 +1,4 @@
-import type { StreamItem } from '@/types'
+import type { StreamItem } from '../types'
 
 export default function StatusList({
   streamItems,

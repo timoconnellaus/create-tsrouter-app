@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { FileText, Folder } from 'lucide-react'
 
-import type { FileTreeItem } from '@/types.js'
+import { TreeView } from './ui/tree-view'
 
-import { TreeView } from '@/components/ui/tree-view'
+import type { FileTreeItem } from '../types'
 
 export default function FileTree({
   selectedFile,

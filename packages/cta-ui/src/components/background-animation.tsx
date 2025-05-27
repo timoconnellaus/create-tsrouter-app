@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { useMounted } from '@/hooks/use-mounted'
-import { usePrefersReducedMotion } from '@/hooks/use-preferred-reduced-motion'
+import { useMounted } from '../hooks/use-mounted'
+import { usePrefersReducedMotion } from '../hooks/use-preferred-reduced-motion'
 
 export function BackgroundAnimation() {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
@@ -207,17 +207,12 @@ export function BackgroundAnimation() {
   )
 }
 
-function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
+function cubicBezier(_p1x: number, p1y: number, _p2x: number, p2y: number) {
   return function (t: number) {
-    const cx = 3 * p1x
-    const bx = 3 * (p2x - p1x) - cx
-    const ax = 1 - cx - bx
-
     const cy = 3 * p1y
     const by = 3 * (p2y - p1y) - cy
     const ay = 1 - cy - by
 
-    const x = ((ax * t + bx) * t + cx) * t
     const y = ((ay * t + by) * t + cy) * t
 
     return y

@@ -1,6 +1,6 @@
-import { CodeIcon, FileIcon } from 'lucide-react'
+import { CodeIcon } from 'lucide-react'
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group'
 
 import {
   setRouterMode,
@@ -8,7 +8,7 @@ import {
   useModeEditable,
   useRouterMode,
   useSupportedModes,
-} from '@/store/project'
+} from '../../store/project'
 
 export default function ModeSelector() {
   const mode = useApplicationMode()
@@ -16,7 +16,7 @@ export default function ModeSelector() {
   const routerMode = useRouterMode()
   const supportedModes = useSupportedModes()
 
-  if (mode !== 'setup' || Object.keys(supportedModes).length < 2) {
+  if (mode !== 'setup' || Object.keys(supportedModes ?? {}).length < 2) {
     return null
   }
 
@@ -35,7 +35,7 @@ export default function ModeSelector() {
             }}
             className="rounded-md border-2 border-gray-500/10"
           >
-            {Object.keys(supportedModes).map((mode) => (
+            {Object.keys(supportedModes ?? {}).map((mode) => (
               <ToggleGroupItem
                 key={mode}
                 value={mode}
@@ -43,7 +43,7 @@ export default function ModeSelector() {
                 disabled={!enableMode}
               >
                 <CodeIcon className="w-4 h-4" />
-                {supportedModes[mode].displayName}
+                {supportedModes?.[mode].displayName}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>

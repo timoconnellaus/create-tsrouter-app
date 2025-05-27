@@ -1,15 +1,15 @@
-import { useMemo, useState, Fragment } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
 
-import type { AddOnInfo } from '@/types'
+import { Switch } from '../ui/switch'
+import { Label } from '../ui/label'
 
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import { useAddOns } from '../../store/project'
 
-import { useAddOns } from '@/store/project'
+import ImportCustomAddOn from '../custom-add-on-dialog'
+import AddOnInfoDialog from '../add-on-info-dialog'
 
-import ImportCustomAddOn from '@/components/custom-add-on-dialog'
-import AddOnInfoDialog from '@/components/add-on-info-dialog'
+import type { AddOnInfo } from '../../types'
 
 const addOnTypeLabels: Record<string, string> = {
   toolchain: 'Toolchain',

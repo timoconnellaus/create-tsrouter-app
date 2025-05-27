@@ -1,14 +1,12 @@
-import SelectedAddOns from '@/components/sidebar-items/add-ons'
-import RunAddOns from '@/components/sidebar-items/run-add-ons'
-import RunCreateApp from '@/components/sidebar-items/run-create-app'
-import ProjectName from '@/components/sidebar-items/project-name'
-import ModeSelector from '@/components/sidebar-items/mode-selector'
-import TypescriptSwitch from '@/components/sidebar-items/typescript-switch'
-import StarterDialog from '@/components/sidebar-items/starter'
+import { useApplicationMode, useReady } from '../store/project'
 
-import { ChevronRightIcon } from 'lucide-react'
-
-import { useApplicationMode, useReady } from '@/store/project'
+import SelectedAddOns from './sidebar-items/add-ons'
+import RunAddOns from './sidebar-items/run-add-ons'
+import RunCreateApp from './sidebar-items/run-create-app'
+import ProjectName from './sidebar-items/project-name'
+import ModeSelector from './sidebar-items/mode-selector'
+import TypescriptSwitch from './sidebar-items/typescript-switch'
+import StarterDialog from './sidebar-items/starter'
 
 export function AppSidebar() {
   const ready = useReady()

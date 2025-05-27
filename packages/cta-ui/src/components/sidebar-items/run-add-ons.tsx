@@ -1,18 +1,18 @@
 import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '../ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '../ui/dialog'
 
-import { useAddOns, useApplicationMode } from '@/store/project'
-import useStreamingStatus from '@/hooks/use-streaming-status'
-import StatusList from '@/components/StatusList'
-import { addToAppStreaming, shutdown } from '@/lib/api'
+import { useAddOns, useApplicationMode } from '../../store/project'
+import useStreamingStatus from '../../hooks/use-streaming-status'
+import StatusList from '../StatusList'
+import { addToAppStreaming, shutdown } from '../../lib/api'
 
 export default function RunAddOns() {
   const { chosenAddOns } = useAddOns()

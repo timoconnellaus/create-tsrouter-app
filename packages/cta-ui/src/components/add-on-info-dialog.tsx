@@ -1,6 +1,6 @@
-import type { AddOnInfo } from '@/types'
+import { Dialog, DialogContent } from './ui/dialog'
 
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import type { AddOnInfo } from '../types'
 
 export default function CustomAddOnDialog({
   addOn,

@@ -7,8 +7,10 @@
     "build": "npm run build:lib && npm run build:ui",
     "build:ui": "vite build",
     "build:lib": "tsc -p tsconfig.lib.json",
+    "build:external": "tsc -p tsconfig.external.json",
     "dev": "tsc --watch -p tsconfig.lib.json",
     "dev:ui": "VITE_API_BASE_URL=http://localhost:8080 vite dev",
+    "dev:external": "tsc -p tsconfig.external.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

@@ -1,4 +1,4 @@
-import type { FileClass } from '@/types.js'
+import type { FileClass } from './types'
 
 export const twClasses: Record<FileClass, string> = {
   unchanged: 'text-gray-500',

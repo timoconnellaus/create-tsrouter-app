@@ -10,7 +10,7 @@ import {
 
 import type { StatusStepType } from '@tanstack/cta-engine'
 
-import type { StreamEvent, StreamItem } from '@/types'
+import type { StreamEvent, StreamItem } from '../types'
 
 const iconMap: Record<StatusStepType, typeof InfoIcon> = {
   file: SquarePenIcon,

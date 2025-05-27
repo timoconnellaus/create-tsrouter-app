@@ -1,10 +1,10 @@
-import { Input } from '@/components/ui/input'
+import { Input } from '../ui/input'
 
 import {
   setProjectName,
   useApplicationMode,
   useProjectName,
-} from '@/store/project'
+} from '../../store/project'
 
 export default function ProjectName() {
   const name = useProjectName()

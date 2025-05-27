@@ -1,24 +1,24 @@
 import { useState } from 'react'
 import { HammerIcon } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '../ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '../ui/dialog'
 
-import useStreamingStatus from '@/hooks/use-streaming-status'
+import useStreamingStatus from '../../hooks/use-streaming-status'
 import {
   useAddOns,
   useApplicationMode,
   useProjectOptions,
   useProjectStarter,
-} from '@/store/project'
-import StatusList from '@/components/StatusList'
-import { createAppStreaming, shutdown } from '@/lib/api'
+} from '../../store/project'
+import StatusList from '../StatusList'
+import { createAppStreaming, shutdown } from '../../lib/api'
 
 export default function RunCreateApp() {
   const [isRunning, setIsRunning] = useState(false)

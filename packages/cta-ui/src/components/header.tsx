@@ -1,12 +1,10 @@
+import Logo from './logo'
+
 export function AppHeader() {
   return (
     <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
       <div className="flex items-center gap-1.5">
-        <img
-          src="/logo-color-100w.png"
-          alt="TanStack Logo"
-          className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
-        />
+        <Logo />
         <div className="font-black text-xl uppercase">TanStack</div>
       </div>
       <svg
