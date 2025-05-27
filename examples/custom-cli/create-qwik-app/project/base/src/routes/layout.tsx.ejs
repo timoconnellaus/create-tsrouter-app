@@ -18,7 +18,9 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 export default component$(() => {
   return (
     <>
-      <Header />
+      <% if (addOns.length > 0 || integrations.length > 0 || routes.length > 0) { %>
+        <Header />
+      <% } %>
       <Slot />
     </>
   )

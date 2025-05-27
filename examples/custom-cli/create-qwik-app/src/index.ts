@@ -30,4 +30,8 @@ cli({
   name: 'create-qwik-app',
   appName: 'Qwik',
   defaultFramework: 'qwik',
+  webBase: join(
+    dirname(dirname(fileURLToPath(import.meta.url))),
+    'customized-ui/dist',
+  ),
 })

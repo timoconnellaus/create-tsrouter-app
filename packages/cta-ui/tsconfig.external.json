@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./lib-react",
-    "noEmit": false,
-    "allowImportingTsExtensions": false
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
-}

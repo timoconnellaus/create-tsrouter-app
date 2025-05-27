@@ -41,6 +41,7 @@ export function cli({
   defaultTemplate = 'javascript',
   defaultFramework,
   craCompatible = false,
+  webBase,
 }: {
   name: string
   appName: string
@@ -49,6 +50,7 @@ export function cli({
   defaultTemplate?: TemplateOptions
   defaultFramework?: string
   craCompatible?: boolean
+  webBase?: string
 }) {
   const environment = createUIEnvironment(appName, false)
 
@@ -112,6 +114,7 @@ export function cli({
           forcedRouterMode: defaultMode,
           forcedAddOns,
           environmentFactory: () => createUIEnvironment(appName, false),
+          webBase,
         })
       } else if (parsedAddOns.length < 1) {
         const addOns = await promptForAddOns()
@@ -313,6 +316,7 @@ export function cli({
             forcedRouterMode: defaultMode,
             forcedAddOns,
             environmentFactory: () => createUIEnvironment(appName, false),
+            webBase,
           })
           return
         }

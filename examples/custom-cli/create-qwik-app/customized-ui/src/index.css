@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@source "../node_modules/@tanstack/cta-ui";
+@source "../node_modules/@tanstack/cta-ui-base";
 
 @layer theme, base, components, utilities;
 
@@ -180,8 +180,7 @@ code,
 @layer base {
   html,
   body {
-    @apply text-gray-900 bg-gray-50 dark:bg-black dark:text-gray-200;
-    background: rgb(3, 7, 18);
+    @apply text-gray-800 bg-gray-50 dark:bg-[#003e84] dark:text-gray-200;
   }
 
   .using-mouse * {

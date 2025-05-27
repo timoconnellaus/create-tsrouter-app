@@ -22,9 +22,10 @@ export function launchUI(
   options: Partial<ServerEnvironment> & {
     port?: number
     environmentFactory?: () => Environment
+    webBase?: string
   },
 ) {
-  const { port: requestedPort, ...rest } = options
+  const { port: requestedPort, webBase, ...rest } = options
   setServerEnvironment(rest)
 
   const app = express()
@@ -37,7 +38,7 @@ export function launchUI(
 
   const launchUI = !process.env.CTA_DISABLE_UI
   if (launchUI) {
-    app.use(express.static(resolve(packagePath, 'dist')))
+    app.use(express.static(webBase || resolve(packagePath, 'dist')))
   }
 
   app.post('/api/add-to-app', async (req, res) => {
