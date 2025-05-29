@@ -24,6 +24,8 @@ export {
   getFrameworkById,
   getFrameworkByName,
   getFrameworks,
+  scanProjectDirectory,
+  scanAddOnDirectories,
 } from './frameworks.js'
 
 export {

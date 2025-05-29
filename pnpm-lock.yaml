@@ -188,6 +188,25 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.1)
 
+  examples/custom-cli/customized-react:
+    dependencies:
+      '@tanstack/cta-cli':
+        specifier: workspace:*
+        version: link:../../../packages/cta-cli
+      '@tanstack/cta-engine':
+        specifier: workspace:*
+        version: link:../../../packages/cta-engine
+      '@tanstack/cta-framework-react-cra':
+        specifier: workspace:*
+        version: link:../../../frameworks/react-cra
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.15.3
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   frameworks/react-cra:
     dependencies:
       '@tanstack/cta-engine':

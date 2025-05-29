@@ -2,21 +2,36 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { registerFramework } from '@tanstack/cta-engine'
+import {
+  registerFramework,
+  scanAddOnDirectories,
+  scanProjectDirectory,
+} from '@tanstack/cta-engine'
 import { cli } from '@tanstack/cta-cli'
+
+const projectDirectory = join(
+  dirname(dirname(fileURLToPath(import.meta.url))),
+  'project',
+)
+
+const addOns = scanAddOnDirectories([
+  join(dirname(dirname(fileURLToPath(import.meta.url))), 'add-ons'),
+])
+
+const { files, basePackageJSON, optionalPackages } = scanProjectDirectory(
+  projectDirectory,
+  join(dirname(dirname(fileURLToPath(import.meta.url))), 'project'),
+)
 
 registerFramework({
   id: 'qwik',
   name: 'qwik',
   description: 'Templates for Qwik',
   version: '0.1.0',
-  baseDirectory: join(
-    dirname(dirname(fileURLToPath(import.meta.url))),
-    'project',
-  ),
-  addOnsDirectories: [
-    join(dirname(dirname(fileURLToPath(import.meta.url))), 'add-ons'),
-  ],
+  base: files,
+  addOns,
+  basePackageJSON,
+  optionalPackages,
   supportedModes: {
     default: {
       displayName: 'Default',

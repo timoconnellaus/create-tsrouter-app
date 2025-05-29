@@ -109,8 +109,10 @@ export type FrameworkDefinition = {
   description: string
   version: string
 
-  baseDirectory: string
-  addOnsDirectories: Array<string>
+  base: Record<string, string>
+  addOns: Array<AddOn>
+  basePackageJSON: Record<string, any>
+  optionalPackages: Record<string, any>
 
   supportedModes: Record<
     string,
@@ -122,11 +124,8 @@ export type FrameworkDefinition = {
   >
 }
 
-export type Framework = FrameworkDefinition &
+export type Framework = Omit<FrameworkDefinition, 'base' | 'addOns'> &
   FileBundleHandler & {
-    basePackageJSON: Record<string, any>
-    optionalPackages: Record<string, any>
-
     getAddOns: () => Array<AddOn>
   }
 

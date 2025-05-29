@@ -1,23 +1,36 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { registerFramework } from '@tanstack/cta-engine'
+import {
+  registerFramework,
+  scanAddOnDirectories,
+  scanProjectDirectory,
+} from '@tanstack/cta-engine'
+import type { FrameworkDefinition } from '@tanstack/cta-engine'
 
-export function register() {
-  registerFramework({
+export function createFrameworkDefinition(): FrameworkDefinition {
+  const baseDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
+
+  const addOns = scanAddOnDirectories([
+    join(baseDirectory, 'add-ons'),
+    join(baseDirectory, 'toolchains'),
+    join(baseDirectory, 'examples'),
+  ])
+
+  const { files, basePackageJSON, optionalPackages } = scanProjectDirectory(
+    join(baseDirectory, 'project'),
+    join(baseDirectory, 'project/base'),
+  )
+
+  return {
     id: 'react-cra',
     name: 'react',
     description: 'Templates for React CRA',
     version: '0.1.0',
-    baseDirectory: join(
-      dirname(dirname(fileURLToPath(import.meta.url))),
-      'project',
-    ),
-    addOnsDirectories: [
-      join(dirname(dirname(fileURLToPath(import.meta.url))), 'add-ons'),
-      join(dirname(dirname(fileURLToPath(import.meta.url))), 'toolchains'),
-      join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples'),
-    ],
+    base: files,
+    addOns,
+    basePackageJSON,
+    optionalPackages,
     supportedModes: {
       'code-router': {
         displayName: 'Code Router',
@@ -30,5 +43,9 @@ export function register() {
         forceTypescript: true,
       },
     },
-  })
+  }
+}
+
+export function register() {
+  registerFramework(createFrameworkDefinition())
 }
