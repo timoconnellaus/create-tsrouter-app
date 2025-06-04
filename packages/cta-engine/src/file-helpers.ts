@@ -48,15 +48,6 @@ export function relativePath(from: string, to: string) {
   const fromSegments = cleanedFrom.split('/')
   const toSegments = cleanedTo.split('/')
 
-  if (process.env.CTA_DEBUG) {
-    console.log('process.platform', process.platform)
-    console.log('fixedOnWindows', fixedOnWindows)
-    console.log('from', from)
-    console.log('to', to)
-    console.log('cleanedFrom', cleanedFrom)
-    console.log('cleanedTo', cleanedTo)
-  }
-
   fromSegments.pop()
   toSegments.pop()
 
