@@ -47,14 +47,14 @@ describe('relativePath', () => {
       ),
     ).toBe('../integrations/tanstack-query/layout.tsx')
   })
-  // it('windows', () => {
-  //   expect(
-  //     relativePath(
-  //       'c:\\test-app\\src\\main.tsx',
-  //       'src/integrations/tanstack-query/root-provider.tsx',
-  //     ),
-  //   ).toBe('./integrations/tanstack-query/root-provider.tsx')
-  // })
+  it('windows', () => {
+    expect(
+      relativePath(
+        '.\\src\\main.tsx.ejs',
+        'src/integrations/tanstack-query/root-provider.tsx',
+      ),
+    ).toBe('./integrations/tanstack-query/root-provider.tsx')
+  })
 })
 
 describe('readFileHelper', () => {
