@@ -40,6 +40,13 @@ export function relativePath(from: string, to: string) {
   const cleanedFrom = from.startsWith('./') ? from.slice(2) : from
   const cleanedTo = to.startsWith('./') ? to.slice(2) : to
 
+  if (process.env.CTA_DEBUG) {
+    console.log('from', from)
+    console.log('to', to)
+    console.log('cleanedFrom', cleanedFrom)
+    console.log('cleanedTo', cleanedTo)
+  }
+
   const fromSegments = cleanedFrom.split('/')
   const toSegments = cleanedTo.split('/')
 
