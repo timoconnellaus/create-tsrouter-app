@@ -34,12 +34,12 @@ export function createFrameworkDefinition(): FrameworkDefinition {
     supportedModes: {
       'code-router': {
         displayName: 'Code Router',
-        description: 'TanStack Router using code to define the routes',
+        description: 'TanStack Router using code to define routes',
         forceTypescript: false,
       },
       'file-router': {
         displayName: 'File Router',
-        description: 'TanStack Router using files to define the routes',
+        description: 'TanStack Router using files to define routes',
         forceTypescript: true,
       },
     },

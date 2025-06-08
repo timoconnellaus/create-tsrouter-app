@@ -11,7 +11,6 @@ import {
   createApp,
   createDefaultEnvironment,
   finalizeAddOns,
-  getFrameworkById,
   getFrameworkByName,
   getFrameworks,
 } from '@tanstack/cta-engine'
@@ -29,14 +28,18 @@ function createServer({
     version: '1.0.0',
   })
 
-  const frameworks = getFrameworks();
-  const frameworkNames = frameworks.map((framework) => framework.name);
+  const frameworks = getFrameworks()
+  const frameworkNames = frameworks.map((framework) => framework.name)
 
   server.tool(
     'listTanStackAddOns',
     'List the available add-ons for creating TanStack applications',
     {
-      framework: z.string().describe(`The framework to use. Available frameworks: ${frameworkNames.join(', ')}`),
+      framework: z
+        .string()
+        .describe(
+          `The framework to use. Available frameworks: ${frameworkNames.join(', ')}`,
+        ),
     },
     ({ framework: frameworkName }) => {
       const framework = getFrameworkByName(frameworkName)!
@@ -63,7 +66,11 @@ function createServer({
     'createTanStackApplication',
     'Create a new TanStack application',
     {
-      framework: z.string().describe(`The framework to use. Available frameworks: ${frameworkNames.join(', ')}`),
+      framework: z
+        .string()
+        .describe(
+          `The framework to use. Available frameworks: ${frameworkNames.join(', ')}`,
+        ),
       projectName: z
         .string()
         .describe(
@@ -77,7 +84,13 @@ function createServer({
           'The directory to create the application in. Use the absolute path of the directory you want the application to be created in',
         ),
     },
-    async ({ framework:frameworkName, projectName, addOns, cwd, targetDir }) => {
+    async ({
+      framework: frameworkName,
+      projectName,
+      addOns,
+      cwd,
+      targetDir,
+    }) => {
       const framework = getFrameworkByName(frameworkName)!
       try {
         process.chdir(cwd)
