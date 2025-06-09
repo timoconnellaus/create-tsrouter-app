@@ -6,8 +6,6 @@ import {
   getFrameworkById,
   getFrameworkByName,
   registerFramework,
-  scanAddOnDirectories,
-  scanProjectDirectory,
 } from '../src/frameworks.js'
 
 vi.mock('node:fs', () => fs)

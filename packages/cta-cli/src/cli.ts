@@ -281,7 +281,7 @@ export function cli({
         } as CliOptions
 
         cliOptions.framework = getFrameworkByName(
-          options.framework || defaultFramework || 'react',
+          options.framework || defaultFramework || 'React',
         )!.id
 
         if (defaultMode) {
