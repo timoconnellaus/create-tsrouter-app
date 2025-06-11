@@ -5,7 +5,7 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "@tanstack/solid-start": "1.121.0-alpha.22",
+    "@tanstack/solid-start": "1.121.3",
     "vite": "^6.3.3",
     "vite-tsconfig-paths": "^5.1.4"
   }
