@@ -1,7 +1,9 @@
+import fs from 'node:fs'
 import { resolve } from 'node:path'
 import { Command, InvalidArgumentError } from 'commander'
 import { intro, log } from '@clack/prompts'
 import chalk from 'chalk'
+import semver from 'semver'
 
 import {
   SUPPORTED_PACKAGE_MANAGERS,
@@ -86,6 +88,79 @@ export function cli({
   }
 
   program.name(name).description(`CLI to create a new ${appName} application`)
+
+  program
+    .command('pin-versions')
+    .description('Pin versions of the TanStack libraries')
+    .action(async () => {
+      if (!fs.existsSync('package.json')) {
+        console.error('package.json not found')
+        return
+      }
+      const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+
+      const packages: Record<string, string> = {
+        '@tanstack/react-router': '',
+        '@tanstack/router-generator': '',
+        '@tanstack/react-router-devtools': '',
+        '@tanstack/react-start': '',
+        '@tanstack/react-start-config': '',
+        '@tanstack/router-plugin': '',
+        '@tanstack/react-start-client': '',
+        '@tanstack/react-start-plugin': '1.115.0',
+        '@tanstack/react-start-server': '',
+        '@tanstack/start-server-core': '1.115.0',
+      }
+
+      function sortObject(obj: Record<string, string>): Record<string, string> {
+        return Object.keys(obj)
+          .sort()
+          .reduce<Record<string, string>>((acc, key) => {
+            acc[key] = obj[key]
+            return acc
+          }, {})
+      }
+
+      if (!packageJson.dependencies['@tanstack/react-start']) {
+        console.error('@tanstack/react-start not found in dependencies')
+        return
+      }
+      let changed = 0
+      const startVersion = packageJson.dependencies[
+        '@tanstack/react-start'
+      ].replace(/^\^/, '')
+      for (const pkg of Object.keys(packages)) {
+        if (!packageJson.dependencies[pkg]) {
+          packageJson.dependencies[pkg] = packages[pkg].length
+            ? semver.maxSatisfying(
+                [startVersion, packages[pkg]],
+                `^${packages[pkg]}`,
+              )!
+            : startVersion
+          changed++
+        } else {
+          if (packageJson.dependencies[pkg].startsWith('^')) {
+            packageJson.dependencies[pkg] = packageJson.dependencies[
+              pkg
+            ].replace(/^\^/, '')
+            changed++
+          }
+        }
+      }
+      packageJson.dependencies = sortObject(packageJson.dependencies)
+      if (changed > 0) {
+        fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2))
+        console.log(
+          `${changed} packages updated.
+
+Remove your node_modules directory and package lock file and re-install.`,
+        )
+      } else {
+        console.log(
+          'No changes needed. The relevant TanStack packages are already pinned.',
+        )
+      }
+    })
 
   program
     .command('add')
