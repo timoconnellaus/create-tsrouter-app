@@ -266,7 +266,7 @@ Remove your node_modules directory and package lock file and re-install.`,
         }
         return value
       },
-      defaultFramework || 'React',
+      defaultFramework || 'react-cra',
     )
   }
 
@@ -334,6 +334,7 @@ Remove your node_modules directory and package lock file and re-install.`,
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
+      console.log(options.framework || defaultFramework || 'react-cra')
       const addOns = await getAllAddOns(
         getFrameworkById(options.framework || defaultFramework || 'react-cra')!,
         defaultMode ||
@@ -355,8 +356,8 @@ Remove your node_modules directory and package lock file and re-install.`,
           ...options,
         } as CliOptions
 
-        cliOptions.framework = getFrameworkByName(
-          options.framework || defaultFramework || 'React',
+        cliOptions.framework = getFrameworkById(
+          options.framework || defaultFramework || 'react-cra',
         )!.id
 
         if (defaultMode) {

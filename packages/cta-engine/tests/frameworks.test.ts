@@ -57,6 +57,7 @@ describe('registerFramework', () => {
     expect(fileContents).toEqual(JSON.stringify(basePackageJSON))
 
     expect(getFrameworkByName('Test')).not.toBeUndefined()
+    expect(getFrameworkByName('test')).not.toBeUndefined()
     expect(getFrameworks().length).toEqual(1)
   })
 })

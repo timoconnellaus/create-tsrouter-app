@@ -141,7 +141,9 @@ export function getFrameworkById(id: string) {
 }
 
 export function getFrameworkByName(name: string) {
-  return frameworks.find((framework) => framework.name === name)
+  return frameworks.find(
+    (framework) => framework.name.toLowerCase() === name.toLowerCase(),
+  )
 }
 
 export function getFrameworks() {
