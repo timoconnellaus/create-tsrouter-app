@@ -14,7 +14,6 @@ import {
   createSerializedOptions,
   getAllAddOns,
   getFrameworkById,
-  getFrameworkByName,
   getFrameworks,
   initAddOn,
   initStarter,
@@ -334,7 +333,6 @@ Remove your node_modules directory and package lock file and re-install.`,
 
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
-      console.log(options.framework || defaultFramework || 'react-cra')
       const addOns = await getAllAddOns(
         getFrameworkById(options.framework || defaultFramework || 'react-cra')!,
         defaultMode ||
