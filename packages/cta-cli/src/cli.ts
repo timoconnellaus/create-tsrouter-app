@@ -14,6 +14,7 @@ import {
   createSerializedOptions,
   getAllAddOns,
   getFrameworkById,
+  getFrameworkByName,
   getFrameworks,
   initAddOn,
   initStarter,
@@ -258,14 +259,18 @@ Remove your node_modules directory and package lock file and re-install.`,
       '--framework <type>',
       `project framework (${availableFrameworks.join(', ')})`,
       (value) => {
-        if (!availableFrameworks.includes(value)) {
+        if (
+          !availableFrameworks.some(
+            (f) => f.toLowerCase() === value.toLowerCase(),
+          )
+        ) {
           throw new InvalidArgumentError(
             `Invalid framework: ${value}. Only the following are allowed: ${availableFrameworks.join(', ')}`,
           )
         }
         return value
       },
-      defaultFramework || 'react-cra',
+      defaultFramework || 'React',
     )
   }
 
@@ -334,7 +339,7 @@ Remove your node_modules directory and package lock file and re-install.`,
   program.action(async (projectName: string, options: CliOptions) => {
     if (options.listAddOns) {
       const addOns = await getAllAddOns(
-        getFrameworkById(options.framework || defaultFramework || 'react-cra')!,
+        getFrameworkByName(options.framework || defaultFramework || 'React')!,
         defaultMode ||
           convertTemplateToMode(options.template || defaultTemplate),
       )
@@ -354,8 +359,8 @@ Remove your node_modules directory and package lock file and re-install.`,
           ...options,
         } as CliOptions
 
-        cliOptions.framework = getFrameworkById(
-          options.framework || defaultFramework || 'react-cra',
+        cliOptions.framework = getFrameworkByName(
+          options.framework || defaultFramework || 'React',
         )!.id
 
         if (defaultMode) {
