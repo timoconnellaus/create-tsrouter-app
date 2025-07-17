@@ -2,7 +2,6 @@ name: '� Feature request'
 description: Suggest a new feature for this project
 title: '[Feature] '
 labels: enhancement
-assignees: ''
 body:
   - type: dropdown
     id: project
