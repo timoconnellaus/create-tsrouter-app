@@ -1,5 +1,6 @@
-<% if (!fileRouter) { ignoreFile() } %>import { Outlet<% if (addOnEnabled.start) { %>
-, HeadContent, Scripts<% } %>, <% if (addOnEnabled["tanstack-query"]) { %>createRootRouteWithContext<% } else { %>createRootRoute<% } %> } from '@tanstack/react-router'
+<% if (!fileRouter) { ignoreFile() } %>import { <% if (addOnEnabled.start) { %>
+  HeadContent, <% } %>Outlet<% if (addOnEnabled.start) { %>
+, Scripts<% } %>, <% if (addOnEnabled["tanstack-query"]) { %>createRootRouteWithContext<% } else { %>createRootRoute<% } %> } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 <% if (addOns.length) { %>
 import Header from '../components/Header'

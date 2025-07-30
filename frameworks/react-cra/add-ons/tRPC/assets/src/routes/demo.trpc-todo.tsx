@@ -40,12 +40,12 @@ function TRPCTodos() {
       <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
         <h1 className="text-2xl mb-4">tRPC Todos list</h1>
         <ul className="mb-4 space-y-2">
-          {data?.map((todo) => (
+          {data?.map((t) => (
             <li
-              key={todo.id}
+              key={t.id}
               className="bg-white/10 border border-white/20 rounded-lg p-3 backdrop-blur-sm shadow-md"
             >
-              <span className="text-lg text-white">{todo.name}</span>
+              <span className="text-lg text-white">{t.name}</span>
             </li>
           ))}
         </ul>

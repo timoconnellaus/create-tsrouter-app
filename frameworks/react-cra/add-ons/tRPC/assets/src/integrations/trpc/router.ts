@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import type { TRPCRouterRecord } from '@trpc/server'
-
 import { createTRPCRouter, publicProcedure } from './init'
+
+import type { TRPCRouterRecord } from '@trpc/server'
 
 const todos = [
   { id: 1, name: 'Get groceries' },
@@ -11,10 +11,10 @@ const todos = [
 ]
 
 const todosRouter = {
-  list: publicProcedure.query(async () => todos),
+  list: publicProcedure.query(() => todos),
   add: publicProcedure
     .input(z.object({ name: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(({ input }) => {
       const newTodo = { id: todos.length + 1, name: input.name }
       todos.push(newTodo)
       return newTodo
