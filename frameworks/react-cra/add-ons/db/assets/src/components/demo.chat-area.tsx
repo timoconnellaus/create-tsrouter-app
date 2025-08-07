@@ -33,7 +33,7 @@ export default function ChatArea() {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <div className="px-4 py-6 space-y-4">
         <Messages messages={messages} user={user} />
         <div ref={messagesEndRef} />
       </div>
