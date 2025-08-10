@@ -1,22 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { useChat, useMessages } from '@/hooks/demo.useChat'
 
 import Messages from './demo.messages'
 
 export default function ChatArea() {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
   const { sendMessage } = useChat()
 
   const messages = useMessages()
 
   const [message, setMessage] = useState('')
   const [user, setUser] = useState('Alice')
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
 
   const postMessage = () => {
     if (message.trim().length) {
@@ -35,7 +29,6 @@ export default function ChatArea() {
     <>
       <div className="px-4 py-6 space-y-4">
         <Messages messages={messages} user={user} />
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="bg-white border-t border-gray-200 px-4 py-4">
