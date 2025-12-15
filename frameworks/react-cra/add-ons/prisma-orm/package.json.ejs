@@ -11,7 +11,7 @@
     "@types/better-sqlite3": "^7.6.0"<% } %>
   },
   "scripts": {<% if (addOnOption.prisma.database === 'postgres') { %>
-    "post-cta-init": "npx create-db@latest",<% } %>
+    "post-cta-init": "npx create-db@latest --user-agent tanstack/tsrouter",<% } %>
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
